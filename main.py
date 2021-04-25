@@ -46,6 +46,11 @@ async def on_command_error(ctx, error):
             title=':x:You are missing the required arguments. Please check if your command requires an addition arguement.',
             color=discord.Colour.red())
         await ctx.send(embed=embed)
+    elif isinstance(error, commands.MissingPermissions):
+        embed = discord.Embed(
+            title=':x:Chintu is missing the required permissions. Please check if Chintu has appropriate permissions.',
+            color=discord.Colour.red())
+        await ctx.send(embed=embed)
     elif isinstance(error, commands.CommandNotFound):
         pass
 
