@@ -1,0 +1,8 @@
+discord.py
+Pillow
+praw
+asyncio
+python-dotenv
+requests
+discord
+

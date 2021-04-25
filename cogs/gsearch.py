@@ -1,7 +1,6 @@
 from urllib import parse
 import discord
 from discord.ext import commands
-from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
 
