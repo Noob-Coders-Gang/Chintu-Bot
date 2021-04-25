@@ -23,6 +23,7 @@ class Utility(commands.Cog):
 
     @commands.command()
     async def ping(self, ctx):
+        """Sends the latency of the bot"""
         em = discord.Embed(title='Latency', description='🏓Pong {0}'.format(math.trunc(self.bot.latency * 1000)) + 'ms',
                            color=discord.Color(0x4293f5))
         await ctx.send(embed=em)
@@ -38,6 +39,7 @@ class Utility(commands.Cog):
 
     @commands.command()
     async def invite(self, ctx):
+        """Invite Chintu to your server!!!"""
         await ctx.send("https://discord.com/oauth2/authorize?client_id=790900950885203978&permissions=2026368118&scope=bot")
 
 def setup(bot):
