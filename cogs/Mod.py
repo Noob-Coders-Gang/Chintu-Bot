@@ -6,6 +6,73 @@ from discord.ext import commands
 class Mod(commands.Cog):
     def __init__(self, commands):
         self.commands = commands
+
+    
+    @commands.command()
+    async def warn(self, ctx:commands.Context):
+        """Collection setup:
+        [
+            {
+                "_id":<discord user id>,
+                "guilds":{
+                    <guild id>:{
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }, 
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }       
+                    },
+                    <guild id>:{
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }, 
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }, 
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }         
+                    }
+                }
+            },
+            {
+                "_id":<discord user id>,
+                "guilds":{
+                    <guild id>:{
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }, 
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }       
+                    },
+                    <guild id>:{
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }, 
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }, 
+                        <warn_id>:{
+                            "warn_reason":<reason>,
+                            "date-time":<datetime>
+                        }         
+                    }
+                }
+            }
+        ]
+        """
+        await ctx.send("Under development")
     
     @commands.command()
     @commands.has_permissions(kick_members=True)
