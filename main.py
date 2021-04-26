@@ -15,11 +15,11 @@ def update_total_guilds(guild_list):
     requests.put(total_guilds_api_url, json=data, headers=headers)
 
 
-def load_extensions():
+def load_extensions(unloaded_cogs=[]):
     """Loads all extensions (Cogs) from the cogs directory"""
     for filename in os.listdir('./cogs'):
         if filename.endswith(".py"):
-            if filename not in ["Subs.py"]:
+            if filename not in unloaded_cogs:
                 bot.load_extension(f'cogs.{filename[:-3]}')
 
 # Database functions
@@ -128,6 +128,6 @@ async def on_command_error(ctx, error):
         pass
 
 
-load_extensions()
+load_extensions(["ChintuAI.py", "manage_commands.py"])
 bot.load_extension("cogs.manage_commands")
 bot.run(os.getenv("TOKEN"))
