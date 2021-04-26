@@ -83,8 +83,8 @@ def predict_class(sentence, model):
 
 
 def getResponse(ints, intents_json):
-    result = ["I'm confused. Could you tell me clearly?", 'Sorry I dont get you', 'Dont talk bullsh*t, I cant understand',
-              'Say it Clearly', 'I\'m sorry, I don\'t understand. Could you say it again?']
+    result = random.choice(["I'm confused. Could you tell me clearly?", 'Sorry I dont get you', 'Dont talk bullsh*t, I cant understand',
+                            'Say it Clearly', 'I\'m sorry, I don\'t understand. Could you say it again?'])
     tag = ints[0]['intent']
     # print(tag)
     list_of_intents = intents_json['intents']
