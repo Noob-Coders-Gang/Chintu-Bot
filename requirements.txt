@@ -5,4 +5,7 @@ asyncio
 python-dotenv
 requests
 discord
-
+numpy
+keras
+nltk
+pickle
