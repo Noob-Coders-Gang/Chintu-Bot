@@ -90,7 +90,7 @@ def prediction(msg):
                   "tag": tag
                   }
     else:
-        result = {"response": "sorry i could not understand what you are saying",
+        result = {"response": "Dont talk bullsh*t I cant understand",
                   "tag": "couldnotunderstand"
                   }
     return result
