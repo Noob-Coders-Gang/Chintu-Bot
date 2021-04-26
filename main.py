@@ -45,12 +45,19 @@ def add_guild(bot, database, guild):
         cmdManager_collection.insert({"_id":guild.id, "disabled_commands":[]})
 
 
+# def get_disabled_commands(database):
+#     cmdManager_collection = database["cmd_manager"]
+#     return cmdManager_collection.find({})
+
+
 #--------------------------------Variables--------------------------------#
 load_dotenv()
 bot = commands.Bot(command_prefix='$')
 custom_statuses = ['WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
 total_guilds_api_url = os.getenv('TOTAL_GUILDS_API_URI')  # The url for updating server count.
 database = create_database_connection()
+cmdManager_collection = database["cmd_manager"]
+
 
 #--------------------------------Main startup event--------------------------------#
 @bot.event
@@ -74,7 +81,31 @@ async def on_guild_join(guild:discord.Guild):
     guilds = bot.guilds
     update_total_guilds(guilds)
     add_guild(bot, database, guild)
-    
+
+
+# @bot.event
+# async def on_command_update():
+#     cmdManager_collection = database["cmd_manager"]
+#     global disabled_commands
+#     disabled_commands = cmdManager_collection.find({})
+
+
+
+@bot.event
+async def on_message(message:discord.Message):
+    if message.content.startswith(bot.command_prefix): 
+        cmd = message.content.replace(bot.command_prefix, "").split()[0] # Strip the command from the message
+        try:
+            disabled_commands = cmdManager_collection.find_one({"_id":message.guild.id})["disabled_commands"] # Get disabled commands for the specific guild
+        except Exception:
+            disabled_commands = []
+            pass
+        if cmd in disabled_commands: # Deny processing
+            embed = discord.Embed(title=f"This command is disabled in your server!",
+                                      color=discord.Colour.red())
+            await message.channel.send(embed=embed)
+        else: # Process the command
+            await bot.process_commands(message)
 
 # Error handler
 @bot.event
@@ -98,4 +129,5 @@ async def on_command_error(ctx, error):
 
 
 load_extensions()
+bot.load_extension("cogs.manage_commands")
 bot.run(os.getenv("TOKEN"))
