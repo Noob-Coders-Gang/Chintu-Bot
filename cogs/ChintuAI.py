@@ -1,4 +1,5 @@
 import discord
+import random
 import requests
 from discord.ext import commands
 from copy import Error
@@ -18,11 +19,13 @@ nltk.download('punkt')
 nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()
 
-
+#--------------------------------Importing ChatModels--------------------------------#
 model = load_model('./Chintu-Chat-Model/ChintuChat.h5')
 intents = json.loads(open('./Chintu-Chat-Model/intents.json').read())
 words = pickle.load(open('./Chintu-Chat-Model/words.pkl', 'rb'))
 classes = pickle.load(open('./Chintu-Chat-Model/classes.pkl', 'rb'))
+
+#--------------------------------Tokenizing the sentence--------------------------------#
 
 
 def clean_up_sentence(sentence):
@@ -30,6 +33,8 @@ def clean_up_sentence(sentence):
     sentence_words = [lemmatizer.lemmatize(
         word.lower()) for word in sentence_words]
     return sentence_words
+
+#--------------------------------Storing Tokenised Data in Bag of words--------------------------------#
 
 
 def bow(sentence, words, show_details=True):
@@ -45,6 +50,8 @@ def bow(sentence, words, show_details=True):
                 if show_details:
                     print("found in bag: %s" % w)
     return(np.array(bag))
+
+#--------------------------------Predicting Class--------------------------------#
 
 
 def predict_class(sentence, model):
@@ -72,9 +79,12 @@ def predict_class(sentence, model):
     # print(return_list)
     return return_list
 
+#--------------------------------Getting random response from the Intense--------------------------------#
+
 
 def getResponse(ints, intents_json):
-    result = 'sorry i could not understand'
+    result = ["I'm confused. Could you tell me clearly?", 'Sorry I dont get you', 'Dont talk bullsh*t, I cant understand',
+              'Say it Clearly', 'I\'m sorry, I don\'t understand. Could you say it again?']
     tag = ints[0]['intent']
     # print(tag)
     list_of_intents = intents_json['intents']
@@ -83,6 +93,8 @@ def getResponse(ints, intents_json):
             result = random.choice(i['responses'])
             break
     return result, tag
+
+#--------------------------------  prediction from model --------------------------------#
 
 
 def prediction(msg):
@@ -93,7 +105,7 @@ def prediction(msg):
                   "tag": tag
                   }
     else:
-        result = {"response": "Dont talk bullsh*t I cant understand",
+        result = {"response": "Dont talk bullsh*t, I cant understand",
                   "tag": "couldnotunderstand"
                   }
     return result
@@ -109,12 +121,6 @@ def to_json(response, tag=None):
     return response
 
 
-# taking command from response
-def takeCommand(cmd):
-
-    return cmd
-
-
 # opening intents
 with open("./Chintu-Chat-Model/intents.json") as file:
     data = json.load(file)
@@ -125,7 +131,7 @@ def converttostring(list):
     return res
 
 
-##### response #####
+#--------------------------------get response--------------------------------#
 def AskChintu(query):
 
     try:
@@ -138,29 +144,26 @@ def AskChintu(query):
 
     return Bot_Response
 
-
-os.system('cls')
-# while True:
-#     x = input('user : ')
-#     if x.lower() in ['exit', 'quit', 'close']:
-#         exit()
-#     print('Bot : ' + ChatBot(takeCommand(x).lower())['response'])
+#--------------------------------Chintu AI Cog--------------------------------#
 
 
 class ChintuAI(commands.Cog):
-    def __init__(self, commands):
-        self.commands = commands
+    def __init__(self, bot):
+        self.bot = bot
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        # if message.author == self.bot:
-        #     return
+        if message.author == self.bot:
+            return
         # if message.bot:
         #     return
 
-        print(message)
-        if 'chintu' in message.content:
-            await message.channel.send(AskChintu(message.content)['response'])
+        # print(self.bot.user.mention, message.content)
+        # if f'{self.bot.user.mention}' in message.content.split():
+        mention = f'<@!{self.bot.user.id}>'
+        if mention in message.content:
+            user_message = message.content.replace(mention, "")
+            await message.channel.send(AskChintu(user_message)['response'])
 
 
 def setup(bot):
