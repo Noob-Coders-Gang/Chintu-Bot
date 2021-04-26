@@ -8,6 +8,5 @@ discord
 numpy
 keras
 nltk
-pickle
 pymongo
 dnspython
