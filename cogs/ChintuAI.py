@@ -10,7 +10,6 @@ from os.path import join
 from urllib.request import urlopen
 import json
 import numpy as np
-import keras
 import pickle
 import random
 from keras.models import load_model
