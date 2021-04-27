@@ -6,7 +6,7 @@ from discord.ext import commands
 class Mod(commands.Cog):
     def __init__(self, commands):
         self.commands = commands
-    
+
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason):
@@ -19,7 +19,6 @@ class Mod(commands.Cog):
         )
         await member.send(embed=embed)
         await member.kick(reason=reason)
-        
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -33,9 +32,6 @@ class Mod(commands.Cog):
         )
         await member.send(embed=embed)
         await member.ban(reason=reason)
-        
-
-
 
     @commands.command()
     @commands.has_permissions(kick_members=True)

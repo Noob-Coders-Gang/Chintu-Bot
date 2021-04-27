@@ -35,7 +35,7 @@ async def on_guild_join(guild: discord.Guild):
     update_total_guilds(guilds)
 
 
-# Command Error handler
+# Error handler
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
@@ -63,8 +63,6 @@ def update_total_guilds(guild_list):
     data = {"total_servers": len(guild_list)}
     requests.put(total_guilds_api_url, json=data, headers=headers)
 
-#--------------------------------LoadCogs--------------------------------#
-
 
 def load_extensions():
     """Loads all extensions (Cogs) from the cogs directory"""
@@ -74,7 +72,6 @@ def load_extensions():
                 bot.load_extension(f'cogs.{filename[:-3]}')
 
 
+bot.remove_command('help')
 load_extensions()
-
-#--------------------------------Run--------------------------------#
 bot.run(os.getenv("TOKEN"))

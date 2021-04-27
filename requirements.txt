@@ -8,4 +8,6 @@ discord
 numpy
 keras
 nltk
-pickle
+pymongo
+dnspython
+bs4
