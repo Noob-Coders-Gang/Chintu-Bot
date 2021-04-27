@@ -4,6 +4,8 @@ from discord.ext import commands
 
 
 class Mod(commands.Cog):
+    ''' Moderator Commands '''
+
     def __init__(self, commands):
         self.commands = commands
 

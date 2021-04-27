@@ -21,16 +21,14 @@ async def send_embed(ctx, embed):
 
 
 class Help(commands.Cog):
-    """
-    Sends this help message
-    """
+    """ Sends this help message """
 
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
     async def help(self, ctx, *input):
-        """Shows all modules of that bot"""
+        # """Shows all modules of the bot"""
         prefix = '$'
         if not input:
             # starting to build embed
@@ -43,9 +41,17 @@ class Help(commands.Cog):
             cogs_desc = ''
             for cog in self.bot.cogs:
                 cogs_desc += f'`{cog}` {self.bot.cogs[cog].__doc__}\n'
+                # making title - getting description from doc-string below class
+
+                # getting commands from cog
+            emb.add_field(name='Modules', value=cogs_desc, inline=False)
+            for command in self.bot.get_cog(cog).get_commands():
+                # if cog is not hidden
+
+                emb.add_field(
+                    name=f"`{prefix}{command.name}`", value=command.help, inline=True)
 
             #------------------- Adding all cogs to Help embed ------------------#
-            emb.add_field(name='Modules', value=cogs_desc, inline=False)
 
             # integrating trough uncategorized commands
             commands_desc = ''
