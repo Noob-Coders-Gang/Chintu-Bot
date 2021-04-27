@@ -1,7 +1,9 @@
 import json
 import discord
 from discord.ext import commands
-
+import pickle
+import logging
+from cogs.data_classes.warning import Warn
 
 class Mod(commands.Cog):
     def __init__(self, commands):
@@ -9,70 +11,12 @@ class Mod(commands.Cog):
 
     
     @commands.command()
-    async def warn(self, ctx:commands.Context):
-        """Collection setup:
-        [
-            {
-                "_id":<discord user id>,
-                "guilds":{
-                    <guild id>:{
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }, 
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }       
-                    },
-                    <guild id>:{
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }, 
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }, 
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }         
-                    }
-                }
-            },
-            {
-                "_id":<discord user id>,
-                "guilds":{
-                    <guild id>:{
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }, 
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }       
-                    },
-                    <guild id>:{
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }, 
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }, 
-                        <warn_id>:{
-                            "warn_reason":<reason>,
-                            "date-time":<datetime>
-                        }         
-                    }
-                }
-            }
-        ]
-        """
+    async def warn(self, ctx:commands.Context, warned_member:discord.Member, reason:str=None): 
+        warn_obj = Warn(ctx.author, ctx.message, reason=reason)
         await ctx.send("Under development")
+        
+
+
     
     @commands.command()
     @commands.has_permissions(kick_members=True)
@@ -214,3 +158,65 @@ def setup(bot):
     #         colour=discord.Colour.green()
     #     )
     #     await member.send(embed=embed)
+# """Collection setup:
+#         [
+#             {
+#                 "_id":<discord user id>,
+#                 "guilds":{
+#                     <guild id>:{
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }, 
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }       
+#                     },
+#                     <guild id>:{
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }, 
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }, 
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }         
+#                     }
+#                 }
+#             },
+#             {
+#                 "_id":<discord user id>,
+#                 "guilds":{
+#                     <guild id>:{
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }, 
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }       
+#                     },
+#                     <guild id>:{
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }, 
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }, 
+#                         <warn_id>:{
+#                             "warn_reason":<reason>,
+#                             "date-time":<datetime>
+#                         }         
+#                     }
+#                 }
+#             }
+#         ]
+#         """
