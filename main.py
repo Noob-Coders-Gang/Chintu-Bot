@@ -10,7 +10,8 @@ bot = commands.Bot(command_prefix='$')
 
 #--------------------------------Variables--------------------------------#
 custom_statuses = ['WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
-total_guilds_api_url = os.getenv('TOTAL_GUILDS_API_URI')  # The url for updating server count.
+# The url for updating server count.
+total_guilds_api_url = os.getenv('TOTAL_GUILDS_API_URI')
 
 
 #--------------------------------Main startup event--------------------------------#
@@ -29,14 +30,14 @@ async def change_status():
 
 #--------------------------------Events--------------------------------#
 @bot.event
-async def on_guild_join(guild:discord.Guild):
+async def on_guild_join(guild: discord.Guild):
     guilds = bot.guilds
     update_total_guilds(guilds)
 
 
-# Error handler
+# Command Error handler
 @bot.event
-async def on_command_error(ctx, error): 
+async def on_command_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
         embed = discord.Embed(title=':x: oops! You do not have permission to use this command.',
                               color=discord.Colour.red())
@@ -62,6 +63,8 @@ def update_total_guilds(guild_list):
     data = {"total_servers": len(guild_list)}
     requests.put(total_guilds_api_url, json=data, headers=headers)
 
+#--------------------------------LoadCogs--------------------------------#
+
 
 def load_extensions():
     """Loads all extensions (Cogs) from the cogs directory"""
@@ -72,4 +75,6 @@ def load_extensions():
 
 
 load_extensions()
+
+#--------------------------------Run--------------------------------#
 bot.run(os.getenv("TOKEN"))
