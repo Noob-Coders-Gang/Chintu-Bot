@@ -6,7 +6,7 @@ python-dotenv
 requests
 discord
 numpy
-keras==2.3.0
+keras
 nltk
 pymongo
 dnspython
