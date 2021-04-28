@@ -12,7 +12,6 @@ class Mod(commands.Cog):
         self.commands = commands
 
 
-=======
     
     @commands.command()
     async def warn(self, ctx:commands.Context, warned_member:discord.Member, reason:str=None): 
