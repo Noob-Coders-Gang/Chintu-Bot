@@ -52,5 +52,5 @@ def load_extensions(bot, unloaded_cogs=[]):
                 bot.load_extension(f'cogs.{filename[:-3]}')
 
 
-load_extensions(bot, ["manage_commands.py", "ChintuAI.py"])
+load_extensions(bot, ["manage_commands.py"])
 bot.run(os.getenv("TOKEN"))
