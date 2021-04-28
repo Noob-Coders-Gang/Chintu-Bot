@@ -6,9 +6,13 @@ import logging
 from cogs.data_classes.warning import Warn
 
 class Mod(commands.Cog):
+    ''' Moderator Commands '''
+
     def __init__(self, commands):
         self.commands = commands
 
+
+=======
     
     @commands.command()
     async def warn(self, ctx:commands.Context, warned_member:discord.Member, reason:str=None): 
@@ -17,7 +21,7 @@ class Mod(commands.Cog):
         
 
 
-    
+  
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason):
@@ -30,7 +34,6 @@ class Mod(commands.Cog):
         )
         await member.send(embed=embed)
         await member.kick(reason=reason)
-        
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
@@ -44,9 +47,6 @@ class Mod(commands.Cog):
         )
         await member.send(embed=embed)
         await member.ban(reason=reason)
-        
-
-
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
