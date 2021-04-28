@@ -5,13 +5,28 @@ from dotenv import load_dotenv
 import os
 from itertools import cycle
 
+
+=======
+import pymongo
+from main_resources.events import Events
+from main_resources.functions import load_extensions, create_database_connection, update_cmdManager_coll
+from main_resources.loops import Loops
+
+#--------------------------------Variables--------------------------------#
 load_dotenv()
 bot = commands.Bot(command_prefix='$')
 
 #--------------------------------Variables--------------------------------#
 custom_statuses = ['WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
+
 # The url for updating server count.
 total_guilds_api_url = os.getenv('TOTAL_GUILDS_API_URI')
+
+=======
+total_guilds_api_url = os.getenv('TOTAL_GUILDS_API_URI')  # The url for updating server count.
+database = create_database_connection(os.getenv('MONGODB_URL'))
+cmdManager_collection = database["cmd_manager"]
+total_guilds_api_url = os.getenv("TOTAL_GUILDS_API_URI")
 
 
 #--------------------------------Main startup event--------------------------------#
@@ -22,6 +37,7 @@ async def on_ready():
 
 
 #--------------------------------Task loops--------------------------------#
+
 @tasks.loop(seconds=300)
 async def change_status():
     """Task loop for changing bot statuses"""
@@ -74,4 +90,17 @@ def load_extensions():
 
 bot.remove_command('help')
 load_extensions()
+=======
+loops = Loops(bot, custom_statuses)
+change_status = tasks.loop(seconds=300)(loops.change_status)
+
+
+#--------------------------------Events--------------------------------#
+events = Events(bot, database, total_guilds_api_url)
+bot.event(events.on_command_error)
+bot.event(events.on_message)
+bot.event(events.on_guild_join)
+
+
+load_extensions(bot, ["manage_commands.py", "ChintuAI.py"])
 bot.run(os.getenv("TOKEN"))
