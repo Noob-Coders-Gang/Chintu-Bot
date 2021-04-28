@@ -39,6 +39,6 @@ bot.event(events.on_message)
 bot.event(events.on_guild_join)
 
 
-load_extensions(bot, ["manage_commands.py"])
+load_extensions(bot, ["manage_commands.py", "ChintuAI.py"])
 bot.load_extension("cogs.manage_commands")
 bot.run(os.getenv("TOKEN"))
