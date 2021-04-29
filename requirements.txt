@@ -11,3 +11,6 @@ nltk
 pymongo
 dnspython
 bs4
+praw
+Pillow
+wikipedia

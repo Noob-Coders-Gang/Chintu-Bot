@@ -147,6 +147,8 @@ def AskChintu(query):
 
 
 class ChintuAI(commands.Cog):
+    ''' Ping me and lets talk '''
+
     def __init__(self, bot):
         self.bot = bot
 
