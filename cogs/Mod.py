@@ -5,22 +5,18 @@ import pickle
 import logging
 from cogs.data_classes.warning import Warn
 
+
 class Mod(commands.Cog):
     ''' Moderator Commands '''
 
     def __init__(self, commands):
         self.commands = commands
 
-
-    
     @commands.command()
-    async def warn(self, ctx:commands.Context, warned_member:discord.Member, reason:str=None): 
+    async def warn(self, ctx: commands.Context, warned_member: discord.Member, reason: str = None):
         warn_obj = Warn(ctx.author, ctx.message, reason=reason)
         await ctx.send("Under development")
-        
 
-
-  
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason):
@@ -166,25 +162,25 @@ def setup(bot):
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }       
+#                         }
 #                     },
 #                     <guild id>:{
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }         
+#                         }
 #                     }
 #                 }
 #             },
@@ -195,25 +191,25 @@ def setup(bot):
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }       
+#                         }
 #                     },
 #                     <guild id>:{
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }         
+#                         }
 #                     }
 #                 }
 #             }
