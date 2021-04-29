@@ -4,19 +4,37 @@ from discord.ext import commands
 import pickle
 import logging
 from cogs.data_classes.warning import Warn
+import main
+import traceback
+from datetime import datetime
+import random
 
 class Mod(commands.Cog):
     ''' Moderator Commands '''
 
     def __init__(self, commands):
         self.commands = commands
-
+        self.warn_collection = main.database["warns"]
 
     
     @commands.command()
     async def warn(self, ctx:commands.Context, warned_member:discord.Member, reason:str=None): 
-        warn_obj = Warn(ctx.author, ctx.message, reason=reason)
-        await ctx.send("Under development")
+        if reason is None:
+            reason = "No reason was provided"
+        warn_id = random.randint(10000000, 99999999)
+        warn_obj = Warn(warn_id, ctx.author.id, ctx.message.id, reason, datetime.now())
+        pickled_string = pickle.dumps(warn_obj)
+        document = {
+            "_id":warn_id,
+            "member_id":warned_member.id,
+            "guild_id":ctx.guild.id,
+            "message_id":ctx.message.id,
+            "warn_object":pickled_string
+        }
+        self.warn_collection.insert_one(document)
+        channel_embed = discord.Embed(title=f"{warned_member.mention} has been warned", description=f"Reason: {reason}")
+        channel_embed.set_footer(text=f"Warned by {ctx.author.id}", image=ctx.author.avatar_url)
+        await ctx.send(channel_embed)
         
 
 

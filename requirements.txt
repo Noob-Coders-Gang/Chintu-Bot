@@ -11,3 +11,4 @@ nltk
 pymongo
 dnspython
 bs4
+dataclasses

@@ -38,7 +38,7 @@ change_status = tasks.loop(seconds=300)(loops.change_status)
 
 #--------------------------------Events--------------------------------#
 events = Events(bot, database, total_guilds_api_url)
-bot.event(events.on_command_error)
+#bot.event(events.on_command_error)
 bot.event(events.on_message)
 bot.event(events.on_guild_join)
 
@@ -52,5 +52,5 @@ def load_extensions(bot, unloaded_cogs=[]):
                 bot.load_extension(f'cogs.{filename[:-3]}')
 
 
-load_extensions(bot, ["manage_commands.py"])
+load_extensions(bot, ["manage_commands.py", "ChintuAI.py"])
 bot.run(os.getenv("TOKEN"))
