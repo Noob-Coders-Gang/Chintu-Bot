@@ -13,17 +13,23 @@ reddit = praw.Reddit(
 )
 
 
-class redditapi():
-    def memes(self, subreddit):
-        memes = reddit.subreddit(subreddit)
-        top = memes.top(limit=100)
-        all_memes = []
-        for meme in top:
-            all_memes.append(meme)
-        meme = random.choice(all_memes)
-        meme_title = meme.title
-        meme_url = meme.url
-        return meme_title, meme_url
+def get_memes(subreddit):
+    memes = reddit.subreddit(subreddit)
+
+    all_memes = [meme for meme in memes.top(limit=100)]
+    # for meme in top:
+    #     all_memes.append(meme)
+    meme = random.choice(all_memes)
+    meme_title = meme.title
+    meme_url = meme.url
+    for i in range(100):
+        if meme_url[-4:] in [".jpg", ".png"]:
+            return meme_title, meme_url
+        else:
+            meme = random.choice(all_memes)
+            meme_title = meme.title
+            meme_url = meme.url
+    return 'Opps'
 
 
 class Memes(commands.Cog):
@@ -34,29 +40,28 @@ class Memes(commands.Cog):
 
     @commands.command()
     async def csmeme(self, ctx):
-        title, url = redditapi.memes('ProgrammerHumor')
-        print(title, url)
+        title, url = get_memes('ProgrammerHumor')
         em = discord.Embed(title=title, color=discord.Colour.red())
         em.set_image(url=url)
         await ctx.send(embed=em)
 
     @commands.command()
     async def meme(self, ctx):
-        title, url = redditapi.memes('Memes')
+        title, url = get_memes('Memes')
         em = discord.Embed(title=title, color=discord.Colour.red())
         em.set_image(url=url)
         await ctx.send(embed=em)
 
     @commands.command()
     async def foodporn(self, ctx):
-        title, url = redditapi.memes('FoodPorn')
+        title, url = get_memes('FoodPorn')
         em = discord.Embed(color=discord.Colour.red())
         em.set_image(url=url)
         await ctx.send(embed=em)
 
     @commands.command()
     async def wsmeme(self, ctx):
-        title, url = redditapi.memes('WholesomeMemes')
+        title, url = get_memes('WholesomeMemes')
         em = discord.Embed(title=title, color=discord.Colour.red())
         em.set_image(url=url)
         await ctx.send(embed=em)

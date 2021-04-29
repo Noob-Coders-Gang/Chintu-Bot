@@ -43,7 +43,7 @@ bot.event(events.on_message)
 bot.event(events.on_guild_join)
 
 
-#--------------------------------Funtions--------------------------------#
+#--------------------------------Load Extensions/cogs--------------------------------#
 def load_extensions(bot, unloaded_cogs=[]):
     """Loads all extensions (Cogs) from the cogs directory"""
     for filename in os.listdir('./cogs'):
