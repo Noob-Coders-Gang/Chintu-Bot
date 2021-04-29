@@ -9,6 +9,7 @@ import traceback
 from datetime import datetime
 import random
 
+
 class Mod(commands.Cog):
     ''' Moderator Commands '''
 
@@ -19,26 +20,10 @@ class Mod(commands.Cog):
     
     @commands.command()
     async def warn(self, ctx:commands.Context, warned_member:discord.Member, reason:str=None): 
-        if reason is None:
-            reason = "No reason was provided"
-        warn_id = random.randint(10000000, 99999999)
-        warn_obj = Warn(warn_id, ctx.author.id, ctx.message.id, reason, datetime.now())
-        pickled_string = pickle.dumps(warn_obj)
-        document = {
-            "_id":warn_id,
-            "member_id":warned_member.id,
-            "guild_id":ctx.guild.id,
-            "message_id":ctx.message.id,
-            "warn_object":pickled_string
-        }
-        self.warn_collection.insert_one(document)
-        channel_embed = discord.Embed(title=f"{warned_member.mention} has been warned", description=f"Reason: {reason}")
-        channel_embed.set_footer(text=f"Warned by {ctx.author.id}", image=ctx.author.avatar_url)
-        await ctx.send(channel_embed)
+        ctx.send("Under development")
         
 
 
-  
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason):
@@ -184,25 +169,25 @@ def setup(bot):
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }       
+#                         }
 #                     },
 #                     <guild id>:{
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }         
+#                         }
 #                     }
 #                 }
 #             },
@@ -213,27 +198,43 @@ def setup(bot):
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }       
+#                         }
 #                     },
 #                     <guild id>:{
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }, 
+#                         },
 #                         <warn_id>:{
 #                             "warn_reason":<reason>,
 #                             "date-time":<datetime>
-#                         }         
+#                         }
 #                     }
 #                 }
 #             }
 #         ]
 #         """
+# if reason is None:
+#             reason = "No reason was provided"
+#         warn_id = random.randint(10000000, 99999999)
+#         warn_obj = Warn(warn_id, ctx.author.id, ctx.message.id, reason, datetime.now())
+#         pickled_string = pickle.dumps(warn_obj)
+#         document = {
+#             "_id":warn_id,
+#             "member_id":warned_member.id,
+#             "guild_id":ctx.guild.id,
+#             "message_id":ctx.message.id,
+#             "warn_object":pickled_string
+#         }
+#         self.warn_collection.insert_one(document)
+#         channel_embed = discord.Embed(title=f"{warned_member.mention} has been warned", description=f"Reason: {reason}")
+#         channel_embed.set_footer(text=f"Warned by {ctx.author.id}", image=ctx.author.avatar_url)
+#         await ctx.send(channel_embed)

@@ -42,14 +42,13 @@ class Help(commands.Cog):
             for cog in self.bot.cogs:
                 cogs_desc += f'`{cog}` {self.bot.cogs[cog].__doc__}\n'
                 # making title - getting description from doc-string below class
-
                 # getting commands from cog
             emb.add_field(name='Modules', value=cogs_desc, inline=False)
-            for command in self.bot.get_cog(cog).get_commands():
-                # if cog is not hidden
+            # for command in self.bot.cogs.get_commands():
+            #     # if cog is not hidden
 
-                emb.add_field(
-                    name=f"`{prefix}{command.name}`", value=command.help, inline=True)
+            #     emb.add_field(
+            #         name=f"`{prefix}{command.name}`", value=command.help, inline=True)
 
             #------------------- Adding all cogs to Help embed ------------------#
 
@@ -103,11 +102,9 @@ class Help(commands.Cog):
                                 color=discord.Color.orange())
 
         else:
-            emb = discord.Embed(title="It's a magical place.",
-                                description="I don't know how you got here. But I didn't see this coming at all.\n"
-                                            "Would you please be so kind to report that issue to me on github?\n"
-                                            "https://github.com/Noob-Coders-Gang/Chintu-Bot\n"
-                                            "Thank you! ~Chris",
+            emb = discord.Embed(title="Oops Something went wrong.",
+                                description='''Would you please be so kind to report that issue to me on github?\n"
+                                            "https://github.com/Noob-Coders-Gang/Chintu-Bot\n''',
                                 color=discord.Color.red())
 
         # sending reply embed using our own function defined above
