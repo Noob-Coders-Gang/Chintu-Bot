@@ -46,7 +46,7 @@ class Fun(commands.Cog):
     @commands.command()
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def urban(self, ctx, *, search: str):
-        """ Find the 'best' definition to your words from urbandictionary """
+        """ Find the 'best' definition to your words """
         async with ctx.channel.typing():
             try:
                 with urllib.request.urlopen(f"https://api.urbandictionary.com/v0/define?term={search}") as url:
@@ -68,6 +68,7 @@ class Fun(commands.Cog):
                 definition = definition[:1000]
                 definition = definition.rsplit(" ", 1)[0]
                 definition += "..."
+            definition = definition.replace('[', "").replace("]", "")
             em = discord.Embed(
                 title=f"📚 Definitions for **{result['word']}**", description=f"\n{definition}", color=discord.Colour.red())
             await ctx.send(embed=em)
