@@ -4,8 +4,9 @@ import requests
 from discord.ext import commands
 import random
 import asyncio
-import http
 import wikipedia
+import urllib.request
+import json
 
 
 class Fun(commands.Cog):
@@ -48,8 +49,8 @@ class Fun(commands.Cog):
         """ Find the 'best' definition to your words from urbandictionary """
         async with ctx.channel.typing():
             try:
-                print(search)
-                url = await http.get(f"https://api.urbandictionary.com/v0/define?term={search}", res_method="json")
+                with urllib.request.urlopen(f"https://api.urbandictionary.com/v0/define?term={search}") as url:
+                    url = json.loads(url.read().decode())
             except:
                 return await ctx.send("Urban API returned invalid data... might be down atm.")
 
@@ -67,8 +68,9 @@ class Fun(commands.Cog):
                 definition = definition[:1000]
                 definition = definition.rsplit(" ", 1)[0]
                 definition += "..."
-
-            await ctx.send(f"📚 Definitions for **{result['word']}**```fix\n{definition}```")
+            em = discord.Embed(
+                title=f"📚 Definitions for **{result['word']}**", description=f"\n{definition}", color=discord.Colour.red())
+            await ctx.send(embed=em)
 
     @commands.command()
     async def beer(self, ctx, user: discord.Member = None, *, reason: commands.clean_content = ""):
