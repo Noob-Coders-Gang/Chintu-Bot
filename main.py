@@ -7,10 +7,10 @@ from itertools import cycle
 
 
 import pymongo
-from main_resources.events import Events
-from main_resources.functions import load_extensions, create_database_connection, update_cmdManager_coll
-from main_resources.loops import Loops
 
+from main_resources.functions import load_extensions, create_database_connection, update_cmdManager_coll
+from main_resources.events import Events
+from main_resources.loops import Loops
 #--------------------------------Variables--------------------------------#
 load_dotenv()
 bot = commands.Bot(command_prefix='$', help_command=None)

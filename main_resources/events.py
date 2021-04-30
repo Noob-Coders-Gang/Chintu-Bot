@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 from main_resources.functions import update_total_guilds, add_guild
 import os
-from discord.ext.commands import cooldown, BucketType
 
 
 class Events:
@@ -36,9 +35,10 @@ class Events:
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
+            print("oopsi")
             em = discord.Embed(title=f"Slow it down bro!",
                                description=f"Try again in {error.retry_after:.2f}s.", color=discord.Color.red())
-            await ctx.send(f'This command is not ready to use, try again in  %.2f seconds' % error.retry_after)
+            await ctx.send(embed=em)
 
         if isinstance(error, commands.CheckFailure):
             embed = discord.Embed(title=':x: oops! You do not have permission to use this command.',

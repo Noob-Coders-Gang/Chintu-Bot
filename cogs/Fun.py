@@ -12,8 +12,8 @@ import json
 class Fun(commands.Cog):
     """Fun commands """
 
-    def __init__(self, commands):
-        self.commands = commands
+    def __init__(self, bot):
+        self.bot = bot
 
     @commands.command(aliases=['8ball', 'test', 'ask'])
     async def _8ball(self, ctx, *, question):
