@@ -139,6 +139,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['wikipedia'])
     async def wiki(self, ctx, *, querry_: str):
+        ''' Search wikipedia for any information '''
         async with ctx.channel.typing():
             try:
                 results = wikipedia.search(querry_, results=5)
@@ -165,12 +166,12 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['ppsize', 'size', 'penis'])
     async def pp(self, ctx, member: discord.Member):
-        ''' to check pp size '''
-        x = ['', '==', '', '=', '', '====', '', '=', '======', '==========================', '===', "===============",
-             "========", "===", "===================", "===", '========', '=====', "======================================", "===", "============"]
+        ''' To check pp size '''
+        size = ['', '==', '', '=', '', '====', '', '=', '======', '==========================', '===', "===============",
+                "========", "===", "===================", "===", '========', '=====', "======================================", "===", "============"]
         em = discord.Embed(color=discord.Colour.blue(),
                            title="PeePee size calculator")
-        size = random.choice(x)
+
         em.add_field(name=f"{member.display_name}s penis:eggplant:",
                      value=f"8{random.choice(size)}D")
         await ctx.send(embed=em)
@@ -192,7 +193,7 @@ class Fun(commands.Cog):
 
         await ctx.send(embed=em)
 
-    @commands.command(aliases=['pass', 'generator', 'password', 'passwordgenerator'])
+    @commands.command(aliases=['pass', 'generator', 'passwordgenerator'])
     async def password(self, ctx, amt: int = 8):
         ''' Generate random password  '''
         try:
