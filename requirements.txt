@@ -11,10 +11,7 @@ nltk
 pymongo
 dnspython
 bs4
-<<<<<<< HEAD
 dataclasses
-=======
 praw
 Pillow
 wikipedia
->>>>>>> c48cc1824fa3bbdca1ed4d48b85c3b56c9ef07ac

@@ -4,6 +4,7 @@ from discord.ext import commands
 import random
 import os
 from dotenv import load_dotenv
+import requests
 load_dotenv()
 
 reddit = praw.Reddit(
@@ -39,20 +40,30 @@ class Memes(commands.Cog):
         self.commands = commands
 
     @commands.command()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def csmeme(self, ctx):
-        title, url = get_memes('ProgrammerHumor')
-        em = discord.Embed(title=title, color=discord.Colour.red())
-        em.set_image(url=url)
-        await ctx.send(embed=em)
+        try:
+            title, url = get_memes('ProgrammerHumor')
+            em = discord.Embed(title=title, color=discord.Colour.red())
+            em.set_image(url=url)
+            em.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=str(
+                ctx.author.avatar_url))
+            await ctx.send(embed=em)
+        except Exception as e:
+            await ctx.send('f')
 
-    @commands.command()
+    @commands.command(aliases=['memes', 'dankmemes'])
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def meme(self, ctx):
         title, url = get_memes('Memes')
         em = discord.Embed(title=title, color=discord.Colour.red())
         em.set_image(url=url)
+        em.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=str(
+            ctx.author.avatar_url))
         await ctx.send(embed=em)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def foodporn(self, ctx):
         title, url = get_memes('FoodPorn')
         em = discord.Embed(color=discord.Colour.red())
@@ -60,6 +71,7 @@ class Memes(commands.Cog):
         await ctx.send(embed=em)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def wsmeme(self, ctx):
         title, url = get_memes('WholesomeMemes')
         em = discord.Embed(title=title, color=discord.Colour.red())
@@ -67,6 +79,7 @@ class Memes(commands.Cog):
         await ctx.send(embed=em)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def uwu(self, ctx):
         rand = random.randint(0, 2)
         if rand == 0:
