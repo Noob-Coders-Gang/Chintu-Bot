@@ -18,6 +18,12 @@ class Events:
 
 
     async def on_message(self, message:discord.Message):
+        if message.author == self.bot:
+            return
+        mention = f'<@!{self.bot.user.id}>'
+        if mention in message.content:
+            user_message = message.content.replace(mention, "")
+            await message.channel.send(AskChintu(user_message)['response'])
         if message.content.startswith(self.bot.command_prefix): 
             cmd = message.content.replace(self.bot.command_prefix, "").split()[0] # Strip the command from the message
             try:
@@ -49,3 +55,24 @@ class Events:
             await ctx.send(embed=embed)
         elif isinstance(error, commands.CommandNotFound):
             pass
+
+
+class ChintuAI(commands.Cog):
+    ''' Ping me and lets talk '''
+
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        
+        # if message.bot:
+        #     return
+
+        # print(self.bot.user.mention, message.content)
+        # if f'{self.bot.user.mention}' in message.content.split():
+        
+
+
+def setup(bot):
+    bot.add_cog(ChintuAI(bot))
