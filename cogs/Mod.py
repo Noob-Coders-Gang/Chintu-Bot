@@ -76,7 +76,7 @@ class Mod(commands.Cog):
             embed.add_field(name="Warned by",
                             value=warn['moderator_name'], inline=False)
             embed.add_field(
-                name="Warn link", value=f"https://discord.com/{warn['guild_id']}/{warn['channel_id']}/{warn['message_id']}", inline=False)
+                name="Warn link", value=f"https://discord.com/channels/{warn['guild_id']}/{warn['channel_id']}/{warn['message_id']}", inline=False)
             embed.add_field(name="Reason", value=warn['reason'], inline=False)
             timetuple = warn['time']
             embed.add_field(
