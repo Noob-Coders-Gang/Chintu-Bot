@@ -4,15 +4,17 @@ import requests
 from discord.ext import commands
 import random
 import asyncio
-import http
 import wikipedia
+import urllib.request
+import json
+import math
 
 
 class Fun(commands.Cog):
     """Fun commands """
 
-    def __init__(self, commands):
-        self.commands = commands
+    def __init__(self, bot):
+        self.bot = bot
 
     @commands.command(aliases=['8ball', 'test', 'ask'])
     async def _8ball(self, ctx, *, question):
@@ -45,13 +47,43 @@ class Fun(commands.Cog):
     @commands.command()
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def urban(self, ctx, *, search: str):
-        """ Find the 'best' definition to your words from urbandictionary """
+        """ Find the 'best' definition to your words """
         async with ctx.channel.typing():
             try:
-                print(search)
-                url = await http.get(f"https://api.urbandictionary.com/v0/define?term={search}", res_method="json")
+                with urllib.request.urlopen(f"https://v2.jokeapi.dev/joke/Any") as url:
+                    url = json.loads(url.read().decode())
+                print(url)
             except:
-                return await ctx.send("Urban API returned invalid data... might be down atm.")
+                pass
+
+    @commands.command(aliases=["joke", "funjoke"])
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
+    async def jokes(self, ctx):
+        """ Find the 'best' definition to your words """
+        async with ctx.channel.typing():
+            try:
+                with urllib.request.urlopen("https://v2.jokeapi.dev/joke/Any") as url:
+                    url = json.loads(url.read().decode())
+
+                def check(author):
+                    def inner_check(message):
+                        return message.author == author
+                    return inner_check
+                if(not url['error']):
+                    if url["type"] == "twopart":
+                        await ctx.send(url['setup'])
+                        ans = await self.bot.wait_for('message', check=check, timeout=30)
+                        if ans.content.lower().strip() == url['delivery'].lower().strip():
+                            await ctx.send('Impresive , correct answer ')
+                        else:
+                            await ctx.send(url['delivery'])
+
+                    else:
+                        await ctx.send(url['joke'])
+
+            except Exception as e:
+                print(e)
+                return await ctx.send("I am busy dude, I can't think any joke right now")
 
             if not url:
                 return await ctx.send("I think the API broke...")
@@ -67,8 +99,10 @@ class Fun(commands.Cog):
                 definition = definition[:1000]
                 definition = definition.rsplit(" ", 1)[0]
                 definition += "..."
-
-            await ctx.send(f"📚 Definitions for **{result['word']}**```fix\n{definition}```")
+            definition = definition.replace('[', "").replace("]", "")
+            em = discord.Embed(
+                title=f"📚 Definitions for **{result['word']}**", description=f"\n{definition}", color=discord.Colour.red())
+            await ctx.send(embed=em)
 
     @commands.command()
     async def beer(self, ctx, user: discord.Member = None, *, reason: commands.clean_content = ""):
@@ -179,16 +213,19 @@ class Fun(commands.Cog):
     @commands.command(aliases=['how gay', 'gaypercent'])
     async def howgay(self, ctx, member: discord.Member):
         ''' To check gayness '''
-        per = random.randint(0, 100)
+        user = str(member.id)
+        s = sum([int(x) for x in user])
 
+        per = float((abs(math.sin((s/18)))) * 100)
         if per >= 50:
             gay = 'GAY'
         else:
             gay = "Not Gay"
+        per = "{:.2f}".format(per)
         em = discord.Embed(title=member.display_name,
                            description=":two_men_holding_hands: gay result:", color=discord.Colour.red())
         em.add_field(
-            name=gay, value=f"{member.display_name} is :rainbow_flag: {str(per)}% gay ")
+            name=gay, value=f"{member.display_name} is :rainbow_flag: {per}% gay ")
         em.set_thumbnail(url=member.avatar_url)
 
         await ctx.send(embed=em)
