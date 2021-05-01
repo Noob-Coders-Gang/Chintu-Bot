@@ -23,7 +23,7 @@ class Mod(commands.Cog):
     
     @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def warn(self, ctx:commands.Context, warned_member:discord.Member, reason:str=None):
+    async def warn(self, ctx:commands.Context, warned_member:discord.Member, *, reason:str=None):
         if reason is None:
             reason = "No reason was provided"
         self.last_warn_id += 1
@@ -39,10 +39,18 @@ class Mod(commands.Cog):
             "channel_id":ctx.channel.id,
             "time":datetime.utcnow().timetuple()
         }
-        self.warn_collection.insert_one(warn_dict) 
-        channel_embed = discord.Embed(title=f"{warned_member.name} has been warned", description=f"Reason: {reason}")
-        channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
-        await ctx.send(embed=channel_embed)
+        self.warn_collection.insert_one(warn_dict)
+        try:
+            user_embed = discord.Embed(title=f"You have been warned in {ctx.guild.name}", description=f"Reason: {reason}")
+            await warned_member.send(embed=user_embed)
+            channel_embed = discord.Embed(title=f"{warned_member.name} has been warned", description=f"Reason: {reason}")
+            channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
+            await ctx.send(embed=channel_embed)
+        except Exception:
+            channel_embed = discord.Embed(title=f"Warning for {warned_member.name} has been logged. I could'nt DM them.", description=f"Reason: {reason}")
+            channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
+            await ctx.send(embed=channel_embed)
+            
     
     @commands.command()
     @commands.has_permissions(kick_members=True)

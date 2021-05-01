@@ -53,4 +53,5 @@ def load_extensions(bot, unloaded_cogs=[]):
 
 
 load_extensions(bot, ["manage_commands.py"])
+bot.load_extension("cogs.manage_commands")
 bot.run(os.getenv("TOKEN"))
