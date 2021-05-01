@@ -7,6 +7,7 @@ import asyncio
 import wikipedia
 import urllib.request
 import json
+import math
 
 
 class Fun(commands.Cog):
@@ -182,16 +183,19 @@ class Fun(commands.Cog):
     @commands.command(aliases=['how gay', 'gaypercent'])
     async def howgay(self, ctx, member: discord.Member):
         ''' To check gayness '''
-        per = random.randint(0, 100)
+        user = str(member.id)
+        s = sum([int(x) for x in user])
 
+        per = float((abs(math.sin((s/18)))) * 100)
         if per >= 50:
             gay = 'GAY'
         else:
             gay = "Not Gay"
+        per = "{:.2f}".format(per)
         em = discord.Embed(title=member.display_name,
                            description=":two_men_holding_hands: gay result:", color=discord.Colour.red())
         em.add_field(
-            name=gay, value=f"{member.display_name} is :rainbow_flag: {str(per)}% gay ")
+            name=gay, value=f"{member.display_name} is :rainbow_flag: {per}% gay ")
         em.set_thumbnail(url=member.avatar_url)
 
         await ctx.send(embed=em)
