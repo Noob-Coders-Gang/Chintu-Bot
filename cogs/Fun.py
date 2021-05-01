@@ -8,6 +8,10 @@ import wikipedia
 import urllib.request
 import json
 import math
+roasts = json.loads(
+    open('./main_resources/Assets/roast.json', encoding='utf-8').read())['roasts']
+kills = json.loads(open('./main_resources/Assets/kill.json',
+                        encoding='utf-8').read())['kills']
 
 
 class Fun(commands.Cog):
@@ -50,16 +54,34 @@ class Fun(commands.Cog):
         """ Find the 'best' definition to your words """
         async with ctx.channel.typing():
             try:
-                with urllib.request.urlopen(f"https://v2.jokeapi.dev/joke/Any") as url:
+                with urllib.request.urlopen(f"https://api.urbandictionary.com/v0/define?term={search}") as url:
                     url = json.loads(url.read().decode())
-                print(url)
             except:
-                pass
+                return await ctx.send("Urban API returned invalid data... might be down atm.")
+
+            if not url:
+                return await ctx.send("I think the API broke...")
+
+            if not len(url["list"]):
+                return await ctx.send("Couldn't find your search in the dictionary...")
+
+            result = sorted(url["list"], reverse=True,
+                            key=lambda g: int(g["thumbs_up"]))[0]
+
+            definition = result["definition"]
+            if len(definition) >= 1000:
+                definition = definition[:1000]
+                definition = definition.rsplit(" ", 1)[0]
+                definition += "..."
+            definition = definition.replace('[', "").replace("]", "")
+            em = discord.Embed(
+                title=f"📚 Definitions for **{result['word']}**", description=f"\n{definition}", color=discord.Colour.red())
+            await ctx.send(embed=em)
 
     @commands.command(aliases=["joke", "funjoke"])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def jokes(self, ctx):
-        """ Find the 'best' definition to your words """
+        """ Request I'll tell a joke """
         async with ctx.channel.typing():
             try:
                 with urllib.request.urlopen("https://v2.jokeapi.dev/joke/Any") as url:
@@ -84,25 +106,6 @@ class Fun(commands.Cog):
             except Exception as e:
                 print(e)
                 return await ctx.send("I am busy dude, I can't think any joke right now")
-
-            if not url:
-                return await ctx.send("I think the API broke...")
-
-            if not len(url["list"]):
-                return await ctx.send("Couldn't find your search in the dictionary...")
-
-            result = sorted(url["list"], reverse=True,
-                            key=lambda g: int(g["thumbs_up"]))[0]
-
-            definition = result["definition"]
-            if len(definition) >= 1000:
-                definition = definition[:1000]
-                definition = definition.rsplit(" ", 1)[0]
-                definition += "..."
-            definition = definition.replace('[', "").replace("]", "")
-            em = discord.Embed(
-                title=f"📚 Definitions for **{result['word']}**", description=f"\n{definition}", color=discord.Colour.red())
-            await ctx.send(embed=em)
 
     @commands.command()
     async def beer(self, ctx, user: discord.Member = None, *, reason: commands.clean_content = ""):
@@ -198,6 +201,13 @@ class Fun(commands.Cog):
             user = ctx.author
         await ctx.send(f'{user.display_name} {random.choice(kills)}')
 
+    @commands.command()
+    async def roast(self, ctx, user: discord.Member = None):
+        ''' roast someone'''
+        if user == None:
+            user = ctx.author
+        await ctx.send(f'{user.display_name}, {random.choice(roasts)}')
+
     @commands.command(aliases=['ppsize', 'size', 'penis'])
     async def pp(self, ctx, member: discord.Member):
         ''' To check pp size '''
@@ -254,39 +264,3 @@ def setup(bot):
 
 
 #----------------------------------------------------------------#
-kills = [
-    "died from a creeper explosion",
-    "died from lack of quality memes on Dank Memer",
-    "disappeared from the universe.",
-    "died from subscribing to t-series",
-    "died from not subscribing to Pewdiepie",
-    "ripped their own heart out to show their love for jhonny sins",
-    "dies because they were just too angry😡 ",
-    "chokes on cheerios and dies. What an idiot...",
-    "died from patta se head shot 🔫",
-    "was killed for being too noob.. what a noob",
-    "died after fapping 50 times in a row with no break.",
-    "because they were just too Lazy.",
-    "was killed by imposter",
-    "died from lack of ***, U got that 😁",
-    "drowned in their own tears 😭.",
-    "was eaten by the duolingo owl🦉 ",
-    "dies, but don't let this distract you from the fact that in 1998, The Undertaker threw",
-    "died from a nightmare👻 dream",
-    "died while playing hopscotch on seemingly deactivated land mines.",
-    "loses the will to live🤥",
-    "died from whacking it too much. (There's a healthy balance, boys)",
-    "eats too much copypasta and explodes",
-    "reads memes till they die.",
-    "dies of starvation.",
-    "died somehow 🤷‍♂️",
-    "died by taking sefi🤳 with lion🦁 ..such a idiot ",
-    "died in 2020 for not wearing mask😷",
-    "died from subscribing to t-series",
-    "is dead. How 🤷🏼‍♂️",
-    "died of scurvy, eat oranges kids",
-    "cranks up the music system only to realize the volume was at max and the song playing was Baby by Justin Beiber..",
-    "cranks up the music system only to realize the volume was at max and the song playing was selfie Maine le liya..",
-    'died from watching to much of P**n 🤦‍♂️',
-    'died from COVID-69, new virus transmitted from ga* s** 🚫🧑‍🤝‍🧑',
-]
