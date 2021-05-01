@@ -8,21 +8,76 @@ import main
 import traceback
 from datetime import datetime
 import random
+from datetime import datetime
 
 
 class Mod(commands.Cog):
     ''' Moderator Commands '''
 
-    def __init__(self, commands):
+    def __init__(self, commands: commands.Bot):
         self.commands = commands
         self.warn_collection = main.database["warns"]
+        self.warn_collection.insert_one
+        self.last_warn_id = list(self.warn_collection.find({}))[-1]["_id"]
+        #self.last_warn_id = 10000000
 
-    
     @commands.command()
-    async def warn(self, ctx:commands.Context, warned_member:discord.Member, reason:str=None): 
-        ctx.send("Under development")
-        
+    @commands.has_permissions(kick_members=True)
+    async def warn(self, ctx: commands.Context, warned_member: discord.Member, reason: str = None):
+        if reason is None:
+            reason = "No reason was provided"
+        self.last_warn_id += 1
+        warn_dict = {
+            "_id": self.last_warn_id,
+            "guild_id": ctx.guild.id,
+            "member_id": warned_member.id,
+            "member_name": warned_member.name,
+            "reason": reason,
+            "message_id": ctx.message.id,
+            "moderator_id": ctx.author.id,
+            "moderator_name": ctx.author.name,
+            "channel_id": ctx.channel.id,
+            "time": datetime.utcnow().timetuple()
+        }
+        self.warn_collection.insert_one(warn_dict)
+        channel_embed = discord.Embed(
+            title=f"{warned_member.name} has been warned", description=f"Reason: {reason}")
+        channel_embed.set_footer(
+            text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
+        await ctx.send(embed=channel_embed)
 
+    @commands.command()
+    @commands.has_permissions(kick_members=True)
+    async def warns(self, ctx: commands.Context, member: discord.Member):
+        warns = list(self.warn_collection.find(
+            {"member_id": member.id, "guild_id": ctx.guild.id}))
+        embed = discord.Embed(
+            title=f"{member.name} has been warned {len(warns)} times")
+        for warn in warns:
+            embed.add_field(
+                name=f"Warn ID: {warn['_id']}", value=f"Reason: {str(warn['reason'])}, Warned by: {warn['moderator_name']}", inline=False)
+        await ctx.send(embed=embed)
+
+    @commands.command()
+    @commands.has_permissions(kick_members=True)
+    async def warninfo(self, ctx: commands.Context, warn_id: int):
+        warn = self.warn_collection.find_one({'_id': warn_id})
+        if ctx.guild.id == warn['guild_id']:
+            embed = discord.Embed(
+                title=f"Warn information for warn ID:{warn_id}")
+            embed.add_field(name="Warned member",
+                            value=warn['member_name'], inline=False)
+            embed.add_field(name="Warned by",
+                            value=warn['moderator_name'], inline=False)
+            embed.add_field(
+                name="Warn link", value=f"https://discord.com/{warn['guild_id']}/{warn['channel_id']}/{warn['message_id']}", inline=False)
+            embed.add_field(name="Reason", value=warn['reason'], inline=False)
+            timetuple = warn['time']
+            embed.add_field(
+                name="Warned at", value=f"{timetuple[2]}/{timetuple[1]}/{timetuple[0]} {timetuple[3]}:{timetuple[4]} (UTC)", inline=False)
+            await ctx.send(embed=embed)
+        else:
+            ctx.send("Warn not found!")
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
