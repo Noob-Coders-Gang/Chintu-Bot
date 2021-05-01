@@ -2,16 +2,17 @@ import discord
 from discord.ext import commands
 from main_resources.functions import update_total_guilds, add_guild
 import os
+from discord.ext.commands import cooldown, BucketType
 
 
 class Events:
-    def __init__(self, bot:commands.Bot, database, total_guilds_api_url):
+    def __init__(self, bot: commands.Bot, database, total_guilds_api_url):
         self.bot = bot
         self.database = database
         self.cmdManager_collection = database["cmd_manager"]
         self.total_guilds_api_url = total_guilds_api_url
 
-    async def on_guild_join(self, guild:discord.Guild):
+    async def on_guild_join(self, guild: discord.Guild):
         guilds = self.bot.guilds
         update_total_guilds(guilds, self.total_guilds_api_url)
         add_guild(self.bot, self.database, guild)
@@ -27,21 +28,27 @@ class Events:
         if message.content.startswith(self.bot.command_prefix): 
             cmd = message.content.replace(self.bot.command_prefix, "").split()[0] # Strip the command from the message
             try:
-                disabled_commands = self.cmdManager_collection.find_one({"_id":message.guild.id})["disabled_commands"] # Get disabled commands for the specific guild
+                disabled_commands = self.cmdManager_collection.find_one({"_id": message.guild.id})[
+                    "disabled_commands"]  # Get disabled commands for the specific guild
             except Exception:
                 disabled_commands = []
                 pass
-            if cmd in disabled_commands: # Deny processing
+            if cmd in disabled_commands:  # Deny processing
                 embed = discord.Embed(title=f"This command is disabled in your server!",
-                                        color=discord.Colour.red())
+                                      color=discord.Colour.red())
                 await message.channel.send(embed=embed)
-            else: # Process the command
+            else:  # Process the command
                 await self.bot.process_commands(message)
 
-    async def on_command_error(self, ctx, error): 
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandOnCooldown):
+            em = discord.Embed(title=f"Slow it down bro!",
+                               description=f"Try again in {error.retry_after:.2f}s.", color=discord.Color.red())
+            await ctx.send(f'This command is not ready to use, try again in  %.2f seconds' % error.retry_after)
+
         if isinstance(error, commands.CheckFailure):
             embed = discord.Embed(title=':x: oops! You do not have permission to use this command.',
-                                color=discord.Colour.red())
+                                  color=discord.Colour.red())
             await ctx.send(embed=embed)
         elif isinstance(error, commands.MissingRequiredArgument):
             embed = discord.Embed(
@@ -55,24 +62,3 @@ class Events:
             await ctx.send(embed=embed)
         elif isinstance(error, commands.CommandNotFound):
             pass
-
-
-class ChintuAI(commands.Cog):
-    ''' Ping me and lets talk '''
-
-    def __init__(self, bot):
-        self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        
-        # if message.bot:
-        #     return
-
-        # print(self.bot.user.mention, message.content)
-        # if f'{self.bot.user.mention}' in message.content.split():
-        
-
-
-def setup(bot):
-    bot.add_cog(ChintuAI(bot))
