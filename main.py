@@ -26,6 +26,7 @@ cmdManager_collection = database["cmd_manager"]
 @bot.event
 async def on_ready():
     change_status.start()
+    print("updating databases...")
     update_cmdManager_coll(bot, database)
     print('Logged in as {0.user}'.format(bot))
 
@@ -52,6 +53,11 @@ def load_extensions(bot, unloaded_cogs=[]):
                 bot.load_extension(f'cogs.{filename[:-3]}')
 
 
-load_extensions(bot, ["manage_commands.py"])
-bot.load_extension("cogs.manage_commands")
-bot.run(os.getenv("TOKEN"))
+
+if __name__ == '__main__':
+    print("loading extensions...")
+    load_extensions(bot, ["manage_commands.py", "Help.py"])
+    bot.load_extension("cogs.manage_commands")
+    bot.load_extension("cogs.Help")
+    print("logging in...")
+    bot.run(os.getenv("TOKEN"))
