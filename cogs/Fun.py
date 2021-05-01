@@ -50,10 +50,40 @@ class Fun(commands.Cog):
         """ Find the 'best' definition to your words """
         async with ctx.channel.typing():
             try:
-                with urllib.request.urlopen(f"https://api.urbandictionary.com/v0/define?term={search}") as url:
+                with urllib.request.urlopen(f"https://v2.jokeapi.dev/joke/Any") as url:
                     url = json.loads(url.read().decode())
+                print(url)
             except:
-                return await ctx.send("Urban API returned invalid data... might be down atm.")
+                pass
+
+    @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
+    async def jokes(self, ctx):
+        """ Find the 'best' definition to your words """
+        async with ctx.channel.typing():
+            try:
+                with urllib.request.urlopen("https://v2.jokeapi.dev/joke/Any") as url:
+                    url = json.loads(url.read().decode())
+
+                def check(author):
+                    def inner_check(message):
+                        return message.author == author
+                    return inner_check
+                if(not url['error']):
+                    if url["type"] == "twopart":
+                        await ctx.send(url['setup'])
+                        ans = await self.bot.wait_for('message', check=check, timeout=30)
+                        if ans.content.lower().strip() == url['delivery'].lower().strip():
+                            await ctx.send('Impresive , correct answer ')
+                        else:
+                            await ctx.send(url['delivery'])
+
+                    else:
+                        await ctx.send(url['joke'])
+
+            except Exception as e:
+                print(e)
+                return await ctx.send("I am busy dude, I can't think any joke right now")
 
             if not url:
                 return await ctx.send("I think the API broke...")

@@ -142,30 +142,3 @@ def AskChintu(query):
         # print(e)
 
     return Bot_Response
-
-#--------------------------------Chintu AI Cog--------------------------------#
-
-
-class ChintuAI(commands.Cog):
-    ''' Ping me and lets talk '''
-
-    def __init__(self, bot):
-        self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_message(self, message):
-        if message.author == self.bot:
-            return
-        # if message.bot:
-        #     return
-
-        # print(self.bot.user.mention, message.content)
-        # if f'{self.bot.user.mention}' in message.content.split():
-        mention = f'<@!{self.bot.user.id}>'
-        if mention in message.content:
-            user_message = message.content.replace(mention, "")
-            await message.channel.send(AskChintu(user_message)['response'])
-
-
-def setup(bot):
-    bot.add_cog(ChintuAI(bot))
