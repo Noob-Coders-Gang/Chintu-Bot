@@ -40,7 +40,9 @@ class Help(commands.Cog):
 
             cogs_desc = ''
             for cog in self.bot.cogs:
+
                 cogs_desc += f'`{cog}` {self.bot.cogs[cog].__doc__}\n'
+
             emb.add_field(name='Modules', value=cogs_desc, inline=False)
 
             #------------------- Adding all cogs to Help embed ------------------#
@@ -51,6 +53,7 @@ class Help(commands.Cog):
                 # if cog not in a cog
                 # listing command if cog name is None and command isn't hidden
                 if not command.cog_name and not command.hidden:
+
                     commands_desc += f'{command.name} - {command.help}\n'
 
             if commands_desc:
@@ -76,8 +79,12 @@ class Help(commands.Cog):
                     for command in self.bot.get_cog(cog).get_commands():
                         # if cog is not hidden
                         if not command.hidden:
-                            emb.add_field(
-                                name=f"`{prefix}{command.name}`", value=command.help, inline=True)
+                            if command.help:
+                                emb.add_field(
+                                    name=f"`{prefix}{command.name}`", value=command.help, inline=True)
+                            else:
+                                emb.add_field(
+                                    name=f"`{prefix}{command.name}`", value="ㅤ", inline=True)
                     # found cog - breaking loop
                     break
 
