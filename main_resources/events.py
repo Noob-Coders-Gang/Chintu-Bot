@@ -6,11 +6,15 @@ from discord.ext.commands import cooldown, BucketType
 
 
 class Events:
-    def __init__(self, bot: commands.Bot, database, total_guilds_api_url):
+    def __init__(self, bot: commands.Bot, database, total_guilds_api_url, ChintuAI:bool=False):
         self.bot = bot
         self.database = database
         self.cmdManager_collection = database["cmd_manager"]
         self.total_guilds_api_url = total_guilds_api_url
+        self.ChintuAI = ChintuAI
+        if ChintuAI:
+            from main_resources.ChintuAI import AskChintu
+            
 
     async def on_guild_join(self, guild: discord.Guild):
         guilds = self.bot.guilds
@@ -19,12 +23,13 @@ class Events:
 
 
     async def on_message(self, message:discord.Message):
-        if message.author == self.bot:
-            return
-        mention = f'<@!{self.bot.user.id}>'
-        if mention in message.content:
-            user_message = message.content.replace(mention, "")
-            await message.channel.send(AskChintu(user_message)['response'])
+        if self.ChintuAI:
+            if message.author == self.bot:
+                return
+            mention = f'<@!{self.bot.user.id}>'
+            if self.bot.user.mentioned_in(message):
+                user_message = message.content.replace(mention, "")
+                await message.channel.send(AskChintu(user_message)['response'])
         if message.content.startswith(self.bot.command_prefix): 
             cmd = message.content.replace(self.bot.command_prefix, "").split()[0] # Strip the command from the message
             try:
