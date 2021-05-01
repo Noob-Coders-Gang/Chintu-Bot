@@ -56,7 +56,7 @@ class Fun(commands.Cog):
             except:
                 pass
 
-    @commands.command()
+    @commands.command(aliases=["joke", "funjoke"])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def jokes(self, ctx):
         """ Find the 'best' definition to your words """
