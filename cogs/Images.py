@@ -10,7 +10,6 @@ class Images(commands.Cog):
     ''' Fun Images '''
     @commands.command()
     async def slap(self, ctx, user: discord.Member = None):
-
         user1 = ctx.author
         user2 = user
         if user == None:

@@ -28,7 +28,7 @@ class Help(commands.Cog):
 
     @commands.command()
     async def help(self, ctx, *input):
-        # """Shows all modules of the bot"""
+        """Shows all modules of the bot"""
         prefix = '$'
         if not input:
             # starting to build embed

@@ -21,6 +21,7 @@ class Info(commands.Cog):
 
     @commands.command(aliases=['channelstats'])
     async def channelinfo(self, ctx, channel: discord.TextChannel):
+        ''' get channel stats/info '''
         nsfw = self.bot.get_channel(channel.id).is_nsfw()
         news = self.bot.get_channel(channel.id).is_news()
         embed = discord.Embed(title='Channel Infromation: ' + str(channel),
@@ -37,6 +38,7 @@ class Info(commands.Cog):
 
     @commands.command(aliases=['guild'])
     async def server(self, ctx):
+        ''' Get Server Info '''
         findbots = sum(1 for member in ctx.guild.members if member.bot)
         embed = discord.Embed(title='Infomation about ' + ctx.guild.name +
                               '.', colour=discord.Colour.from_rgb(54, 151, 255))
@@ -55,6 +57,7 @@ class Info(commands.Cog):
 
     @commands.command(aliases=['whois', 'userinfo'])
     async def user(self, ctx, member: discord.Member = None):
+        ''' Get User Info '''
         if member == None:
             member = ctx.author
         pos = sum(
