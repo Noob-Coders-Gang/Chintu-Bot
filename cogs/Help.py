@@ -41,14 +41,7 @@ class Help(commands.Cog):
             cogs_desc = ''
             for cog in self.bot.cogs:
                 cogs_desc += f'`{cog}` {self.bot.cogs[cog].__doc__}\n'
-                # making title - getting description from doc-string below class
-                # getting commands from cog
             emb.add_field(name='Modules', value=cogs_desc, inline=False)
-            # for command in self.bot.cogs.get_commands():
-            #     # if cog is not hidden
-
-            #     emb.add_field(
-            #         name=f"`{prefix}{command.name}`", value=command.help, inline=True)
 
             #------------------- Adding all cogs to Help embed ------------------#
 
@@ -84,7 +77,7 @@ class Help(commands.Cog):
                         # if cog is not hidden
                         if not command.hidden:
                             emb.add_field(
-                                name=f"`{prefix}{command.name}`", value=command.help, inline=False)
+                                name=f"`{prefix}{command.name}`", value=command.help, inline=True)
                     # found cog - breaking loop
                     break
 
