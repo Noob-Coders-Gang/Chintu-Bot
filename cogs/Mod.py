@@ -23,11 +23,7 @@ class Mod(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
-<<<<<<< HEAD
     async def warn(self, ctx:commands.Context, warned_member:discord.Member, *, reason:str=None):
-=======
-    async def warn(self, ctx: commands.Context, warned_member: discord.Member, reason: str = None):
->>>>>>> f3fa1f7694f8b18233235d15f2bac884494c0244
         if reason is None:
             reason = "No reason was provided"
         self.last_warn_id += 1
