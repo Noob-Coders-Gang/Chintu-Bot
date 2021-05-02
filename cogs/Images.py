@@ -7,7 +7,7 @@ from PIL import ImageFont
 
 
 class Images(commands.Cog):
-    ''' Fun Images '''
+    ''' Roast From Images  '''
     @commands.command()
     async def slap(self, ctx, user: discord.Member = None):
         user1 = ctx.author
@@ -116,7 +116,7 @@ class Images(commands.Cog):
         pfp2 = Image.open(data2)
         pfp2 = pfp2.resize((88, 88))
         smash.paste(pfp2, (326, 290))
-        smash.save("send.jpg")
+        smash.save("main_resources/Images/send.jpg")
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
     @commands.command()

@@ -4,6 +4,8 @@ from discord.ext import commands
 
 
 class GitHub(commands.Cog):
+    '''  Search Github Profile '''
+
     def __init__(self, commands):
         self.commands = commands
 
