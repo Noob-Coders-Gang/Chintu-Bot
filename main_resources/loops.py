@@ -2,8 +2,9 @@ import discord
 from discord.ext import commands
 from itertools import cycle
 
+
 class Loops:
-    def __init__(self, bot:commands.Bot, custom_statuses):
+    def __init__(self, bot: commands.Bot, custom_statuses):
         self.bot = bot
         self.custom_statuses = custom_statuses
 

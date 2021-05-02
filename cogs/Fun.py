@@ -22,7 +22,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['8ball', 'test', 'ask'])
     async def _8ball(self, ctx, *, question):
-        ''' Ask question and get advice from me '''
+        ''' Ask question and get advice from me 🎱'''
         responses = ["It is certain.",
                      "It is decidedly so.",
                      "Without a doubt.",
@@ -51,7 +51,7 @@ class Fun(commands.Cog):
     @commands.command()
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def urban(self, ctx, *, search: str):
-        """ Find the 'best' definition to your words """
+        """ Find the 'best' definition to your words 📚"""
         async with ctx.channel.typing():
             try:
                 with urllib.request.urlopen(f"https://api.urbandictionary.com/v0/define?term={search}") as url:
@@ -81,7 +81,7 @@ class Fun(commands.Cog):
     @commands.command(aliases=["joke", "funjoke"])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def jokes(self, ctx):
-        """ Request I'll tell a joke """
+        """ Request I'll tell a joke 🤣"""
         async with ctx.channel.typing():
             try:
                 with urllib.request.urlopen("https://v2.jokeapi.dev/joke/Any") as url:
@@ -104,7 +104,6 @@ class Fun(commands.Cog):
                         await ctx.send(url['joke'])
 
             except Exception as e:
-                print(e)
                 return await ctx.send("I am busy dude, I can't think any joke right now")
 
     @commands.command()
@@ -141,11 +140,13 @@ class Fun(commands.Cog):
                 f"\n\n**Reason:** {reason}" if reason else beer_offer
             await msg.edit(content=beer_offer)
 
-    @commands.command(aliases=["howhot", "hot"])
-    async def hotcalc(self, ctx, *, user: discord.Member = None):
-        """ Returns a random percent for how hot is a discord user """
+    @commands.command(aliases=["hotcalc", "hot"])
+    async def howhot(self, ctx, *, user: discord.Member = None):
+        """ Returns a percent for how hot is a discord user 🥵"""
         user = user or ctx.author
+        userid = int(user.id)
 
+        per = float((abs(math.sin(userid))) * 100)
         random.seed(user.id)
         r = random.randint(1, 100)
         hot = r / 1.17
@@ -163,20 +164,20 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def f(self, ctx, *, text: commands.clean_content = None):
-        """ Press F to pay respect """
+        """ Press F to pay respect 🇫 """
         hearts = ["❤", "💛", "💚", "💙", "💜"]
         reason = f"for **{text}** " if text else ""
         await ctx.send(f"**{ctx.author.name}** has paid their respect {reason}{random.choice(hearts)}")
 
     @commands.command(aliases=["flip", "coin"])
     async def coinflip(self, ctx):
-        """ Coinflip! """
+        """ Coinflip! :coin: """
         coinsides = ["Heads", "Tails"]
         await ctx.send(f"**{ctx.author.name}** flipped a coin and got **{random.choice(coinsides)}**!")
 
     @commands.command(aliases=['wikipedia'])
     async def wiki(self, ctx, *, querry_: str):
-        ''' Search wikipedia for any information '''
+        ''' Search wikipedia for any information 🔍'''
         async with ctx.channel.typing():
             try:
                 results = wikipedia.search(querry_, results=5)
@@ -196,21 +197,21 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def kill(self, ctx, user: discord.Member = None):
-        ''' kill someone'''
+        ''' kill someone ⚰️'''
         if user == None:
             user = ctx.author
         await ctx.send(f'{user.display_name} {random.choice(kills)}')
 
     @commands.command()
     async def roast(self, ctx, user: discord.Member = None):
-        ''' roast someone'''
+        ''' roast someone 🍳'''
         if user == None:
             user = ctx.author
         await ctx.send(f'{user.display_name}, {random.choice(roasts)}')
 
     @commands.command(aliases=['ppsize', 'size', 'penis'])
     async def pp(self, ctx, member: discord.Member):
-        ''' To check pp size '''
+        ''' To check pp size 🍆'''
         size = ['', '==', '', '=', '', '====', '', '=', '======', '==========================', '===', "===============",
                 "========", "===", "===================", "===", '========', '=====', "======================================", "===", "============"]
         em = discord.Embed(color=discord.Colour.blue(),
@@ -222,7 +223,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['how gay', 'gaypercent'])
     async def howgay(self, ctx, member: discord.Member):
-        ''' To check gayness '''
+        ''' To check gayness 🏳️‍🌈'''
         user = str(member.id)
         s = sum([int(x) for x in user])
 
@@ -242,7 +243,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['pass', 'generator', 'passwordgenerator'])
     async def password(self, ctx, amt: int = 8):
-        ''' Generate random password  '''
+        ''' Get random password in DM  🔒'''
         try:
             nwpss = []
             lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',

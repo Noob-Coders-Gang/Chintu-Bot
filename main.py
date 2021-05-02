@@ -14,7 +14,7 @@ from main_resources.loops import Loops
 #--------------------------------Variables--------------------------------#
 load_dotenv()
 bot = commands.Bot(command_prefix='$', help_command=None)
-custom_statuses = ['WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
+custom_statuses = ['$help', 'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
 
 # The url for updating server count.
 total_guilds_api_url = os.getenv('TOTAL_GUILDS_API_URI')
@@ -33,7 +33,7 @@ async def on_ready():
 #--------------------------------Task loops--------------------------------#
 
 loops = Loops(bot, custom_statuses)
-change_status = tasks.loop(seconds=300)(loops.change_status)
+change_status = tasks.loop(seconds=60)(loops.change_status)
 
 
 #--------------------------------Events--------------------------------#

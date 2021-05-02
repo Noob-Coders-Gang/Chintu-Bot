@@ -7,6 +7,8 @@ load_dotenv()
 
 
 class manage_commands(commands.Cog):
+    ''' add or remove commands in a server'''
+
     def __init__(self, bot: discord.ext.commands.Bot):
         self.bot = bot
         self.cmd_list = []
@@ -16,6 +18,7 @@ class manage_commands(commands.Cog):
 
     @commands.command()
     async def remove(self, ctx: commands.Context, command_name: str):
+        ''' Remove commands '''
         if command_name in self.cmd_list:
             # Get the cmd_manager collection from the database
             collection = main.database["cmd_manager"]
@@ -42,6 +45,7 @@ class manage_commands(commands.Cog):
 
     @commands.command()
     async def add(self, ctx: commands.Context, command_name: str):
+        ''' Add commands'''
         if command_name in self.cmd_list:
             # Get the cmd_manager collection from the database
             collection = main.database["cmd_manager"]
