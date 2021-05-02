@@ -25,7 +25,7 @@ def prebuild_embed(bot):
     prefix = '$'
     emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
                                 description=f'Use `{prefix}help <module>` to gain more information about that module '
-                                            f'<a:doge:736842532234723369>\n')
+                                            f':smiley:\n')
 
     #------------------- iterating trough cogs, gathering descriptions------------------#
 
@@ -47,15 +47,13 @@ def prebuild_embed(bot):
 
             commands_desc += f'{command.name} - {command.help}\n'
 
-
-        if commands_desc:
-            emb.add_field(name='Not belonging to a module',
-                          value=commands_desc, inline=True)
-        emb.add_field(
-            name="About", value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
-
+    if commands_desc:
+        emb.add_field(name='Not belonging to a module',
+                        value=commands_desc, inline=False)
+    emb.add_field(
+        name="About", value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
+    
     return emb
-
 
 class Help(commands.Cog):
     """ Sends this help message """
