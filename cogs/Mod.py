@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 import pickle
 import logging
-from cogs.data_classes.warning import Warn
 import main
 import traceback
 from datetime import datetime
