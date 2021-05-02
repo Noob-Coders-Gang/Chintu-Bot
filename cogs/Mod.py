@@ -8,7 +8,7 @@ import main
 import traceback
 from datetime import datetime
 import random
-from datetime import datetime
+
 
 
 class Mod(commands.Cog):
@@ -18,17 +18,20 @@ class Mod(commands.Cog):
         self.commands = commands
         self.warn_collection = main.database["warns"]
         self.warn_collection.insert_one
-        self.last_warn_id = list(self.warn_collection.find({}))[-1]["_id"]
-        #self.last_warn_id = 10000000
+
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def warn(self, ctx:commands.Context, warned_member:discord.Member, *, reason:str=None):
         if reason is None:
             reason = "No reason was provided"
-        self.last_warn_id += 1
+        warn_id = random.randint(10000000, 99999999)
+        check_repeat_dict = self.warn_collection.find_one({"_id":warn_id})
+        while check_repeat_dict:
+            warn_id = random.randint(10000000, 9999999)
+            check_repeat_dict = self.warn_collection.find_one({"_id":warn_id})
         warn_dict = {
-            "_id": self.last_warn_id,
+            "_id": warn_id,
             "guild_id": ctx.guild.id,
             "member_id": warned_member.id,
             "member_name": warned_member.name,
@@ -47,7 +50,8 @@ class Mod(commands.Cog):
             channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
             await ctx.send(embed=channel_embed)
         except Exception:
-            channel_embed = discord.Embed(title=f"Warning for {warned_member.name} has been logged. I could'nt DM them.", description=f"Reason: {reason}")
+            channel_embed = discord.Embed(title=f"Warning for {warned_member.name} has been logged. I couldn't DM them.", 
+                                          description=f"Reason: {reason}")
             channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
             await ctx.send(embed=channel_embed)
             
