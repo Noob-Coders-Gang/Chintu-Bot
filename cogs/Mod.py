@@ -3,6 +3,7 @@ from discord.ext import commands
 import main
 from datetime import datetime
 import random
+import asyncio
 
 
 
@@ -142,8 +143,11 @@ class Mod(commands.Cog):
     @commands.has_permissions(manage_messages=True)
     async def clear(self, ctx, number_of_messages:int=5):
         """Purges specified number of messages"""
-        print("deleting")
         await ctx.channel.purge(limit=number_of_messages + 1)
+        embed = discord.Embed(title=f"Deleted {number_of_messages} in {ctx.channel.name}")
+        emb_msg = await ctx.send(embed=embed)
+        asyncio.sleep(3)
+        await emb_msg.delete()
 
 
 def setup(bot):
