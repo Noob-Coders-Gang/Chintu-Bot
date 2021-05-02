@@ -146,7 +146,7 @@ class Mod(commands.Cog):
         await ctx.channel.purge(limit=number_of_messages + 1)
         embed = discord.Embed(title=f"Deleted {number_of_messages} in {ctx.channel.name}")
         emb_msg = await ctx.send(embed=embed)
-        asyncio.sleep(3)
+        await asyncio.sleep(3)
         await emb_msg.delete()
 
 
