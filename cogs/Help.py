@@ -48,11 +48,11 @@ def prebuild_embed(bot):
             commands_desc += f'{command.name} - {command.help}\n'
 
 
-            if commands_desc:
-                emb.add_field(name='Not belonging to a module',
-                              value=commands_desc, inline=True)
-            emb.add_field(
-                name="About", value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
+        if commands_desc:
+            emb.add_field(name='Not belonging to a module',
+                          value=commands_desc, inline=True)
+        emb.add_field(
+            name="About", value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
 
     return emb
 
