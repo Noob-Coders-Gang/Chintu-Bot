@@ -34,7 +34,7 @@ class Help(commands.Cog):
             # starting to build embed
             emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
                                 description=f'Use `{prefix}help <module>` to gain more information about that module '
-                                            f':smiley:\n')
+                                            f'<a:doge:736842532234723369>\n')
 
             #------------------- iterating trough cogs, gathering descriptions------------------#
 
@@ -58,7 +58,7 @@ class Help(commands.Cog):
 
             if commands_desc:
                 emb.add_field(name='Not belonging to a module',
-                              value=commands_desc, inline=False)
+                              value=commands_desc, inline=True)
             emb.add_field(
                 name="About", value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
 
