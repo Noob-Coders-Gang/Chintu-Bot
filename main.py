@@ -1,19 +1,16 @@
-import discord
 from discord.ext import commands, tasks
-import requests
-from dotenv import load_dotenv
 import os
-from itertools import cycle
 
-import pymongo
+from discord.ext import commands, tasks
+from dotenv import load_dotenv
 
-from main_resources.functions import load_extensions, create_database_connection, update_cmdManager_coll
 from main_resources.events import Events
+from main_resources.functions import create_database_connection, update_cmdManager_coll
 from main_resources.loops import Loops
 
 # --------------------------------Variables--------------------------------#
 load_dotenv()
-bot = commands.Bot(command_prefix='$', help_command=None)
+bot = commands.Bot(command_prefix='BB', help_command=None, case_insensitive=True)
 custom_statuses = ['$help', 'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
 
 # The url for updating server count.
@@ -44,8 +41,10 @@ bot.event(events.on_guild_join)
 
 
 # --------------------------------Load Extensions/cogs--------------------------------#
-def load_extensions(bot, unloaded_cogs=[]):
+def load_extensions(bot, unloaded_cogs: list):
     """Loads all extensions (Cogs) from the cogs directory"""
+    if unloaded_cogs is None:
+        unloaded_cogs = []
     for filename in os.listdir('./cogs'):
         if filename.endswith(".py"):
             if filename not in unloaded_cogs:
@@ -54,7 +53,7 @@ def load_extensions(bot, unloaded_cogs=[]):
 
 if __name__ == '__main__':
     print("loading extensions...")
-    load_extensions(bot, ["manage_commands.py", "Help.py"])
+    load_extensions(bot, ["manage_commands.py", "Help.py", "Memes.py"])
     bot.load_extension("cogs.manage_commands")
     bot.load_extension("cogs.Help")
     print("logging in...")

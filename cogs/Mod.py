@@ -6,19 +6,16 @@ import random
 import asyncio
 
 
-
 class Mod(commands.Cog):
     ''' Moderator Commands '''
 
     def __init__(self, commands: commands.Bot):
         self.commands = commands
         self.warn_collection = main.database["warns"]
-        self.warn_collection.insert_one
-
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
-    async def warn(self, ctx:commands.Context, warned_member:discord.Member, *, reason:str=None):
+    async def warn(self, ctx:commands.Context, warned_member: discord.Member, *, reason: str = None):
         if reason is None:
             reason = "No reason was provided"
         warn_id = random.randint(10000000, 99999999)
@@ -50,8 +47,7 @@ class Mod(commands.Cog):
                                           description=f"Reason: {reason}")
             channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
             await ctx.send(embed=channel_embed)
-            
-    
+
     @commands.command()
     @commands.has_permissions(kick_members=True)
     async def warns(self, ctx: commands.Context, member: discord.Member):
@@ -83,7 +79,7 @@ class Mod(commands.Cog):
                 name="Warned at", value=f"{timetuple[2]}/{timetuple[1]}/{timetuple[0]} {timetuple[3]}:{timetuple[4]} (UTC)", inline=False)
             await ctx.send(embed=embed)
         else:
-            ctx.send("Warn not found!")
+            await ctx.send("Warn not found!")
 
     @commands.command()
     @commands.has_permissions(kick_members=True)

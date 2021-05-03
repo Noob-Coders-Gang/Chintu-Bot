@@ -50,7 +50,7 @@ class Info(commands.Cog):
         embed.add_field(name="Guild's id: ", value=str(ctx.guild.id))
         embed.add_field(name="Guild's member count: ",
                         value=str(ctx.guild.member_count))
-        embed.add_field(name="Bots", value=findbots, inline=True)
+        embed.add_field(name="Bots", value=f"{findbots}", inline=True)
         embed.add_field(name="Guild created at: ", value=str(
             ctx.guild.created_at.strftime("%a, %d %B %Y, %I:%M %p UTC")))
         await ctx.send(embed=embed)
@@ -76,7 +76,7 @@ class Info(commands.Cog):
         embed.add_field(name='Top Role?', value=f'{member.top_role}')
         embed.add_field(name=f"Roles ({len(roles)})", value=" ".join(
             [role.mention for role in roles[:1]]))
-        embed.add_field(name='Join position', value=pos)
+        embed.add_field(name='Join position', value=f"{pos}")
         embed.set_footer(icon_url=member.avatar_url,
                          text=f'Requested By: {ctx.author.name}')
         await ctx.send(embed=embed)

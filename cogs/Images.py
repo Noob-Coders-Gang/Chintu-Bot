@@ -12,7 +12,7 @@ class Images(commands.Cog):
     async def slap(self, ctx, user: discord.Member = None):
         user1 = ctx.author
         user2 = user
-        if user == None:
+        if user is None:
             user2 = ctx.author
 
         slap = Image.open("main_resources/Images/slap.jpg")
