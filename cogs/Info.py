@@ -20,7 +20,7 @@ class Info(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['channelstats'])
-    async def channelinfo(self, ctx, channel: discord.TextChannel):
+    async def channel_info(self, ctx, channel: discord.TextChannel):
         ''' get channel stats/info '''
         nsfw = self.bot.get_channel(channel.id).is_nsfw()
         news = self.bot.get_channel(channel.id).is_news()

@@ -1,15 +1,17 @@
+from typing import Optional
+
 import discord
 from discord.ext import commands
+from discord import Member
 from io import BytesIO
 from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
 
 
 class Images(commands.Cog):
     ''' Roast From Images  '''
+
     @commands.command()
-    async def slap(self, ctx, user: discord.Member = None):
+    async def slap(self, ctx, user: Member = None):
         user1 = ctx.author
         user2 = user
         if user is None:
@@ -19,10 +21,13 @@ class Images(commands.Cog):
 
         asset1 = user1.avatar_url_as(size=256)
         asset2 = user2.avatar_url_as(size=256)
+
         data1 = BytesIO(await asset1.read())
         data2 = BytesIO(await asset2.read())
+
         pfp1 = Image.open(data1)
         pfp1 = pfp1.resize((72, 72))
+
         slap.paste(pfp1, (131, 11))
         slap.save("main_resources/Images/send.jpg")
         pfp2 = Image.open(data2)
@@ -32,8 +37,8 @@ class Images(commands.Cog):
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
     @commands.command()
-    async def worthless(self, ctx, user: discord.Member = None):
-        if user == None:
+    async def worthless(self, ctx, user: Member = None):
+        if user is None:
             user = ctx.author
         worthless = Image.open("main_resources/Images/worthless.jpg")
         asset = user.avatar_url_as(size=128)
@@ -46,7 +51,7 @@ class Images(commands.Cog):
 
     @commands.command(aliases=['kq'])
     async def keepquiet(self, ctx, user: discord.Member = None):
-        if user == None:
+        if user is None:
             user = ctx.author
         stop = Image.open("main_resources/Images/stop.jpg")
         asset = user.avatar_url_as(size=128)
@@ -59,7 +64,7 @@ class Images(commands.Cog):
 
     @commands.command()
     async def fart(self, ctx, user: discord.Member = None):
-        if user == None:
+        if user is None:
             user = ctx.author
         fart = Image.open("main_resources/Images/fart.jpg")
         asset = user.avatar_url_as(size=128)
@@ -72,7 +77,7 @@ class Images(commands.Cog):
 
     @commands.command()
     async def pee(self, ctx, user: discord.Member = None):
-        if user == None:
+        if user is None:
             user = ctx.author
         pee = Image.open("main_resources/Images/pee.jpg")
         asset = user.avatar_url_as(size=128)
@@ -85,7 +90,7 @@ class Images(commands.Cog):
 
     @commands.command()
     async def coffindance(self, ctx, user: discord.Member = None):
-        if user == None:
+        if user is None:
             user = ctx.author
         pee = Image.open("main_resources/Images/coffindance.jpg")
         asset = user.avatar_url_as(size=128)
@@ -96,12 +101,10 @@ class Images(commands.Cog):
         pee.save("main_resources/Images/send.jpg")
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
-    @commands.command()
-    async def smash(self, ctx, user: discord.Member = None):
-        if user == None:
-            user2 = ctx.author
+    @commands.command(name="smash")
+    async def smash(self, ctx, user: Optional[Member]):
         user1 = ctx.author
-        user2 = user
+        user2 = user if user else user1
 
         smash = Image.open("main_resources/Images/smash.jpg")
 
@@ -121,7 +124,7 @@ class Images(commands.Cog):
 
     @commands.command()
     async def wanted(self, ctx, user: discord.Member = None):
-        if user == None:
+        if user is None:
             user = ctx.author
         wanted = Image.open("main_resources/Images/wantted.jpg")
 
@@ -135,7 +138,7 @@ class Images(commands.Cog):
 
     @commands.command()
     async def gay(self, ctx, user: discord.Member = None):
-        if user == None:
+        if user is None:
             user = ctx.author
         gay = Image.open("main_resources/Images/gay.jpg")
 
