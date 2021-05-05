@@ -1,0 +1,19 @@
+{
+  "by_id": {
+    "100": {
+      "name": "Joe Mama",
+      "value": 50000,
+      "resell": 15000,
+      "emoji": null,
+      "description": "Take Joe Mama from me if you can :sunglasses:",
+      "fun": "item"
+    },
+    "101": {
+      "name": "Autograph Notebook",
+      "value": 20000,
+      "resell": null,
+      "emoji": "\uD83D\uDCDD",
+      "description": "Collect as many autographs as you can and ask legends to leave their mark on your notebook"
+    }
+  }
+}

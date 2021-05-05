@@ -1,3 +1,4 @@
+import asyncio
 import json
 from datetime import datetime, timedelta
 
@@ -10,11 +11,16 @@ from main import database
 class Currency(commands.Cog):
     """🤑 Everything related to da money 🤑"""
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.collection = database["currency"]
         self.defined_currencies = json.loads(
             open('./main_resources/Assets/currency_values.json', encoding='utf-8').read())
+        self.items_by_id = json.loads(
+            open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_id"]
+        self.paged_shop, self.pages = create_paged_shop(self.items_by_id)
+        print(self.paged_shop)
+        print(self.pages)
 
     @commands.command()
     async def daily(self, ctx: commands.Context):
@@ -79,7 +85,6 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention}, enter a value greater than 0. You can't fool me. 😡")
             return
 
-
         user_bal = self.collection.find_one(
             {"_id": ctx.author.id}, {"currency": 1})
 
@@ -104,6 +109,59 @@ class Currency(commands.Cog):
                                        }, upsert=True)
             await ctx.send(
                 f"** {ctx.author.mention} gave {amount} coins to {targeted_user.display_name}  <a:chintucoin:839401482184163358>**")
+
+    @commands.command()
+    async def shop(self, ctx: commands.Context, page_num: int = 1):
+        if self.pages >= page_num >= 1:
+            embed = self.paged_shop[page_num - 1].set_footer(text=f"Page {page_num} of {self.pages}")
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send(f"{ctx.author.mention} Enter a valid page number")
+
+    @commands.command()
+    async def buy(self, ctx: commands.Context, item: int, amount: int = 1):
+        if str(item) in self.items_by_id:
+            if amount > 0:
+                balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})["currency"]
+                item_dict = self.items_by_id[str(item)]
+                if balance >= self.items_by_id[str(item)]["value"] * amount:
+                    embed = discord.Embed(
+                        title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
+                        description="React with 👍 within 15 seconds to purchase", color=discord.Colour.green())
+                    embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+                    message = await ctx.send(embed=embed)
+                    await message.add_reaction("👍")
+
+                    def check(reaction, user):
+                        return user.id == ctx.author.id and str(
+                            reaction.emoji) == '👍' and reaction.message.id == message.id
+
+                    try:
+                        await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
+                        self.collection.update_one({"_id": ctx.author.id},
+                                                   {"$inc": {
+                                                       "currency": -item_dict["value"] * amount,
+                                                       f"inventory.{str(item)}": amount
+                                                   }})
+                        await ctx.send(
+                            f"{ctx.author.mention} You have successfully "
+                            f"purchased {amount} {item_dict['name']} for {item_dict['value'] * amount}")
+                    except asyncio.TimeoutError:
+                        embed = discord.Embed(
+                            title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
+                            description="Purchase failed. Please try again", color=discord.Colour.red())
+                        embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+                        await message.edit(embed=embed)
+                        await message.clear_reactions()
+                else:
+                    await ctx.send(
+                        f"{ctx.author.mention} You don't have enough money" +
+                        f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
+            else:
+                await ctx.send(f"{ctx.author.mention} Enter a valid amount")
+
+        else:
+            await ctx.send(f"{ctx.author.mention} Enter a valid item ID")
 
     @commands.command(hidden=True)
     @commands.is_owner()
@@ -136,6 +194,32 @@ def insert_new_document(collection, doc_id: int, currency: int = 0, inventory=No
         "t_weekly": t_weekly,
         "t_monthly": t_monthly
     })
+
+
+def create_paged_shop(items: dict):
+    shop_items_len = len(items)
+    pages = shop_items_len // 5
+    if shop_items_len % 5 != 0:
+        pages += 1
+
+    embeds = []
+    i = 0
+    j = 0
+    for item in items:
+        if i == 0:
+            embed = discord.Embed(title="Chintu Store")
+
+        embed.add_field(name=f"{items[item]['name']} ─ {items[item]['value']}",
+                        value=f"(ID - {item}) {items[item]['description']}", inline=False)
+        i += 1
+        j += 1
+        if i == 4:
+            embeds.append(embed)
+            i = 0
+        elif j == shop_items_len:
+            embeds.append(embed)
+
+    return embeds, pages
 
 
 def setup(bot):
