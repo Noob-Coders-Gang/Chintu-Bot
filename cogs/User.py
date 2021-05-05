@@ -6,6 +6,7 @@ from datetime import datetime
 
 
 class User(commands.Cog):
+    """All of your personal data I stole."""
     def __init__(self, bot: commands.Bot):
         self.items_by_id = json.loads(
             open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_id"]
@@ -45,6 +46,7 @@ class User(commands.Cog):
 
     @commands.command(aliases=["inv"])
     async def inventory(self, ctx: commands.Context, target_user=None, page_number=1):
+        """Check what you have in your bag"""
         if target_user is None:
             target_user = ctx.author
             page_number = 1
