@@ -46,7 +46,7 @@ class User(commands.Cog):
 
     @commands.command(aliases=["inv"])
     async def inventory(self, ctx: commands.Context, target_user=None, page_number=1):
-        """Check what you have in your bag"""
+        """Check what you have in your inventory"""
         if target_user is None:
             target_user = ctx.author
             page_number = 1
