@@ -112,6 +112,7 @@ class Currency(commands.Cog):
 
     @commands.command()
     async def shop(self, ctx: commands.Context, page_num: int = 1):
+        """See what treasures await your purchase"""
         if self.pages >= page_num >= 1:
             embed = self.paged_shop[page_num - 1].set_footer(text=f"Page {page_num} of {self.pages}")
             await ctx.send(embed=embed)
@@ -120,6 +121,7 @@ class Currency(commands.Cog):
 
     @commands.command()
     async def buy(self, ctx: commands.Context, item: int, amount: int = 1):
+        """Buy the items of your dreams from the shop <a:chintucoin:839401482184163358>"""
         if str(item) in self.items_by_id:
             if amount > 0:
                 balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})["currency"]
