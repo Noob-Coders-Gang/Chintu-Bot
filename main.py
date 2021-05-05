@@ -1,6 +1,6 @@
-from discord.ext import commands, tasks
 import os
 
+from discord import Intents
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
@@ -10,7 +10,10 @@ from main_resources.loops import Loops
 
 # --------------------------------Variables--------------------------------#
 load_dotenv()
-bot = commands.Bot(command_prefix='BB', help_command=None, case_insensitive=True)
+intents = Intents.all()
+intents.members = True
+intents.presences = True
+bot = commands.Bot(command_prefix='BB', help_command=None, case_insensitive=True, intents=intents)
 custom_statuses = ['$help', 'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
 
 # The url for updating server count.

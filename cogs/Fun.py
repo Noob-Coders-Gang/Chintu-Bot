@@ -206,9 +206,9 @@ class Fun(commands.Cog):
                 await ctx.send("Sorry, I can find " + querry_ + " in Wikipedia")
 
     @commands.command()
-    async def kill(self, ctx, user: discord.Member = None):
+    async def kill(self, ctx, user: Optional[Member]):
         ''' kill someone ⚰️'''
-        if user == None:
+        if not user:
             user = ctx.author
         await ctx.send(f'{user.display_name} {random.choice(kills)}')
 

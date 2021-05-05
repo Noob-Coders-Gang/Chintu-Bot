@@ -2,6 +2,8 @@ import discord
 import traceback
 import random
 import datetime
+
+from discord import Member, Status
 from discord.ext import commands
 
 
@@ -15,7 +17,7 @@ class Info(commands.Cog):
     async def avatar(self, ctx, *,  avamember: discord.Member = None):
         ''' Get user avatar  '''
         userAvatarUrl = avamember.avatar_url
-        embed = discord.Embed(title=f'{avamember} avatar!!')
+        embed = discord.Embed(title=f'{avamember} avatar!!', url=f"{userAvatarUrl}")
         embed.set_image(url=userAvatarUrl)
         await ctx.send(embed=embed)
 
@@ -58,7 +60,7 @@ class Info(commands.Cog):
     @commands.command(aliases=['whois', 'userinfo'])
     async def user(self, ctx, member: discord.Member = None):
         ''' Get User Info '''
-        if member == None:
+        if member is None:
             member = ctx.author
         pos = sum(
             m.joined_at < member.joined_at for m in ctx.guild.members if m.joined_at is not None)
@@ -72,10 +74,20 @@ class Info(commands.Cog):
         embed.add_field(name='Registered at:', value=member.created_at.strftime(
             '%a, %#d %B %Y, %I:%M %p'))
         embed.add_field(name='Bot?', value=f'{member.bot}')
-        embed.add_field(name='Status?', value=f'{member.status}')
+
+        if member.status == Status.online:
+            status = "Online"
+        elif member.status == (Status.do_not_disturb or Status.dnd):
+            status = "DnD"
+        else:
+            status = "Offline"
+
+        embed.add_field(name='Status?', value=f'{status}')
         embed.add_field(name='Top Role?', value=f'{member.top_role}')
-        embed.add_field(name=f"Roles ({len(roles)})", value=" ".join(
-            [role.mention for role in roles[:1]]))
+        display_roles = ""
+        for role in roles:
+            display_roles += role.mention
+        embed.add_field(name=f"Roles ({len(roles)})", value=f"{display_roles}")
         embed.add_field(name='Join position', value=f"{pos}")
         embed.set_footer(icon_url=member.avatar_url,
                          text=f'Requested By: {ctx.author.name}')
