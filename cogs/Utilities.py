@@ -1,4 +1,5 @@
 import math
+
 import discord
 from discord.ext import commands
 
@@ -40,7 +41,8 @@ class Utility(commands.Cog):
     @commands.command()
     async def invite(self, ctx):
         """Invite Chintu to your server!!!"""
-        await ctx.send("https://discord.com/oauth2/authorize?client_id=790900950885203978&permissions=2026368118&scope=bot")
+        await ctx.send(
+            "https://discord.com/oauth2/authorize?client_id=790900950885203978&permissions=2026368118&scope=bot")
 
 
 def setup(bot):

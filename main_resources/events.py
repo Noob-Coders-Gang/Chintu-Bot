@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
+
 from main_resources.functions import update_total_guilds, add_guild
-import os
 
 
 class Events:
@@ -12,7 +12,7 @@ class Events:
         self.total_guilds_api_url = total_guilds_api_url
         self.ChintuAI = ChintuAI
         if ChintuAI:
-            from main_resources.ChintuAI import AskChintu
+            pass
 
     async def on_guild_join(self, guild: discord.Guild):
         guilds = self.bot.guilds

@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-import os
+
 import main
+
 load_dotenv()
 
 
@@ -30,7 +31,7 @@ class manage_commands(commands.Cog):
                     # Add the requested command to the disabled command list
                     current_list.append(command_name)
                 collection.update_one({"_id": ctx.guild.id}, {
-                                      "$set": {"disabled_commands": current_list}})  # Update the collection
+                    "$set": {"disabled_commands": current_list}})  # Update the collection
                 embed = discord.Embed(title=f"I have removed the {command_name} command from your server!",
                                       color=discord.Colour.green())
                 await ctx.send(embed=embed)
@@ -57,7 +58,7 @@ class manage_commands(commands.Cog):
                     # Remove the requested command from the disabled command list
                     current_list.remove(command_name)
                 collection.update_one({"_id": ctx.guild.id}, {
-                                      "$set": {"disabled_commands": current_list}})  # Update the collection
+                    "$set": {"disabled_commands": current_list}})  # Update the collection
                 embed = discord.Embed(title=f"I have added the {command_name} command back to your server!",
                                       color=discord.Colour.green())
                 await ctx.send(embed=embed)

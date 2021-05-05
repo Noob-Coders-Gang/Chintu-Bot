@@ -1,13 +1,13 @@
-import discord
-from discord.ext.commands.core import command
-import requests
-from discord.ext import commands
-import random
 import asyncio
-import wikipedia
-import urllib.request
 import json
 import math
+import random
+import urllib.request
+
+import discord
+import wikipedia
+from discord.ext import commands
+
 roasts = json.loads(
     open('./main_resources/Assets/roast.json', encoding='utf-8').read())['roasts']
 kills = json.loads(open('./main_resources/Assets/kill.json',
@@ -75,7 +75,8 @@ class Fun(commands.Cog):
                 definition += "..."
             definition = definition.replace('[', "").replace("]", "")
             em = discord.Embed(
-                title=f"📚 Definitions for **{result['word']}**", description=f"\n{definition}", color=discord.Colour.red())
+                title=f"📚 Definitions for **{result['word']}**", description=f"\n{definition}",
+                color=discord.Colour.red())
             await ctx.send(embed=em)
 
     @commands.command(aliases=["joke", "funjoke"])
@@ -90,8 +91,10 @@ class Fun(commands.Cog):
                 def check(author):
                     def inner_check(message):
                         return message.author == author
+
                     return inner_check
-                if(not url['error']):
+
+                if (not url['error']):
                     if url["type"] == "twopart":
                         await ctx.send(url['setup'])
                         ans = await self.bot.wait_for('message', check=check, timeout=30)
@@ -114,11 +117,12 @@ class Fun(commands.Cog):
         if user.id == self.bot.user.id:
             return await ctx.send("*drinks beer with you* 🍻")
         if user.bot:
-            return await ctx.send(f"I would love to give beer to the bot **{ctx.author.name}**, but I don't think it will respond to you :/")
+            return await ctx.send(
+                f"I would love to give beer to the bot **{ctx.author.name}**, but I don't think it will respond to you :/")
 
         beer_offer = f"**{user.name}**, you got a 🍺 offer from **{ctx.author.name}**"
         beer_offer = beer_offer + \
-            f"\n\n**Reason:** {reason}" if reason else beer_offer
+                     f"\n\n**Reason:** {reason}" if reason else beer_offer
         msg = await ctx.send(beer_offer)
 
         def reaction_check(m):
@@ -137,7 +141,7 @@ class Fun(commands.Cog):
             # Yeah so, bot doesn't have reaction permission, drop the "offer" word
             beer_offer = f"**{user.name}**, you got a 🍺 from **{ctx.author.name}**"
             beer_offer = beer_offer + \
-                f"\n\n**Reason:** {reason}" if reason else beer_offer
+                         f"\n\n**Reason:** {reason}" if reason else beer_offer
             await msg.edit(content=beer_offer)
 
     @commands.command(aliases=["hotcalc", "hot"])
@@ -212,8 +216,10 @@ class Fun(commands.Cog):
     @commands.command(aliases=['ppsize', 'size', 'penis'])
     async def pp(self, ctx, member: discord.Member):
         ''' To check pp size 🍆'''
-        size = ['', '==', '', '=', '', '====', '', '=', '======', '==========================', '===', "===============",
-                "========", "===", "===================", "===", '========', '=====', "======================================", "===", "============"]
+        size = ['', '==', '', '=', '', '====', '', '=', '======', '==========================', '===',
+                "===============",
+                "========", "===", "===================", "===", '========', '=====',
+                "======================================", "===", "============"]
         em = discord.Embed(color=discord.Colour.blue(),
                            title="PeePee size calculator")
 
@@ -227,7 +233,7 @@ class Fun(commands.Cog):
         user = str(member.id)
         s = sum([int(x) for x in user])
 
-        per = float((abs(math.sin((s/18)))) * 100)
+        per = float((abs(math.sin((s / 18)))) * 100)
         if per >= 50:
             gay = 'GAY'
         else:
@@ -249,7 +255,9 @@ class Fun(commands.Cog):
             lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '@',
                    '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', ",", '}', ']',
-                   '[', ';', ':', '<', '>', '?', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '`', '~', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+                   '[', ';', ':', '<', '>', '?', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '`', '~', 'A',
+                   'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
+                   'V', 'W', 'X', 'Y', 'Z']
             for x in range(amt):
                 newpass = random.choice(lst)
                 nwpss.append(newpass)
@@ -263,5 +271,4 @@ class Fun(commands.Cog):
 def setup(bot):
     bot.add_cog(Fun(bot))
 
-
-#----------------------------------------------------------------#
+# ----------------------------------------------------------------#

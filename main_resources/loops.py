@@ -1,6 +1,7 @@
+from itertools import cycle
+
 import discord
 from discord.ext import commands
-from itertools import cycle
 
 
 class Loops:

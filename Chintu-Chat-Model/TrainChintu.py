@@ -1,16 +1,17 @@
-import random
-from keras.optimizers import SGD
-from keras.layers import Dense, Activation, Dropout
-from keras.models import Sequential
-import numpy as np
-import pickle
 import json
-from nltk.stem import WordNetLemmatizer
+import pickle
+import random
+
 import nltk
+import numpy as np
+from keras.layers import Dense, Dropout
+from keras.models import Sequential
+from keras.optimizers import SGD
+from nltk.stem import WordNetLemmatizer
+
 nltk.download('punkt')
 nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()
-
 
 words = []
 classes = []
@@ -18,7 +19,6 @@ documents = []
 ignore_words = ['?', '!']
 data_file = open('intents.json').read()
 intents = json.loads(data_file)
-
 
 for intent in intents['intents']:
     for pattern in intent['patterns']:
@@ -44,7 +44,6 @@ print(len(documents), "documents")
 print(len(classes), "classes", classes)
 
 print(len(words), "unique lemmatized words", words)
-
 
 pickle.dump(words, open('words.pkl', 'wb'))
 pickle.dump(classes, open('classes.pkl', 'wb'))
@@ -76,7 +75,6 @@ training = np.array(training)
 train_x = list(training[:, 0])
 train_y = list(training[:, 1])
 print("Training data created")
-
 
 # Create model - 3 layers. First layer 128 neurons, second layer 64 neurons and 3rd output layer contains number of neurons
 # equal to number of intents to predict output intent with softmax

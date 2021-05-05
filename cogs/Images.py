@@ -1,13 +1,13 @@
-import discord
-from discord.ext import commands
 from io import BytesIO
+
+import discord
 from PIL import Image
-from PIL import ImageDraw
-from PIL import ImageFont
+from discord.ext import commands
 
 
 class Images(commands.Cog):
     ''' Roast From Images  '''
+
     @commands.command()
     async def slap(self, ctx, user: discord.Member = None):
         user1 = ctx.author

@@ -1,7 +1,6 @@
-import discord
-import traceback
-import random
 import datetime
+
+import discord
 from discord.ext import commands
 
 
@@ -12,7 +11,7 @@ class Info(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def avatar(self, ctx, *,  avamember: discord.Member = None):
+    async def avatar(self, ctx, *, avamember: discord.Member = None):
         ''' Get user avatar  '''
         userAvatarUrl = avamember.avatar_url
         embed = discord.Embed(title=f'{avamember} avatar!!')
@@ -41,7 +40,7 @@ class Info(commands.Cog):
         ''' Get Server Info '''
         findbots = sum(1 for member in ctx.guild.members if member.bot)
         embed = discord.Embed(title='Infomation about ' + ctx.guild.name +
-                              '.', colour=discord.Colour.from_rgb(54, 151, 255))
+                                    '.', colour=discord.Colour.from_rgb(54, 151, 255))
         embed.set_thumbnail(url=str(ctx.guild.icon_url))
         embed.add_field(name="Guild's name: ", value=ctx.guild.name)
         embed.add_field(name="Guild's owner: ", value=str(ctx.guild.owner))

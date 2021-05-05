@@ -1,8 +1,6 @@
-import json
 import discord
-from discord.ext import commands
-
 from discord.errors import Forbidden
+from discord.ext import commands
 
 
 async def send_embed(ctx, embed):
@@ -21,22 +19,21 @@ async def send_embed(ctx, embed):
 
 
 def prebuild_embed(bot):
-     # starting to build embed
+    # starting to build embed
     prefix = '$'
     emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
-                                description=f'Use `{prefix}help <module>` to gain more information about that module '
-                                            f':smiley:\n')
+                        description=f'Use `{prefix}help <module>` to gain more information about that module '
+                                    f':smiley:\n')
 
-    #------------------- iterating trough cogs, gathering descriptions------------------#
+    # ------------------- iterating trough cogs, gathering descriptions------------------#
 
     cogs_desc = ''
     for cog in bot.cogs:
-
         cogs_desc += f'`{cog}` {bot.cogs[cog].__doc__}\n'
 
     emb.add_field(name='Modules', value=cogs_desc, inline=False)
 
-    #------------------- Adding all cogs to Help embed ------------------#
+    # ------------------- Adding all cogs to Help embed ------------------#
 
     # integrating trough uncategorized commands
     commands_desc = ''
@@ -44,30 +41,30 @@ def prebuild_embed(bot):
         # if cog not in a cog
         # listing command if cog name is None and command isn't hidden
         if not command.cog_name and not command.hidden:
-
             commands_desc += f'{command.name} - {command.help}\n'
 
     if commands_desc:
         emb.add_field(name='Not belonging to a module',
-                        value=commands_desc, inline=False)
+                      value=commands_desc, inline=False)
     emb.add_field(
         name="About", value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
-    
+
     return emb
+
 
 class Help(commands.Cog):
     """ Sends this help message """
 
     def __init__(self, bot):
         self.bot = bot
-        self.default_help_embed = prebuild_embed(bot) #Predifining default embed for speeding up command execution
+        self.default_help_embed = prebuild_embed(bot)  # Predifining default embed for speeding up command execution
 
     @commands.command()
     async def help(self, ctx, *input):
         """Shows all modules of the bot"""
         prefix = '$'
         if not input:
-            #default help embed
+            # default help embed
             emb = self.default_help_embed
         # block called when one cog-name is given
         # trying to find matching cog and it's commands

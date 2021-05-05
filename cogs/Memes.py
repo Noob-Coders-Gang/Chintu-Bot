@@ -1,10 +1,12 @@
-import praw
-import discord
-from discord.ext import commands
-import random
 import os
-from dotenv import load_dotenv
+import random
+
+import discord
+import praw
 import requests
+from discord.ext import commands
+from dotenv import load_dotenv
+
 load_dotenv()
 
 reddit = praw.Reddit(

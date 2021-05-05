@@ -1,17 +1,13 @@
-import discord
-from discord.ext import commands, tasks
-import requests
-from dotenv import load_dotenv
 import os
-from itertools import cycle
 
+from discord.ext import commands, tasks
+from dotenv import load_dotenv
 
-import pymongo
-
-from main_resources.functions import load_extensions, create_database_connection, update_cmdManager_coll
 from main_resources.events import Events
+from main_resources.functions import create_database_connection, update_cmdManager_coll
 from main_resources.loops import Loops
-#--------------------------------Variables--------------------------------#
+
+# --------------------------------Variables--------------------------------#
 load_dotenv()
 bot = commands.Bot(command_prefix='$', help_command=None)
 custom_statuses = ['$help', 'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
@@ -22,7 +18,7 @@ database = create_database_connection(os.getenv('MONGODB_URL'))
 cmdManager_collection = database["cmd_manager"]
 
 
-#--------------------------------Main startup event--------------------------------#
+# --------------------------------Main startup event--------------------------------#
 @bot.event
 async def on_ready():
     change_status.start()
@@ -31,27 +27,27 @@ async def on_ready():
     print('Logged in as {0.user}'.format(bot))
 
 
-#--------------------------------Task loops--------------------------------#
+# --------------------------------Task loops--------------------------------#
 
 loops = Loops(bot, custom_statuses)
 change_status = tasks.loop(seconds=60)(loops.change_status)
 
-
-#--------------------------------Events--------------------------------#
+# --------------------------------Events--------------------------------#
 events = Events(bot, database, total_guilds_api_url, ChintuAI=False)
 bot.event(events.on_command_error)
 bot.event(events.on_message)
 bot.event(events.on_guild_join)
 
 
-#--------------------------------Load Extensions/cogs--------------------------------#
-def load_extensions(bot, unloaded_cogs=[]):
+# --------------------------------Load Extensions/cogs--------------------------------#
+def load_extensions(fun_bot, unloaded_cogs: list = None):
     """Loads all extensions (Cogs) from the cogs directory"""
+    if unloaded_cogs is None:
+        unloaded_cogs = []
     for filename in os.listdir('./cogs'):
         if filename.endswith(".py"):
             if filename not in unloaded_cogs:
-                bot.load_extension(f'cogs.{filename[:-3]}')
-
+                fun_bot.load_extension(f'cogs.{filename[:-3]}')
 
 
 if __name__ == '__main__':
