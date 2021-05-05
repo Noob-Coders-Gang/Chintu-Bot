@@ -12,7 +12,6 @@ pymongo~=3.11.4
 dnspython
 bs4~=0.0.1
 dataclasses
-praw
 Pillow
 wikipedia~=1.4.0
 beautifulsoup4~=4.9.3

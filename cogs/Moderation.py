@@ -14,7 +14,6 @@ class Mod(commands.Cog):
     def __init__(self, commands: commands.Bot):
         self.commands = commands
         self.warn_collection = main.database["warns"]
-        self.warn_collection.insert_one
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
