@@ -18,8 +18,9 @@ async def disc(bot, ctx: commands.Context, item_dict: dict):
             player = await YTDLSource.from_url(url, loop=bot.loop, stream=True)
             ctx.voice_client.play(player)
             await msg.add_reaction(":white_check_mark:")
-            while ctx.voice_client.is_playing():
-                await asyncio.sleep(1)
+            # while ctx.voice_client.is_playing():
+            #     await asyncio.sleep(1)
+            await asyncio.sleep(30)
             await ctx.voice_client.disconnect()
         except:
             await ctx.voice_client.disconnect()
