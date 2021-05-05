@@ -21,8 +21,9 @@ class Currency(commands.Cog):
         """Daily dose of sweet cash 💰💰💰"""
         daily_time = self.collection.find_one({"_id": ctx.author.id}, {"t_daily": 1})
 
-        if daily_time is None or daily_time['t_daily'] == 0 or (datetime.utcnow() - daily_time['t_daily']) >= timedelta(
-                days=1):
+        if daily_time is None \
+                or daily_time['t_daily'] == 0 \
+                or (datetime.utcnow() - daily_time['t_daily']) >= timedelta(days=1):
             self.collection.update_one({"_id": ctx.author.id},  # Query for update
                                        {
                                            "$inc": {"currency": self.defined_currencies['daily']},
@@ -39,34 +40,6 @@ class Currency(commands.Cog):
             emb.add_field(name="You can claim your daily again in:", value="24 hours")
             await ctx.send(embed=emb)
 
-        # elif daily_time['t_daily'] == 0:
-        #     self.collection.update_one({"_id": ctx.author.id},  # Query for update
-        #                                {
-        #                                    # Increase value of currency by defined value
-        #                                    "$inc": {"currency": self.defined_currencies['daily']},
-        #                                    # Set daily time
-        #                                    "$set": {"t_daily": datetime.utcnow()},
-        #                                })
-        #     emb = discord.Embed(title="Enjoy your daily cold hard cash 🤑",
-        #                         description=f"{self.defined_currencies['daily']} coins were placed in your wallet!",
-        #                         color=discord.Colour.green())
-        #     emb.add_field(name="You can claim your daily again in:", value="24 hours")
-        #     await ctx.send(embed=emb)
-        #
-        # elif (datetime.utcnow() - daily_time['t_daily']) >= timedelta(days=1):
-        #     self.collection.update_one({"_id": ctx.author.id},  # Query for update
-        #                                {
-        #                                    # Increase value of currency by defined value
-        #                                    "$inc": {"currency": self.defined_currencies['daily']},
-        #                                    # Set daily time
-        #                                    "$set": {"t_daily": datetime.utcnow()},
-        #                                })
-        #     emb = discord.Embed(title="Enjoy your daily cold hard cash 🤑",
-        #                         description=f"{self.defined_currencies['daily']} coins were placed in your wallet!",
-        #                         color=discord.Colour.green())
-        #     emb.add_field(name="You can claim your daily again in:", value="24 hours")
-        #     await ctx.send(embed=emb)
-
         else:
             emb = discord.Embed(title="You have already claimed your daily coins", color=discord.Colour.green())
             del_time = (daily_time['t_daily'] + timedelta(days=1)) - datetime.utcnow()
@@ -82,23 +55,17 @@ class Currency(commands.Cog):
     async def balance(self, ctx: commands.Context, member: discord.Member = None):
         """Check the bank balance of those pesky scrubs"""
         if member is None:
-            coins = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
-            if coins is None:
-                insert_new_document(self.collection, ctx.author.id)
-                emb = discord.Embed(description=f"***{ctx.author.name} currently has 0 coins. Poor much?***",
-                                    color=discord.Colour.green())
-            else:
-                emb = discord.Embed(description=f"***{ctx.author.name} currently has {coins['currency']} coins.***",
-                                    color=discord.Colour.green())
+            member = ctx.author
+        coins = self.collection.find_one({"_id": member.id}, {"currency": 1})
+        if coins is None:
+            insert_new_document(self.collection, member.id)
+            coins = {"currency": 0}
+        if coins['currency'] == 0:
+            emb = discord.Embed(description=f"***{member.name} currently has 0 coins. Poor much?***",
+                                color=discord.Colour.green())
         else:
-            coins = self.collection.find_one({"_id": member.id}, {"currency": 1})
-            if coins is None:
-                insert_new_document(self.collection, member.id)
-                emb = discord.Embed(description=f"***{member.name} currently has 0 coins. Poor much?***",
-                                    color=discord.Colour.green())
-            else:
-                emb = discord.Embed(description=f"***{member.name} currently has {coins['currency']} coins.***",
-                                    color=discord.Colour.green())
+            emb = discord.Embed(description=f"***{member.name} currently has {coins['currency']} coins.***",
+                                color=discord.Colour.green())
         await ctx.send(embed=emb)
 
     @commands.command(hidden=True)
