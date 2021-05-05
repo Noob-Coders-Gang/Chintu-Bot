@@ -14,3 +14,4 @@ bs4~=0.0.1
 wikipedia~=1.4.0
 beautifulsoup4~=4.9.3
 pynacl
+youtube_dl
