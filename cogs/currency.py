@@ -75,18 +75,19 @@ class Currency(commands.Cog):
         if ctx.author.id == targeted_user.id:
             await ctx.send(f"{ctx.author.mention}, you can't give coins to yourself. 😡")
             return
-        if amount == 0:
-            await ctx.send(f"{ctx.author.mention}, give them some money you cheapskate. 😡")
+        if amount <= 0:
+            await ctx.send(f"{ctx.author.mention}, enter a value greater than 0. You can't fool me. 😡")
             return
 
-        userbal = self.collection.find_one(
+
+        user_bal = self.collection.find_one(
             {"_id": ctx.author.id}, {"currency": 1})
 
-        if userbal is None:
+        if user_bal is None:
             insert_new_document(self.collection, ctx.author.id)
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
             return
-        elif userbal["currency"] < amount:
+        elif user_bal["currency"] < amount:
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
             return
         else:

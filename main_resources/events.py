@@ -69,3 +69,8 @@ class Events:
                 title=':x: Could not find the mentioned user. Please mention a valid user.',
                 color=discord.Colour.red())
             await ctx.send(embed=embed)
+        elif isinstance(error, commands.BadArgument):
+            embed = discord.Embed(
+                title=':x: Enter a valid argument',
+                color=discord.Colour.red())
+            await ctx.send(embed=embed)
