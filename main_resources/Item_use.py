@@ -12,12 +12,12 @@ async def disc(bot, ctx: commands.Context, item_dict: dict):
             await ctx.voice_client.move_to(channel)
         else:
             await channel.connect()
-        try:
-            url = item_dict['url']
-            player = await YTDLSource.from_url(url, loop=bot.loop, stream=True)
-            ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
-        except:
-            ctx.voice_client.disconnect()
+        # try:
+        url = item_dict['url']
+        player = await YTDLSource.from_url(url, loop=bot.loop, stream=True)
+        ctx.voice_client.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
+    # except:
+        ctx.voice_client.disconnect()
     except AttributeError:
         await ctx.send(f"{ctx.author.mention} You must be in a voice channel to use this item.")
 
