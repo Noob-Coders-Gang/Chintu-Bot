@@ -18,6 +18,8 @@ class Currency(commands.Cog):
             open('./main_resources/Assets/currency_values.json', encoding='utf-8').read())
         self.items_by_id = json.loads(
             open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_id"]
+        self.id_by_name = json.loads(
+            open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_name"]
         self.paged_shop, self.pages = create_paged_shop(self.items_by_id)
 
     @commands.command()
@@ -118,14 +120,24 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid page number")
 
     @commands.command()
-    async def buy(self, ctx: commands.Context, item: int, amount: int = 1):
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def buy(self, ctx: commands.Context, item, amount: int = 1):
         """Buy the items of your dreams from the shop <a:chintucoin:839401482184163358>"""
-        if str(item) in self.items_by_id:
+        item_dict = None
+        item = item.lower()
+        try:
+            item = int(item)
+            if str(item) in self.items_by_id:
+                item_dict = self.items_by_id[str(item)]
+        except Exception:
+            if item in self.id_by_name:
+                item_dict = self.items_by_id[str(self.id_by_name[item])]
+                item = self.id_by_name[item]
+        if item_dict is not None:
             if amount > 0:
                 balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
                 if balance is not None:
                     balance = balance['currency']
-                    item_dict = self.items_by_id[str(item)]
                     if balance >= self.items_by_id[str(item)]["value"] * amount:
                         embed = discord.Embed(
                             title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
@@ -168,7 +180,7 @@ class Currency(commands.Cog):
                 await ctx.send(f"{ctx.author.mention} Enter a valid amount")
 
         else:
-            await ctx.send(f"{ctx.author.mention} Enter a valid item ID")
+            await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
 
     @commands.command(hidden=True)
     @commands.is_owner()

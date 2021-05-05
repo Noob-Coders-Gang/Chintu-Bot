@@ -18,6 +18,7 @@ class User(commands.Cog):
     async def use(self, ctx: commands.Context, item):
         """Use the items you got there in your inventory"""
         item_dict = None
+        item = item.lower()
         try:
             item = int(item)
             if str(item) in self.items_by_id:
