@@ -45,24 +45,27 @@ class Events:
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
-            print("oopsi")
             em = discord.Embed(title=f"Slow it down bro!",
                                description=f"Try again in {error.retry_after:.2f}s.", color=discord.Color.red())
             await ctx.send(embed=em)
-
-        if isinstance(error, commands.CheckFailure):
+        elif isinstance(error, commands.CheckFailure):
             embed = discord.Embed(title=':x: oops! You do not have permission to use this command.',
                                   color=discord.Colour.red())
             await ctx.send(embed=embed)
         elif isinstance(error, commands.MissingRequiredArgument):
             embed = discord.Embed(
-                title=':x:You are missing the required arguments. Please check if your command requires an addition arguement.',
+                title=':x: You are missing the required arguments. Please check if your command requires an addition arguement.',
                 color=discord.Colour.red())
             await ctx.send(embed=embed)
         elif isinstance(error, commands.MissingPermissions):
             embed = discord.Embed(
-                title=':x:Chintu is missing the required permissions. Please check if Chintu has appropriate permissions.',
+                title=':x: Chintu is missing the required permissions. Please check if Chintu has appropriate permissions.',
                 color=discord.Colour.red())
             await ctx.send(embed=embed)
         elif isinstance(error, commands.CommandNotFound):
             pass
+        elif isinstance(error, commands.MemberNotFound):
+            embed = discord.Embed(
+                title=':x: Could not find the mentioned user. Please mention a valid user.',
+                color=discord.Colour.red())
+            await ctx.send(embed=embed)

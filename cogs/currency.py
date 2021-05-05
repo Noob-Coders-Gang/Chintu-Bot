@@ -52,26 +52,62 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
 
     @commands.command(aliases=['bal'])
-    async def balance(self, ctx: commands.Context, member: discord.Member = None):
+    async def balance(self, ctx: commands.Context, targeted_user: discord.Member = None):
         """Check the bank balance of those pesky scrubs"""
-        if member is None:
-            member = ctx.author
-        coins = self.collection.find_one({"_id": member.id}, {"currency": 1})
+        if targeted_user is None:
+            targeted_user = ctx.author
+        coins = self.collection.find_one({"_id": targeted_user.id}, {"currency": 1})
         if coins is None:
-            insert_new_document(self.collection, member.id)
+            insert_new_document(self.collection, targeted_user.id)
             coins = {"currency": 0}
         if coins['currency'] == 0:
-            emb = discord.Embed(description=f"***{member.name} currently has 0 coins. Poor much?***",
+            emb = discord.Embed(description=f"***{targeted_user.display_name} currently has 0 coins. Poor much?***",
                                 color=discord.Colour.green())
         else:
-            emb = discord.Embed(description=f"***{member.name} currently has {coins['currency']} coins.***",
-                                color=discord.Colour.green())
+            emb = discord.Embed(
+                description=f"***{targeted_user.display_name} currently has {coins['currency']} coins.***",
+                color=discord.Colour.green())
         await ctx.send(embed=emb)
+
+    @commands.command(aliases=['pay'])
+    async def give(self, ctx: commands.Context, targeted_user: discord.Member, amount: int):
+        """Give away your hard earned cash 🎁"""
+        if ctx.author.id == targeted_user.id:
+            await ctx.send(f"{ctx.author.mention}, you can't give coins to yourself. 😡")
+            return
+        if amount == 0:
+            await ctx.send(f"{ctx.author.mention}, give them some money you cheapskate. 😡")
+            return
+
+        userbal = self.collection.find_one(
+            {"_id": ctx.author.id}, {"currency": 1})
+
+        if userbal is None:
+            insert_new_document(self.collection, ctx.author.id)
+            await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
+            return
+        elif userbal["currency"] < amount:
+            await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
+            return
+        else:
+            self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": -amount}})
+            self.collection.update_one({"_id": targeted_user.id},  # Query for update
+                                       {
+                                           "$inc": {"currency": amount},
+                                           "$setOnInsert": {
+                                               "inventory": {},
+                                               "t_daily": 0,
+                                               "t_weekly": 0,
+                                               "t_monthly": 0
+                                           }
+                                       }, upsert=True)
+            await ctx.send(
+                f"** {ctx.author.mention} gave {amount} coins to {targeted_user.display_name}  <a:chintucoin:839401482184163358>**")
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def addmoney(self, ctx: commands.Context, member: discord.Member, amount: int):
-        self.collection.update_one({"_id": member.id},  # Query for update
+    async def addmoney(self, ctx: commands.Context, targeted_user: discord.Member, amount: int):
+        self.collection.update_one({"_id": targeted_user.id},  # Query for update
                                    {
                                        "$inc": {"currency": amount},
                                        "$setOnInsert": {
@@ -81,7 +117,7 @@ class Currency(commands.Cog):
                                            "t_monthly": 0
                                        }
                                    }, upsert=True)
-        emb = discord.Embed(description=f"***Added {amount} coins to {member.name}'s balance.***",
+        emb = discord.Embed(description=f"***Added {amount} coins to {targeted_user.display_name}'s balance.***",
                             color=discord.Colour.green())
         await ctx.send(embed=emb)
 
