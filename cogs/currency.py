@@ -119,6 +119,7 @@ class Currency(commands.Cog):
 
     @commands.command()
     async def give(self, ctx, targeted_user: discord.Member, amount: int):
+        """ giveaway part of your coins 🎁 """
         if ctx.author == targeted_user:
             await ctx.send(f"{ctx.author.name} you cant give coin to yourself")
             return 0
@@ -161,7 +162,7 @@ class Currency(commands.Cog):
                 # Increase value of currency by defined value
                 "$inc": {"currency": -amount}
             })
-            await ctx.send(f"*** {ctx.author.name} gave {amount} coins {targeted_user}  <a:chintucoin:839401482184163358>***")
+            await ctx.send(f"** {ctx.author.name} gave {amount} coins to {targeted_user.display_name}  <a:chintucoin:839401482184163358>**")
         else:
             await ctx.send("***Enter in a value greater than 0***")
 
