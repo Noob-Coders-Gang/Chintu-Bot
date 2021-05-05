@@ -19,8 +19,7 @@ class Currency(commands.Cog):
         self.items_by_id = json.loads(
             open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_id"]
         self.paged_shop, self.pages = create_paged_shop(self.items_by_id)
-        print(self.paged_shop)
-        print(self.pages)
+
 
     @commands.command()
     async def daily(self, ctx: commands.Context):
@@ -164,6 +163,13 @@ class Currency(commands.Cog):
 
         else:
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID")
+
+    @commands.command(aliases=["inv"], hidden=True)
+    async def inventory(self, ctx:commands.Context, target_user:discord.Member=None):
+        if target_user is None:
+            target_user = ctx.author
+        inventory_dict = self.collection.find_one({"_id":target_user.id}, {"inventory":1})["inventory"]
+  # TODO
 
     @commands.command(hidden=True)
     @commands.is_owner()
