@@ -20,7 +20,6 @@ class Currency(commands.Cog):
             open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_id"]
         self.paged_shop, self.pages = create_paged_shop(self.items_by_id)
 
-
     @commands.command()
     async def daily(self, ctx: commands.Context):
         """Daily dose of sweet cash 💰💰💰"""
@@ -123,38 +122,45 @@ class Currency(commands.Cog):
         """Buy the items of your dreams from the shop <a:chintucoin:839401482184163358>"""
         if str(item) in self.items_by_id:
             if amount > 0:
-                balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})["currency"]
-                item_dict = self.items_by_id[str(item)]
-                if balance >= self.items_by_id[str(item)]["value"] * amount:
-                    embed = discord.Embed(
-                        title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
-                        description="React with 👍 within 15 seconds to purchase", color=discord.Colour.green())
-                    embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
-                    message = await ctx.send(embed=embed)
-                    await message.add_reaction("👍")
-
-                    def check(reaction, user):
-                        return user.id == ctx.author.id and str(
-                            reaction.emoji) == '👍' and reaction.message.id == message.id
-
-                    try:
-                        await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
-                        self.collection.update_one({"_id": ctx.author.id},
-                                                   {"$inc": {
-                                                       "currency": -item_dict["value"] * amount,
-                                                       f"inventory.{str(item)}": amount
-                                                   }})
-                        await ctx.send(
-                            f"{ctx.author.mention} You have successfully "
-                            f"purchased {amount} {item_dict['name']} for {item_dict['value'] * amount}")
-                    except asyncio.TimeoutError:
+                balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
+                if balance is not None:
+                    balance = balance['currency']
+                    item_dict = self.items_by_id[str(item)]
+                    if balance >= self.items_by_id[str(item)]["value"] * amount:
                         embed = discord.Embed(
                             title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
-                            description="Purchase failed. Please try again", color=discord.Colour.red())
+                            description="React with 👍 within 15 seconds to purchase", color=discord.Colour.green())
                         embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
-                        await message.edit(embed=embed)
-                        await message.clear_reactions()
+                        message = await ctx.send(embed=embed)
+                        await message.add_reaction("👍")
+
+                        def check(reaction, user):
+                            return user.id == ctx.author.id and str(
+                                reaction.emoji) == '👍' and reaction.message.id == message.id
+
+                        try:
+                            await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
+                            self.collection.update_one({"_id": ctx.author.id},
+                                                       {"$inc": {
+                                                           "currency": -item_dict["value"] * amount,
+                                                           f"inventory.{str(item)}": amount
+                                                       }})
+                            await ctx.send(
+                                f"{ctx.author.mention} You have successfully "
+                                f"purchased {amount} {item_dict['name']} for {item_dict['value'] * amount}")
+                        except asyncio.TimeoutError:
+                            embed = discord.Embed(
+                                title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
+                                description="Purchase failed. Please try again", color=discord.Colour.red())
+                            embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+                            await message.edit(embed=embed)
+                            await message.clear_reactions()
+                    else:
+                        await ctx.send(
+                            f"{ctx.author.mention} You don't have enough money" +
+                            f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
                 else:
+                    insert_new_document(self.collection, ctx.author.id)
                     await ctx.send(
                         f"{ctx.author.mention} You don't have enough money" +
                         f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
@@ -163,13 +169,6 @@ class Currency(commands.Cog):
 
         else:
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID")
-
-    @commands.command(aliases=["inv"], hidden=True)
-    async def inventory(self, ctx:commands.Context, target_user:discord.Member=None):
-        if target_user is None:
-            target_user = ctx.author
-        inventory_dict = self.collection.find_one({"_id":target_user.id}, {"inventory":1})["inventory"]
-  # TODO
 
     @commands.command(hidden=True)
     @commands.is_owner()
