@@ -47,7 +47,7 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
 
         else:
-            emb = discord.Embed(title="You have already claimed your daily coins", color=discord.Colour.green())
+            emb = discord.Embed(title="You have already claimed your daily coins", color=discord.Colour.red())
             del_time = (daily_time['t_daily'] + timedelta(days=1)) - datetime.utcnow()
             days, seconds = del_time.days, del_time.seconds
             hours = days * 24 + seconds // 3600
@@ -55,6 +55,76 @@ class Currency(commands.Cog):
             seconds = seconds % 60
             emb.add_field(name="You can claim your daily again in:",
                           value=f"{hours} hours, {minutes} minutes and {seconds} seconds")
+            await ctx.send(embed=emb)
+
+    @commands.command()
+    async def weekly(self, ctx: commands.Context):
+        """Weekly dose of sweet cash 💰💰💰"""
+        weekly_time = self.collection.find_one({"_id": ctx.author.id}, {"t_weekly": 1})
+
+        if weekly_time is None \
+                or weekly_time['t_weekly'] == 0 \
+                or (datetime.utcnow() - weekly_time['t_weekly']) >= timedelta(days=7):
+            self.collection.update_one({"_id": ctx.author.id},  # Query for update
+                                       {
+                                           "$inc": {"currency": self.defined_currencies['weekly']},
+                                           "$set": {"t_weekly": datetime.utcnow()},
+                                           "$setOnInsert": {
+                                               "inventory": {},
+                                               "t_daily": 0,
+                                               "t_monthly": 0
+                                           }
+                                       }, upsert=True)
+            emb = discord.Embed(title="Enjoy your weekly cold hard cash 🤑",
+                                description=f"{self.defined_currencies['weekly']} coins were placed in your wallet!",
+                                color=discord.Colour.green())
+            emb.add_field(name="You can claim your weekly again in:", value="7 days")
+            await ctx.send(embed=emb)
+
+        else:
+            emb = discord.Embed(title="You have already claimed your weekly coins", color=discord.Colour.red())
+            del_time = (weekly_time['t_weekly'] + timedelta(days=7)) - datetime.utcnow()
+            days, seconds = del_time.days, del_time.seconds
+            hours = (days * 24 + seconds // 3600)%24
+            minutes = (seconds % 3600) // 60
+            #seconds = seconds % 60
+            emb.add_field(name="You can claim your weekly again in:",
+                          value=f"{days} days, {hours} hours and {minutes} minutes")
+            await ctx.send(embed=emb)
+
+    @commands.command()
+    async def monthly(self, ctx: commands.Context):
+        """Monthly dose of sweet cash 💰💰💰"""
+        monthly_time = self.collection.find_one({"_id": ctx.author.id}, {"t_monthly": 1})
+
+        if monthly_time is None \
+                or monthly_time['t_monthly'] == 0 \
+                or (datetime.utcnow() - monthly_time['t_monthly']) >= timedelta(days=30):
+            self.collection.update_one({"_id": ctx.author.id},  # Query for update
+                                       {
+                                           "$inc": {"currency": self.defined_currencies['monthly']},
+                                           "$set": {"t_monthly": datetime.utcnow()},
+                                           "$setOnInsert": {
+                                               "inventory": {},
+                                               "t_daily": 0,
+                                               "t_weekly": 0
+                                           }
+                                       }, upsert=True)
+            emb = discord.Embed(title="Enjoy your monthly cold hard cash 🤑",
+                                description=f"{self.defined_currencies['monthly']} coins were placed in your wallet!",
+                                color=discord.Colour.green())
+            emb.add_field(name="You can claim your monthly again in:", value="30 days")
+            await ctx.send(embed=emb)
+
+        else:
+            emb = discord.Embed(title="You have already claimed your monthly coins", color=discord.Colour.red())
+            del_time = (monthly_time['t_monthly'] + timedelta(days=30)) - datetime.utcnow()
+            days, seconds = del_time.days, del_time.seconds
+            hours = (days * 24 + seconds // 3600)%24
+            minutes = (seconds % 3600) // 60
+            #seconds = seconds % 60
+            emb.add_field(name="You can claim your monthly again in:",
+                          value=f"{days} days, {hours} hours and {minutes} minutes")
             await ctx.send(embed=emb)
 
     @commands.command(aliases=['bal'])
