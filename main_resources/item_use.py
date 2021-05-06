@@ -3,28 +3,32 @@ import asyncio
 import youtube_dl
 import discord
 from discord.ext import commands
+import traceback
 
 
 async def disc(bot, ctx: commands.Context, item_dict: dict):
     try:
         channel = ctx.author.voice.channel
-        if ctx.voice_client is not None:
-            await ctx.voice_client.move_to(channel)
-        else:
-            await channel.connect()
-        try:
-            msg = await ctx.send("Playing your disc now.")
-            url = item_dict['url']
-            player = await YTDLSource.from_url(url, loop=bot.loop, stream=True)
-            ctx.voice_client.play(player)
-            await msg.add_reaction("✅")
-            while ctx.voice_client.is_playing():
-                await asyncio.sleep(1)
-            await ctx.voice_client.disconnect()
-        except:
-            await ctx.voice_client.disconnect()
     except AttributeError:
         await ctx.send(f"{ctx.author.mention} You must be in a voice channel to use this item.")
+        return
+    if ctx.voice_client is not None:
+        await ctx.voice_client.move_to(channel)
+    else:
+        await channel.connect()
+    try:
+        msg = await ctx.send("Playing your disc now.")
+        url = item_dict['url']
+        player = await YTDLSource.from_url(url, loop=bot.loop, stream=True)
+        ctx.voice_client.play(player)
+        await msg.add_reaction("✅")
+        while ctx.voice_client.is_playing():
+            await asyncio.sleep(1)
+        await ctx.voice_client.disconnect()
+    except:
+        if ctx.voice_client:
+            await ctx.voice_client.disconnect()
+        traceback.print_exc()
 
 
 async def notebook(bot, ctx: commands.Context, item_dict: dict):

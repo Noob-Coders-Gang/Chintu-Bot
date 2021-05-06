@@ -2,7 +2,7 @@ import json
 from datetime import datetime
 
 from main import database
-from main_resources.Item_use import *
+from main_resources.item_use import *
 
 
 class User(commands.Cog):
