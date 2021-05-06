@@ -120,6 +120,74 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid page number")
 
     @commands.command()
+    async def gift(self, ctx: commands.Context, target_user: discord.Member, item: str, amount: int = 1):
+        item_dict = None
+        item_id = None
+        item = item.lower()
+        if item in self.items_by_id:
+            item_dict = self.items_by_id[item]
+            item_id = item
+        elif item in self.id_by_name:
+            item_dict = self.items_by_id[str(self.id_by_name[item])]
+            item_id = str(self.id_by_name[item])
+
+        if item_dict is not None and item_id is not None:
+            if amount > 0:
+                inventory = self.collection.find_one({"_id": ctx.author.id}, {"inventory": 1})
+                if inventory is not None:
+                    inventory = inventory["inventory"]
+                    if item_id in inventory and inventory[item_id] >= amount:
+                        embed = discord.Embed(
+                            title=f"Do you want to gift {amount} {item_dict['name']} to {target_user.name}?",
+                            description="React with 👍 within 15 seconds to confirm", color=discord.Colour.green())
+                        embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+                        message = await ctx.send(embed=embed)
+                        await message.add_reaction("👍")
+
+                        def check(reaction, user):
+                            return user.id == ctx.author.id and str(
+                                reaction.emoji) == '👍' and reaction.message.id == message.id
+
+                        try:
+                            await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
+                            self.collection.update_one({"_id": ctx.author.id},
+                                                       {"$inc": {
+                                                           f"inventory.{item_id}": -amount
+                                                       }})
+                            self.collection.update_one({"_id":target_user.id},
+                                                       {
+                                                           "$inc": {f"inventory.{item_id}": amount},
+                                                           "$setOnInsert": {
+                                                               "currency": 0,
+                                                               "t_daily": 0,
+                                                               "t_weekly": 0,
+                                                               "t_monthly": 0
+                                                           }
+                                                       }, upsert=True)
+                            await ctx.send(
+                                f"{ctx.author.mention} You have successfully "
+                                f"gifted {amount} {item_dict['name']} to {target_user.name}")
+                        except asyncio.TimeoutError:
+                            embed = discord.Embed(
+                                title=f"Do you want to gift {amount} {item_dict['name']} to {target_user.name}?",
+                                description="Gift failed. Please try again", color=discord.Colour.red())
+                            embed.set_footer(text=f"Requested by {ctx.author.display_name}",
+                                             icon_url=ctx.author.avatar_url)
+                            await message.edit(embed=embed)
+                            await message.clear_reactions()
+                    else:
+                        await ctx.send(f"{ctx.author.mention} Lmao you don't have {amount} {item_dict['name']} to"
+                                       f" gift.")
+                else:
+                    insert_new_document(self.collection, ctx.author.id)
+                    await ctx.send(f"{ctx.author.mention} Lmao you don't have {amount} {item_dict['name']} to gift.")
+            else:
+                await ctx.send(f"{ctx.author.mention} Enter a valid amount")
+        else:
+            await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
+
+
+    @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def buy(self, ctx: commands.Context, item, amount: int = 1):
         """Buy the items of your dreams from the shop <a:chintucoin:839401482184163358>"""

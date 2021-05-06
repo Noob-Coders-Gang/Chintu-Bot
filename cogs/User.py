@@ -65,6 +65,10 @@ class User(commands.Cog):
         inventory_dict = self.collection.find_one({"_id": target_user.id}, {"inventory": 1})
         if inventory_dict is not None:
             inventory_dict = inventory_dict['inventory']
+            for key, value in inventory_dict.items():
+                if value == 0:
+                    del inventory_dict[key]
+                    break
             total_items = len(inventory_dict)
             pages = int((total_items - 1) // 5 + 1 + (total_items - 1) % 5 / 10)
             if pages != 0:
@@ -103,6 +107,8 @@ def insert_new_document(collection, doc_id: int, currency: int = 0, inventory=No
         "t_weekly": t_weekly,
         "t_monthly": t_monthly
     })
+
+
 
 
 def setup(bot):
