@@ -10,10 +10,7 @@ from main_resources.loops import Loops
 
 # --------------------------------Variables--------------------------------#
 load_dotenv()
-intents = Intents.all()
-intents.members = True
-intents.presences = True
-bot = commands.Bot(command_prefix='BB', help_command=None, case_insensitive=True, intents=intents)
+bot = commands.Bot(command_prefix='BB', help_command=None, case_insensitive=True)
 custom_statuses = ['$help', 'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
 
 # The url for updating server count.
