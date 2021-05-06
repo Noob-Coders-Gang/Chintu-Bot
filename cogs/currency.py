@@ -164,7 +164,8 @@ class Currency(commands.Cog):
                             embed = discord.Embed(
                                 title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
                                 description="Purchase failed. Please try again", color=discord.Colour.red())
-                            embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+                            embed.set_footer(text=f"Requested by {ctx.author.display_name}",
+                                             icon_url=ctx.author.avatar_url)
                             await message.edit(embed=embed)
                             await message.clear_reactions()
                     else:

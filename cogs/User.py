@@ -1,12 +1,13 @@
 import json
+from datetime import datetime
 
 from main import database
 from main_resources.Item_use import *
-from datetime import datetime
 
 
 class User(commands.Cog):
     """All of your personal data I stole."""
+
     def __init__(self, bot: commands.Bot):
         self.items_by_id = json.loads(
             open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_id"]

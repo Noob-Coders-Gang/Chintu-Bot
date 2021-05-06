@@ -10,7 +10,7 @@ from main_resources.loops import Loops
 
 # --------------------------------Variables--------------------------------#
 load_dotenv()
-bot = commands.Bot(command_prefix='BB', help_command=None, case_insensitive=True)
+bot = commands.Bot(command_prefix='$', help_command=None, case_insensitive=True)
 custom_statuses = ['$help', 'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
 
 # The url for updating server count.
@@ -35,7 +35,7 @@ change_status = tasks.loop(seconds=60)(loops.change_status)
 
 # --------------------------------Events--------------------------------#
 events = Events(bot, database, total_guilds_api_url, ChintuAI=False)
-bot.event(events.on_command_error)
+#bot.event(events.on_command_error)
 bot.event(events.on_message)
 bot.event(events.on_guild_join)
 

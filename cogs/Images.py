@@ -1,11 +1,9 @@
-from typing import Optional
-import discord
-from discord.ext import commands
-from discord import Member
 from io import BytesIO
+from typing import Optional
 
 import discord
 from PIL import Image
+from discord import Member
 from discord.ext import commands
 
 

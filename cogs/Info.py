@@ -24,7 +24,7 @@ class Info(commands.Cog):
         nsfw = self.bot.get_channel(channel.id).is_nsfw()
         news = self.bot.get_channel(channel.id).is_news()
         embed = Embed(title='Channel Infromation: ' + str(channel),
-                              colour=Colour.from_rgb(54, 151, 255))
+                      colour=Colour.from_rgb(54, 151, 255))
         embed.add_field(name='Channel Name: ', value=str(channel.name))
         embed.add_field(name="Channel's NSFW Status: ", value=str(nsfw))
         embed.add_field(name="Channel's id: ", value=str(channel.id))
@@ -40,7 +40,7 @@ class Info(commands.Cog):
         ''' Get Server Info '''
         findbots = sum(1 for member in ctx.guild.members if member.bot)
         embed = Embed(title='Infomation about ' + ctx.guild.name +
-                                    '.', colour=Colour.from_rgb(54, 151, 255))
+                            '.', colour=Colour.from_rgb(54, 151, 255))
         embed.set_thumbnail(url=str(ctx.guild.icon_url))
         embed.add_field(name="Guild's name: ", value=ctx.guild.name)
         embed.add_field(name="Guild's owner: ", value=str(ctx.guild.owner))
@@ -63,7 +63,7 @@ class Info(commands.Cog):
             m.joined_at < member.joined_at for m in ctx.guild.members if m.joined_at is not None)
         roles = [role for role in member.roles]
         embed = Embed(color=Colour.gold(),
-                              timestamp=datetime.datetime.utcnow())
+                      timestamp=datetime.datetime.utcnow())
         embed.set_author(name=f"{member}", icon_url=member.avatar_url)
         embed.set_thumbnail(url=member.avatar_url)
         embed.add_field(name="Joined at:", value=member.joined_at.strftime(
