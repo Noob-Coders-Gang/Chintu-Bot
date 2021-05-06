@@ -121,6 +121,7 @@ class Currency(commands.Cog):
 
     @commands.command()
     async def gift(self, ctx: commands.Context, target_user: discord.Member, item: str, amount: int = 1):
+        """Give away your precious items 🎁"""
         item_dict = None
         item_id = None
         item = item.lower()
