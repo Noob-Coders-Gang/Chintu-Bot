@@ -3,10 +3,14 @@ import json
 import math
 import random
 import urllib.request
+from typing import Optional
 
 import discord
 import wikipedia
+from aiohttp import request
+from discord import Member
 from discord.ext import commands
+from discord.ext.commands import command
 
 roasts = json.loads(
     open('./main_resources/Assets/roast.json', encoding='utf-8').read())['roasts']
@@ -94,7 +98,7 @@ class Fun(commands.Cog):
 
                     return inner_check
 
-                if (not url['error']):
+                if not url['error']:
                     if url["type"] == "twopart":
                         await ctx.send(url['setup'])
                         ans = await self.bot.wait_for('message', check=check, timeout=30)
@@ -200,9 +204,9 @@ class Fun(commands.Cog):
                 await ctx.send("Sorry, I can find " + querry_ + " in Wikipedia")
 
     @commands.command()
-    async def kill(self, ctx, user: discord.Member = None):
+    async def kill(self, ctx, user: Optional[Member]):
         ''' kill someone ⚰️'''
-        if user == None:
+        if not user:
             user = ctx.author
         await ctx.send(f'{user.display_name} {random.choice(kills)}')
 
@@ -255,9 +259,9 @@ class Fun(commands.Cog):
             lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                    'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '!', '@',
                    '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '+', '=', '{', ",", '}', ']',
-                   '[', ';', ':', '<', '>', '?', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '`', '~', 'A',
-                   'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
-                   'V', 'W', 'X', 'Y', 'Z']
+                   '[', ';', ':', '<', '>', '?', '/', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '`', '~',
+                   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+                   'U', 'V', 'W', 'X', 'Y', 'Z']
             for x in range(amt):
                 newpass = random.choice(lst)
                 nwpss.append(newpass)
@@ -266,6 +270,15 @@ class Fun(commands.Cog):
             await ctx.author.send(f':white_check_mark:Password Generated: {fnpss}')
         except Exception as e:
             print(e)
+
+    @command(name="insult")
+    async def insult(self, ctx):
+        """"Returns some evil insults"""
+        URl = f"https://evilinsult.com/generate_insult.php?lang=en&type=json"
+        async with request("GET", URl) as res:
+            if res.status == 200:
+                evil_insult = await res.json()
+                await ctx.send(f"{evil_insult['insult']}")
 
 
 def setup(bot):

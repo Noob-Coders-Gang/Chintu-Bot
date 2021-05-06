@@ -7,7 +7,6 @@ from discord.ext import commands
 
 import main
 
-
 class Mod(commands.Cog):
     ''' Moderator Commands '''
 
@@ -88,7 +87,7 @@ class Mod(commands.Cog):
                 value=f"{timetuple[2]}/{timetuple[1]}/{timetuple[0]} {timetuple[3]}:{timetuple[4]} (UTC)", inline=False)
             await ctx.send(embed=embed)
         else:
-            ctx.send("Warn not found!")
+            await ctx.send("Warn not found!")
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
