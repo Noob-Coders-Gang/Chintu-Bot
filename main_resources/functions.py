@@ -11,8 +11,10 @@ def update_total_guilds(guild_list, total_guilds_api_url):
     requests.put(total_guilds_api_url, json=data, headers=headers)
 
 
-def load_extensions(bot, unloaded_cogs=[]):
+def load_extensions(bot, unloaded_cogs=None):
     """Loads all extensions (Cogs) from the cogs directory"""
+    if unloaded_cogs is None:
+        unloaded_cogs = []
     for filename in os.listdir('./cogs'):
         if filename.endswith(".py"):
             if filename not in unloaded_cogs:
