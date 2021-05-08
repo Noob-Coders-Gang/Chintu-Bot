@@ -1,5 +1,6 @@
 import os
 
+from discord import Intents
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
@@ -9,7 +10,7 @@ from main_resources.loops import Loops
 
 # --------------------------------Variables--------------------------------#
 load_dotenv()
-bot = commands.Bot(command_prefix='$', help_command=None)
+bot = commands.Bot(command_prefix='$', help_command=None, case_insensitive=True)
 custom_statuses = ['$help', 'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
 
 # The url for updating server count.
@@ -33,14 +34,14 @@ loops = Loops(bot, custom_statuses)
 change_status = tasks.loop(seconds=60)(loops.change_status)
 
 # --------------------------------Events--------------------------------#
-events = Events(bot, database, total_guilds_api_url, ChintuAI=False)
+events = Events(bot, database, total_guilds_api_url, ChintuAI=True)
 bot.event(events.on_command_error)
 bot.event(events.on_message)
 bot.event(events.on_guild_join)
 
 
 # --------------------------------Load Extensions/cogs--------------------------------#
-def load_extensions(fun_bot, unloaded_cogs: list = None):
+def load_extensions(fun_bot, unloaded_cogs: list):
     """Loads all extensions (Cogs) from the cogs directory"""
     if unloaded_cogs is None:
         unloaded_cogs = []
@@ -49,10 +50,9 @@ def load_extensions(fun_bot, unloaded_cogs: list = None):
             if filename not in unloaded_cogs:
                 fun_bot.load_extension(f'cogs.{filename[:-3]}')
 
-
 if __name__ == '__main__':
     print("loading extensions...")
-    load_extensions(bot, ["manage_commands.py", "Help.py"])
+    load_extensions(bot, ["manage_commands.py", "Help.py", "Memes.py"])
     bot.load_extension("cogs.manage_commands")
     bot.load_extension("cogs.Help")
     print("logging in...")

@@ -4,16 +4,51 @@
       "name": "Joe Mama",
       "value": 50000,
       "resell": 15000,
-      "emoji": null,
+      "emoji": "",
       "description": "Take Joe Mama from me if you can :sunglasses:",
-      "fun": "item"
+      "type": "item"
     },
     "101": {
       "name": "Autograph Notebook",
       "value": 20000,
       "resell": null,
       "emoji": "\uD83D\uDCDD",
-      "description": "Collect as many autographs as you can and ask legends to leave their mark on your notebook"
+      "description": "Collect as many autographs as you can and ask legends to leave their mark on your notebook",
+      "type": "notebook"
+    },
+    "102": {
+      "name": "Rick Roll Disc",
+      "value": 100000,
+      "resell": 1000,
+      "emoji": "<:rick_disc:839577178400489565>",
+      "description": "Rick roll your friends with this music disc :sunglasses:",
+      "type": "disc",
+      "url": "https://www.youtube.com/watch?v=w5_fiYGOeLY"
+    },
+    "103": {
+      "name": "QUACK QUACK",
+      "value": 100000,
+      "resell": 1000,
+      "emoji": "<:rick_disc:839577178400489565>",
+      "description": "Quack Quack Quack Quack :duck: :duck: :duck:",
+      "type": "disc",
+      "url": "https://www.youtube.com/watch?v=dDgGMInTqTo"
     }
+  },
+  "by_name": {
+    "joe": 100,
+    "mama": 100,
+    "joemama": 100,
+
+    "autograph": 101,
+    "notebook": 101,
+    "anb": 101,
+
+    "rickroll": 102,
+    "rick": 102,
+    "roll": 102,
+
+    "quack": 103
+
   }
 }

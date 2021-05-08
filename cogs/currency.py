@@ -18,9 +18,9 @@ class Currency(commands.Cog):
             open('./main_resources/Assets/currency_values.json', encoding='utf-8').read())
         self.items_by_id = json.loads(
             open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_id"]
+        self.id_by_name = json.loads(
+            open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_name"]
         self.paged_shop, self.pages = create_paged_shop(self.items_by_id)
-        print(self.paged_shop)
-        print(self.pages)
 
     @commands.command()
     async def daily(self, ctx: commands.Context):
@@ -47,7 +47,7 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
 
         else:
-            emb = discord.Embed(title="You have already claimed your daily coins", color=discord.Colour.green())
+            emb = discord.Embed(title="You have already claimed your daily coins", color=discord.Colour.red())
             del_time = (daily_time['t_daily'] + timedelta(days=1)) - datetime.utcnow()
             days, seconds = del_time.days, del_time.seconds
             hours = days * 24 + seconds // 3600
@@ -55,6 +55,76 @@ class Currency(commands.Cog):
             seconds = seconds % 60
             emb.add_field(name="You can claim your daily again in:",
                           value=f"{hours} hours, {minutes} minutes and {seconds} seconds")
+            await ctx.send(embed=emb)
+
+    @commands.command()
+    async def weekly(self, ctx: commands.Context):
+        """Weekly dose of sweet cash 💰💰💰"""
+        weekly_time = self.collection.find_one({"_id": ctx.author.id}, {"t_weekly": 1})
+
+        if weekly_time is None \
+                or weekly_time['t_weekly'] == 0 \
+                or (datetime.utcnow() - weekly_time['t_weekly']) >= timedelta(days=7):
+            self.collection.update_one({"_id": ctx.author.id},  # Query for update
+                                       {
+                                           "$inc": {"currency": self.defined_currencies['weekly']},
+                                           "$set": {"t_weekly": datetime.utcnow()},
+                                           "$setOnInsert": {
+                                               "inventory": {},
+                                               "t_daily": 0,
+                                               "t_monthly": 0
+                                           }
+                                       }, upsert=True)
+            emb = discord.Embed(title="Enjoy your weekly cold hard cash 🤑",
+                                description=f"{self.defined_currencies['weekly']} coins were placed in your wallet!",
+                                color=discord.Colour.green())
+            emb.add_field(name="You can claim your weekly again in:", value="7 days")
+            await ctx.send(embed=emb)
+
+        else:
+            emb = discord.Embed(title="You have already claimed your weekly coins", color=discord.Colour.red())
+            del_time = (weekly_time['t_weekly'] + timedelta(days=7)) - datetime.utcnow()
+            days, seconds = del_time.days, del_time.seconds
+            hours = (days * 24 + seconds // 3600)%24
+            minutes = (seconds % 3600) // 60
+            #seconds = seconds % 60
+            emb.add_field(name="You can claim your weekly again in:",
+                          value=f"{days} days, {hours} hours and {minutes} minutes")
+            await ctx.send(embed=emb)
+
+    @commands.command()
+    async def monthly(self, ctx: commands.Context):
+        """Monthly dose of sweet cash 💰💰💰"""
+        monthly_time = self.collection.find_one({"_id": ctx.author.id}, {"t_monthly": 1})
+
+        if monthly_time is None \
+                or monthly_time['t_monthly'] == 0 \
+                or (datetime.utcnow() - monthly_time['t_monthly']) >= timedelta(days=30):
+            self.collection.update_one({"_id": ctx.author.id},  # Query for update
+                                       {
+                                           "$inc": {"currency": self.defined_currencies['monthly']},
+                                           "$set": {"t_monthly": datetime.utcnow()},
+                                           "$setOnInsert": {
+                                               "inventory": {},
+                                               "t_daily": 0,
+                                               "t_weekly": 0
+                                           }
+                                       }, upsert=True)
+            emb = discord.Embed(title="Enjoy your monthly cold hard cash 🤑",
+                                description=f"{self.defined_currencies['monthly']} coins were placed in your wallet!",
+                                color=discord.Colour.green())
+            emb.add_field(name="You can claim your monthly again in:", value="30 days")
+            await ctx.send(embed=emb)
+
+        else:
+            emb = discord.Embed(title="You have already claimed your monthly coins", color=discord.Colour.red())
+            del_time = (monthly_time['t_monthly'] + timedelta(days=30)) - datetime.utcnow()
+            days, seconds = del_time.days, del_time.seconds
+            hours = (days * 24 + seconds // 3600)%24
+            minutes = (seconds % 3600) // 60
+            #seconds = seconds % 60
+            emb.add_field(name="You can claim your monthly again in:",
+                          value=f"{days} days, {hours} hours and {minutes} minutes")
             await ctx.send(embed=emb)
 
     @commands.command(aliases=['bal'])
@@ -120,42 +190,129 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid page number")
 
     @commands.command()
-    async def buy(self, ctx: commands.Context, item: int, amount: int = 1):
-        """Buy the items of your dreams from the shop <a:chintucoin:839401482184163358>"""
-        if str(item) in self.items_by_id:
+    async def gift(self, ctx: commands.Context, target_user: discord.Member, item: str, amount: int = 1):
+        """Give away your precious items 🎁"""
+        item_dict = None
+        item_id = None
+        item = item.lower()
+        if item in self.items_by_id:
+            item_dict = self.items_by_id[item]
+            item_id = item
+        elif item in self.id_by_name:
+            item_dict = self.items_by_id[str(self.id_by_name[item])]
+            item_id = str(self.id_by_name[item])
+
+        if item_dict is not None and item_id is not None:
             if amount > 0:
-                balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})["currency"]
+                inventory = self.collection.find_one({"_id": ctx.author.id}, {"inventory": 1})
+                if inventory is not None:
+                    inventory = inventory["inventory"]
+                    if item_id in inventory and inventory[item_id] >= amount:
+                        embed = discord.Embed(
+                            title=f"Do you want to gift {amount} {item_dict['name']} to {target_user.name}?",
+                            description="React with 👍 within 15 seconds to confirm", color=discord.Colour.green())
+                        embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+                        message = await ctx.send(embed=embed)
+                        await message.add_reaction("👍")
+
+                        def check(reaction, user):
+                            return user.id == ctx.author.id and str(
+                                reaction.emoji) == '👍' and reaction.message.id == message.id
+
+                        try:
+                            await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
+                            self.collection.update_one({"_id": ctx.author.id},
+                                                       {"$inc": {
+                                                           f"inventory.{item_id}": -amount
+                                                       }})
+                            self.collection.update_one({"_id":target_user.id},
+                                                       {
+                                                           "$inc": {f"inventory.{item_id}": amount},
+                                                           "$setOnInsert": {
+                                                               "currency": 0,
+                                                               "t_daily": 0,
+                                                               "t_weekly": 0,
+                                                               "t_monthly": 0
+                                                           }
+                                                       }, upsert=True)
+                            await ctx.send(
+                                f"{ctx.author.mention} You have successfully "
+                                f"gifted {amount} {item_dict['name']} to {target_user.name}")
+                        except asyncio.TimeoutError:
+                            embed = discord.Embed(
+                                title=f"Do you want to gift {amount} {item_dict['name']} to {target_user.name}?",
+                                description="Gift failed. Please try again", color=discord.Colour.red())
+                            embed.set_footer(text=f"Requested by {ctx.author.display_name}",
+                                             icon_url=ctx.author.avatar_url)
+                            await message.edit(embed=embed)
+                            await message.clear_reactions()
+                    else:
+                        await ctx.send(f"{ctx.author.mention} Lmao you don't have {amount} {item_dict['name']} to"
+                                       f" gift.")
+                else:
+                    insert_new_document(self.collection, ctx.author.id)
+                    await ctx.send(f"{ctx.author.mention} Lmao you don't have {amount} {item_dict['name']} to gift.")
+            else:
+                await ctx.send(f"{ctx.author.mention} Enter a valid amount")
+        else:
+            await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
+
+
+    @commands.command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def buy(self, ctx: commands.Context, item, amount: int = 1):
+        """Buy the items of your dreams from the shop <a:chintucoin:839401482184163358>"""
+        item_dict = None
+        item = item.lower()
+        try:
+            item = int(item)
+            if str(item) in self.items_by_id:
                 item_dict = self.items_by_id[str(item)]
-                if balance >= self.items_by_id[str(item)]["value"] * amount:
-                    embed = discord.Embed(
-                        title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
-                        description="React with 👍 within 15 seconds to purchase", color=discord.Colour.green())
-                    embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
-                    message = await ctx.send(embed=embed)
-                    await message.add_reaction("👍")
-
-                    def check(reaction, user):
-                        return user.id == ctx.author.id and str(
-                            reaction.emoji) == '👍' and reaction.message.id == message.id
-
-                    try:
-                        await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
-                        self.collection.update_one({"_id": ctx.author.id},
-                                                   {"$inc": {
-                                                       "currency": -item_dict["value"] * amount,
-                                                       f"inventory.{str(item)}": amount
-                                                   }})
-                        await ctx.send(
-                            f"{ctx.author.mention} You have successfully "
-                            f"purchased {amount} {item_dict['name']} for {item_dict['value'] * amount}")
-                    except asyncio.TimeoutError:
+        except Exception:
+            if item in self.id_by_name:
+                item_dict = self.items_by_id[str(self.id_by_name[item])]
+                item = self.id_by_name[item]
+        if item_dict is not None:
+            if amount > 0:
+                balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
+                if balance is not None:
+                    balance = balance['currency']
+                    if balance >= self.items_by_id[str(item)]["value"] * amount:
                         embed = discord.Embed(
                             title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
-                            description="Purchase failed. Please try again", color=discord.Colour.red())
+                            description="React with 👍 within 15 seconds to purchase", color=discord.Colour.green())
                         embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
-                        await message.edit(embed=embed)
-                        await message.clear_reactions()
+                        message = await ctx.send(embed=embed)
+                        await message.add_reaction("👍")
+
+                        def check(reaction, user):
+                            return user.id == ctx.author.id and str(
+                                reaction.emoji) == '👍' and reaction.message.id == message.id
+
+                        try:
+                            await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
+                            self.collection.update_one({"_id": ctx.author.id},
+                                                       {"$inc": {
+                                                           "currency": -item_dict["value"] * amount,
+                                                           f"inventory.{str(item)}": amount
+                                                       }})
+                            await ctx.send(
+                                f"{ctx.author.mention} You have successfully "
+                                f"purchased {amount} {item_dict['name']} for {item_dict['value'] * amount}")
+                        except asyncio.TimeoutError:
+                            embed = discord.Embed(
+                                title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
+                                description="Purchase failed. Please try again", color=discord.Colour.red())
+                            embed.set_footer(text=f"Requested by {ctx.author.display_name}",
+                                             icon_url=ctx.author.avatar_url)
+                            await message.edit(embed=embed)
+                            await message.clear_reactions()
+                    else:
+                        await ctx.send(
+                            f"{ctx.author.mention} You don't have enough money" +
+                            f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
                 else:
+                    insert_new_document(self.collection, ctx.author.id)
                     await ctx.send(
                         f"{ctx.author.mention} You don't have enough money" +
                         f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
@@ -163,7 +320,7 @@ class Currency(commands.Cog):
                 await ctx.send(f"{ctx.author.mention} Enter a valid amount")
 
         else:
-            await ctx.send(f"{ctx.author.mention} Enter a valid item ID")
+            await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
 
     @commands.command(hidden=True)
     @commands.is_owner()

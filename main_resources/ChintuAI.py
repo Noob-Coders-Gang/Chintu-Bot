@@ -1,15 +1,16 @@
 import json
-import pickle
 import random
 
-import nltk
 import numpy as np
-from keras.models import load_model
+import pickle
+import nltk
+import requests
 from nltk.stem import WordNetLemmatizer
 
 nltk.download('punkt')
 nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()
+
 
 # --------------------------------Importing ChatModels--------------------------------#
 model = load_model('./Chintu-Chat-Model/ChintuChat.h5')
@@ -19,17 +20,13 @@ words = pickle.load(open('./Chintu-Chat-Model/words.pkl', 'rb'))
 classes = pickle.load(open('./Chintu-Chat-Model/classes.pkl', 'rb'))
 
 
-# --------------------------------Tokenizing the sentence--------------------------------#
-
+url = 'https://chintu-ai.herokuapp.com/v1/models/chintuchat:predict'
 
 def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)
     sentence_words = [lemmatizer.lemmatize(
         word.lower()) for word in sentence_words]
     return sentence_words
-
-
-# --------------------------------Storing Tokenised Data in Bag of words--------------------------------#
 
 
 def bow(sentence, words, show_details=True):
@@ -44,25 +41,19 @@ def bow(sentence, words, show_details=True):
                 bag[i] = 1
                 if show_details:
                     print("found in bag: %s" % w)
-    return (np.array(bag))
+    return np.array(bag)
 
 
-# --------------------------------Predicting Class--------------------------------#
-
-
-def predict_class(sentence, model):
-    # filter out predictions below a threshold
+def make_arr(sentence):
     p = bow(sentence, words, show_details=False)
-    res = model.predict(np.array([p]))[0]
+    return np.array([p])
+
+
+def create_return_list(res):
     ERROR_THRESHOLD = 0.9
     results = [[i, r] for i, r in enumerate(res) if r > ERROR_THRESHOLD]
-
-    # sort by strength of probability
     results.sort(key=lambda x: x[1], reverse=True)
-    # print(results)
     return_list = []
-    #     for r in results:
-    #         return_list.append({"intent": classes[r[0]], "probability": str(r[1])})
     try:
         if results[0]:
             for r in results:
@@ -76,7 +67,14 @@ def predict_class(sentence, model):
     return return_list
 
 
-# --------------------------------Getting random response from the Intense--------------------------------#
+def docker_ask(sentence):
+    instances = make_arr(sentence)
+    data = json.dumps({"signature_name": "serving_default", "instances": instances.tolist()})
+    headers = {"content-type": "application/json"}
+    json_response = requests.post(url, data=data, headers=headers)
+    predictions = json.loads(json_response.text)['predictions'][0]
+    return_list = create_return_list(predictions)
+    return return_list
 
 
 def getResponse(ints, intents_json):
@@ -87,17 +85,14 @@ def getResponse(ints, intents_json):
     # print(tag)
     list_of_intents = intents_json['intents']
     for i in list_of_intents:
-        if (i['tag'] == tag):
+        if i['tag'] == tag:
             result = random.choice(i['responses'])
             break
     return result, tag
 
 
-# --------------------------------  prediction from model --------------------------------#
-
-
 def prediction(msg):
-    ints = predict_class(msg, model)
+    ints = docker_ask(msg)
     res, tag = getResponse(ints, intents)
     if float(ints[0]['probability']) > 0.97:
         result = {"response": res,
@@ -110,28 +105,6 @@ def prediction(msg):
     return result
 
 
-# text to response
-
-
-def to_json(response, tag=None):
-    response = {
-        "response": response,
-        "tag": tag,
-    }
-
-    return response
-
-
-# opening intents
-with open("./Chintu-Chat-Model/intents.json") as file:
-    data = json.load(file)
-
-
-def converttostring(list):
-    res = str(", ".join(map(str, list)))
-    return res
-
-
 # --------------------------------get response--------------------------------#
 def AskChintu(query):
     try:
@@ -139,7 +112,6 @@ def AskChintu(query):
             return {'response':  random.choice(['what?', "Hey ssup! 🙋‍♂️", "what⁉️", "what you want?", "why did you ping me sir?"]), 'tag': "nonemsg"}
 
         Bot_Response = prediction(query)
-        tag = Bot_Response.get('tag')
 
     except Exception as e:
         Bot_Response = {

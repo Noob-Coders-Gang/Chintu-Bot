@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 
+from main_resources.ChintuAI import AskChintu
 from main_resources.functions import update_total_guilds, add_guild
 
 from main_resources.ChintuAI import *
