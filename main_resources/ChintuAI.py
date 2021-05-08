@@ -13,7 +13,6 @@ lemmatizer = WordNetLemmatizer()
 
 
 # --------------------------------Importing ChatModels--------------------------------#
-model = load_model('./Chintu-Chat-Model/ChintuChat.h5')
 intents = json.loads(open('./Chintu-Chat-Model/intents.json',
                           encoding='utf-8', errors='ignore').read())
 words = pickle.load(open('./Chintu-Chat-Model/words.pkl', 'rb'))
