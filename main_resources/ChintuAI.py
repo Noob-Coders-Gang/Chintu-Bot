@@ -13,7 +13,7 @@ lemmatizer = WordNetLemmatizer()
 
 
 # --------------------------------Importing ChatModels--------------------------------#
-model = load_model('./Chintu-Chat-Model/ChintuChat.h5')
+
 intents = json.loads(open('./Chintu-Chat-Model/intents.json',
                           encoding='utf-8', errors='ignore').read())
 words = pickle.load(open('./Chintu-Chat-Model/words.pkl', 'rb'))
@@ -21,6 +21,7 @@ classes = pickle.load(open('./Chintu-Chat-Model/classes.pkl', 'rb'))
 
 
 url = 'https://chintu-ai.herokuapp.com/v1/models/chintuchat:predict'
+
 
 def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)
@@ -69,7 +70,8 @@ def create_return_list(res):
 
 def docker_ask(sentence):
     instances = make_arr(sentence)
-    data = json.dumps({"signature_name": "serving_default", "instances": instances.tolist()})
+    data = json.dumps({"signature_name": "serving_default",
+                       "instances": instances.tolist()})
     headers = {"content-type": "application/json"}
     json_response = requests.post(url, data=data, headers=headers)
     predictions = json.loads(json_response.text)['predictions'][0]
