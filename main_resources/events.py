@@ -3,6 +3,8 @@ from discord.ext import commands
 
 from main_resources.functions import update_total_guilds, add_guild
 
+from main_resources.ChintuAI import *
+
 
 class Events:
     def __init__(self, bot: commands.Bot, database, total_guilds_api_url, ChintuAI: bool = False):

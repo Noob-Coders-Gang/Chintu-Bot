@@ -13,7 +13,8 @@ lemmatizer = WordNetLemmatizer()
 
 # --------------------------------Importing ChatModels--------------------------------#
 model = load_model('./Chintu-Chat-Model/ChintuChat.h5')
-intents = json.loads(open('./Chintu-Chat-Model/intents.json').read())
+intents = json.loads(open('./Chintu-Chat-Model/intents.json',
+                          encoding='utf-8', errors='ignore').read())
 words = pickle.load(open('./Chintu-Chat-Model/words.pkl', 'rb'))
 classes = pickle.load(open('./Chintu-Chat-Model/classes.pkl', 'rb'))
 
@@ -80,7 +81,7 @@ def predict_class(sentence, model):
 
 def getResponse(ints, intents_json):
     result = random.choice(
-        ["I'm confused. Could you tell me clearly?", 'Sorry I dont get you', 'Dont talk bullsh*t, I cant understand',
+        ["I'm confused. Could you tell me clearly?", 'Sorry I dont get you',
          'Say it Clearly', 'I\'m sorry, I don\'t understand. Could you say it again?'])
     tag = ints[0]['intent']
     # print(tag)
@@ -98,7 +99,7 @@ def getResponse(ints, intents_json):
 def prediction(msg):
     ints = predict_class(msg, model)
     res, tag = getResponse(ints, intents)
-    if float(ints[0]['probability']) > 0.95:
+    if float(ints[0]['probability']) > 0.97:
         result = {"response": res,
                   "tag": tag
                   }
@@ -134,11 +135,15 @@ def converttostring(list):
 # --------------------------------get response--------------------------------#
 def AskChintu(query):
     try:
+        if query == None or query.strip() == "":
+            return {'response':  random.choice(['what?', "Hey ssup! 🙋‍♂️", "what⁉️", "what you want?", "why did you ping me sir?"]), 'tag': "nonemsg"}
+
         Bot_Response = prediction(query)
         tag = Bot_Response.get('tag')
 
     except Exception as e:
-        Bot_Response = {'response': e, 'tag': "error"}
+        Bot_Response = {
+            'response': 'I have headache I cant understand', 'tag': "error"}
         # print(e)
 
     return Bot_Response

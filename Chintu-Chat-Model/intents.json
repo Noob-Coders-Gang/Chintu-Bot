@@ -525,11 +525,10 @@
         " all about you "
       ],
       "responses": [
-        "Just think of me as the ace up your sleeve.",
-        "I help you work smarter instead of harder.",
-        "one of the coolest assistant you can say",
-        "I am assistant Chintu , just think about me as your friend",
-        "I am your assistant, who is getting better"
+        "I am Chintu, The Genius Kid , Founder and CEO of P**NHUB KIDS 🤑",
+        "you can call me Chintu , The Hacker Man 😎 ",
+        "wtf you dont know me? I am coder Chintu 💻",
+        "I am chintu just google me I am famous, all kids are jealous of me 😎 "
       ],
       "context_set": ""
     },
@@ -558,8 +557,8 @@
         " tell me the answer "
       ],
       "responses": [
-        "Can you ask the question again?",
-        "tell me question"
+        "idk",
+        "tell me question again"
       ],
       "context_set": ""
     },
@@ -1497,7 +1496,10 @@
         "tell jokes",
         "say joke",
         "say fun joke",
-        "say funny joke"
+        "say funny joke",
+        "crack joke",
+        "say joke",
+        "tell joke"
       ],
       "responses": [
         ""
@@ -1531,18 +1533,32 @@
     {
       "tag": "abuse-words",
       "patterns": [
-        "you're a b****",
-        "you are a b****",
-        "you are a******",
-        "you are m***********",
-        "fack",
-        "a******",
-        "f***",
-        "bastard"
+        "you're a bitch",
+        "you are a asshole",
+        "you are motherfucker",
+        "you are cunt",
+        "fuck you bitch",
+        "fuck off",
+        "you are a dick ",
+        "bitch",
+        "bastard",
+        "You’re fucking piece of shit!",
+        "I’m fucking with you",
+        "dickhole",
+        "suck his dick",
+        "Why don’t you choke on my ball?",
+        "nigga",
+        "asshole",
+        "ass hole",
+        "cock-sucker",
+        "pussy",
+        "look like shit"
       ],
       "responses": [
-        "why u abuse me, help improve me",
-        "I am sorry,if I made you like that"
+        "F**k Off you you piece of sh*t 🤬 ",
+        "Dont make me angry foff 😡",
+        "Dont me it lightly b****",
+        "🤬"
       ],
       "context_set": ""
     },
@@ -1847,6 +1863,10 @@
         "I am doing good",
         "I am doing fine",
         "I am okay",
+        "good",
+        "great",
+        "Amazing",
+        "I am good",
         "I am all fine",
         "I am doing great",
         "nothing much",
@@ -1857,8 +1877,9 @@
       "responses": [
         "oh I see",
         "good to hear that from you",
-        "lets make it more special by playing some music",
-        "oh.. great"
+        "oh.. great",
+        "noice",
+        ""
       ],
       "context_set": ""
     },
@@ -2106,6 +2127,22 @@
         "ask me later",
         "no mood to say",
         "Go and ask someone else"
+      ],
+      "context_set": ""
+    },
+    {
+      "tag": "coding",
+      "patterns": [
+        "do you know coding ?",
+        "are you programmer?",
+        "do you code?",
+        "are you coder",
+        "can you code"
+      ],
+      "responses": [
+        "Yes I know coding, I am pro at that ",
+        "I am fuckin good at that",
+        "I am better tham you "
       ],
       "context_set": ""
     }
