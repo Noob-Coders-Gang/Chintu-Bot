@@ -57,6 +57,14 @@ class Help(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        cogs = {}
+        for cog in bot.cogs:
+            cogs[cog.lower()] = cog
+        self.cogs = cogs
+        bot_commands = {}
+        for command in bot.walk_commands():
+            bot_commands[command.name] = command
+        self.bot_commands = bot_commands
         self.default_help_embed = prebuild_embed(bot)  # Predifining default embed for speeding up command execution
 
     @commands.command()
@@ -69,34 +77,36 @@ class Help(commands.Cog):
         # block called when one cog-name is given
         # trying to find matching cog and it's commands
         elif len(input) == 1:
+            # check if cog is the matching one
+            if input[0].lower() in self.cogs:
+                cog_name = self.cogs[input[0].lower()]
+                # making title - getting description from doc-string below class
+                emb = discord.Embed(title=f'{cog_name} - Commands', description=self.bot.cogs[cog_name].__doc__,
+                                    color=discord.Color.green())
 
-            # iterating trough cogs
-            for cog in self.bot.cogs:
-                # check if cog is the matching one
-                if cog.lower() == input[0].lower():
+                # getting commands from cog
+                for command in self.bot.get_cog(cog_name).get_commands():
+                    # if cog is not hidden
+                    if not command.hidden:
+                        if command.help:
+                            emb.add_field(
+                                name=f"`{prefix}{command.name}`", value=command.help, inline=True)
+                        else:
+                            emb.add_field(
+                                name=f"`{prefix}{command.name}`", value="ㅤ", inline=True)
 
-                    # making title - getting description from doc-string below class
-                    emb = discord.Embed(title=f'{cog} - Commands', description=self.bot.cogs[cog].__doc__,
-                                        color=discord.Color.green())
-
-                    # getting commands from cog
-                    for command in self.bot.get_cog(cog).get_commands():
-                        # if cog is not hidden
-                        if not command.hidden:
-                            if command.help:
-                                emb.add_field(
-                                    name=f"`{prefix}{command.name}`", value=command.help, inline=True)
-                            else:
-                                emb.add_field(
-                                    name=f"`{prefix}{command.name}`", value="ㅤ", inline=True)
-                    # found cog - breaking loop
-                    break
+            elif input[0].lower() in self.bot_commands:
+                command = self.bot_commands[input[0].lower()]
+                emb = discord.Embed(title=f"${command.name} - Information", color=discord.Colour.green())
+                emb.add_field(name="Description:", value=command.help, inline=False)
+                if len(command.aliases) > 0:
+                    emb.add_field(name="Aliases:", value=", ".join(command.aliases), inline=False)
+                emb.add_field(name="Usage:", value=f"${command.name} {command.signature}", inline=False)
 
             # if input not found
-            # yes, for-loops have an else statement, it's called when no 'break' was issued
             else:
                 emb = discord.Embed(title="What's that?!",
-                                    description=f"I've never heard from a module called `{input[0]}` before :scream:",
+                                    description=f"I've never heard of a module or command called `{input[0]}` before :scream:",
                                     color=discord.Color.orange())
 
         # too many cogs requested - only one at a time allowed

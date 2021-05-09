@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 
 from main import database
+import numpy as np
 
 
 class Currency(commands.Cog):
@@ -21,6 +22,14 @@ class Currency(commands.Cog):
         self.id_by_name = json.loads(
             open('./main_resources/Assets/shop_items.json', encoding='utf-8').read())["by_name"]
         self.paged_shop, self.pages = create_paged_shop(self.items_by_id)
+        self.houses = {
+            1: "5 of a kind",
+            2: "4 of a kind",
+            3: "3 of a kind and a pair",
+            4: "2 pairs",
+            5: "1 pair",
+            6: "None of the accepted combinations"
+        }
 
     @commands.command()
     async def daily(self, ctx: commands.Context):
@@ -85,9 +94,9 @@ class Currency(commands.Cog):
             emb = discord.Embed(title="You have already claimed your weekly coins", color=discord.Colour.red())
             del_time = (weekly_time['t_weekly'] + timedelta(days=7)) - datetime.utcnow()
             days, seconds = del_time.days, del_time.seconds
-            hours = (days * 24 + seconds // 3600)%24
+            hours = (days * 24 + seconds // 3600) % 24
             minutes = (seconds % 3600) // 60
-            #seconds = seconds % 60
+            # seconds = seconds % 60
             emb.add_field(name="You can claim your weekly again in:",
                           value=f"{days} days, {hours} hours and {minutes} minutes")
             await ctx.send(embed=emb)
@@ -120,9 +129,9 @@ class Currency(commands.Cog):
             emb = discord.Embed(title="You have already claimed your monthly coins", color=discord.Colour.red())
             del_time = (monthly_time['t_monthly'] + timedelta(days=30)) - datetime.utcnow()
             days, seconds = del_time.days, del_time.seconds
-            hours = (days * 24 + seconds // 3600)%24
+            hours = (days * 24 + seconds // 3600) % 24
             minutes = (seconds % 3600) // 60
-            #seconds = seconds % 60
+            # seconds = seconds % 60
             emb.add_field(name="You can claim your monthly again in:",
                           value=f"{days} days, {hours} hours and {minutes} minutes")
             await ctx.send(embed=emb)
@@ -181,10 +190,10 @@ class Currency(commands.Cog):
                 f"** {ctx.author.mention} gave {amount} coins to {targeted_user.display_name}  <a:chintucoin:839401482184163358>**")
 
     @commands.command()
-    async def shop(self, ctx: commands.Context, page_num: int = 1):
+    async def shop(self, ctx: commands.Context, page: int = 1):
         """See what treasures await your purchase"""
-        if self.pages >= page_num >= 1:
-            embed = self.paged_shop[page_num - 1].set_footer(text=f"Page {page_num} of {self.pages}")
+        if self.pages >= page >= 1:
+            embed = self.paged_shop[page - 1].set_footer(text=f"Page {page} of {self.pages}")
             await ctx.send(embed=embed)
         else:
             await ctx.send(f"{ctx.author.mention} Enter a valid page number")
@@ -225,7 +234,7 @@ class Currency(commands.Cog):
                                                        {"$inc": {
                                                            f"inventory.{item_id}": -amount
                                                        }})
-                            self.collection.update_one({"_id":target_user.id},
+                            self.collection.update_one({"_id": target_user.id},
                                                        {
                                                            "$inc": {f"inventory.{item_id}": amount},
                                                            "$setOnInsert": {
@@ -256,7 +265,6 @@ class Currency(commands.Cog):
                 await ctx.send(f"{ctx.author.mention} Enter a valid amount")
         else:
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
-
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -322,6 +330,37 @@ class Currency(commands.Cog):
         else:
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
 
+    @commands.command()
+    async def bet(self, ctx: commands.Context, amount: int):
+        """Join in on some gambling action, similar to Klondike dice game"""
+        if amount >= 50:
+            balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
+            if balance is not None and balance['currency'] > amount:
+                bot_arr, user_arr = np.random.randint(1, 6, 5), np.random.randint(1, 6, 5)
+                if find_pairs(bot_arr) <= find_pairs(user_arr):
+                    embed = discord.Embed(title=f"{ctx.author.display_name}'s losing bet",
+                                          description=f"You lost {amount} coins",
+                                          color=discord.Colour.red())
+                    embed.add_field(name="Chintu rolled:", value=self.houses[find_pairs(bot_arr)])
+                    embed.add_field(name="You rolled:", value=self.houses[find_pairs(user_arr)])
+                    self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": -amount}})
+                else:
+                    embed = discord.Embed(title=f"{ctx.author.display_name}'s winning bet",
+                                          description=f"You won {amount} coins",
+                                          color=discord.Colour.green())
+                    embed.add_field(name="Chintu rolled:", value=self.houses[find_pairs(bot_arr)])
+                    embed.add_field(name="You rolled:", value=self.houses[find_pairs(user_arr)])
+                    self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": amount}})
+                await ctx.send(embed=embed)
+            else:
+                try:
+                    insert_new_document(self.collection, ctx.author.id)
+                except:
+                    pass
+                await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
+        else:
+            await ctx.send(f"{ctx.author.mention} Enter an amount greater than 50 coins")
+
     @commands.command(hidden=True)
     @commands.is_owner()
     async def addmoney(self, ctx: commands.Context, targeted_user: discord.Member, amount: int):
@@ -379,6 +418,27 @@ def create_paged_shop(items: dict):
             embeds.append(embed)
 
     return embeds, pages
+
+
+def find_pairs(array: np.ndarray):
+    len_without_dup = len(set(array))
+    arr_set = list(set(array))
+    arr_sum = np.sum(array)
+    if len_without_dup > 3:
+        return len_without_dup + 1
+    elif len_without_dup == 1:
+        return len_without_dup
+    elif len_without_dup == 3:
+        set_sum = np.sum(arr_set)
+        if arr_sum - arr_set[0] * 3 == set_sum - arr_set[0] or arr_sum - arr_set[1] * 3 == set_sum - arr_set[
+            1] or arr_sum - arr_set[0] * 3 == set_sum - arr_set[0]:
+            return 6
+        else:
+            return 4
+    if arr_set[0] * 4 + arr_set[1] == arr_sum or arr_set[1] * 4 + arr_set[0] == arr_sum:
+        return 2
+    else:
+        return 3
 
 
 def setup(bot):
