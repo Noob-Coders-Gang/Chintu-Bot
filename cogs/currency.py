@@ -356,6 +356,8 @@ class Currency(commands.Cog):
                     amount = 250000
                 else:
                     amount = balance['currency']
+            else:
+                await ctx.send(f"{ctx.author.mention} Enter a proper amount or max/all.")
 
         if 250000 >= amount >= 50:
             balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
