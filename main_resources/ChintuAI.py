@@ -11,15 +11,21 @@ nltk.download('punkt')
 nltk.download('wordnet')
 lemmatizer = WordNetLemmatizer()
 
-
 # --------------------------------Importing ChatModels--------------------------------#
 intents = json.loads(open('./Chintu-Chat-Model/intents.json',
                           encoding='utf-8', errors='ignore').read())
 words = pickle.load(open('./Chintu-Chat-Model/words.pkl', 'rb'))
 classes = pickle.load(open('./Chintu-Chat-Model/classes.pkl', 'rb'))
-
+messages = ["Stop pinging me, I can\'t understand you", "I'm a human and still I can't understand what you're talking about",
+            "I'll block you if you keep pinging me", 'Bruh, can you stop already?',
+            'Yes, I acknowledge you are here, now stop disturbing me', 'Okay', 'Stop, you attention-whore',
+            'Only if you had a life', '**Dies*']
+data = {}
+for intent in intents['intents']:
+    data[intent['tag']] = intent['responses']
 
 url = 'https://chintu-ai.herokuapp.com/v1/models/chintuchat:predict'
+
 
 def clean_up_sentence(sentence):
     sentence_words = nltk.word_tokenize(sentence)
@@ -76,23 +82,17 @@ def docker_ask(sentence):
     return return_list
 
 
-def getResponse(ints, intents_json):
-    result = random.choice(
-        ["I'm confused. Could you tell me clearly?", 'Sorry I dont get you',
-         'Say it Clearly', 'I\'m sorry, I don\'t understand. Could you say it again?'])
+def getResponse(ints):
+    result = random.choice(messages)
     tag = ints[0]['intent']
-    # print(tag)
-    list_of_intents = intents_json['intents']
-    for i in list_of_intents:
-        if i['tag'] == tag:
-            result = random.choice(i['responses'])
-            break
+    if tag in data:
+        result = random.choice(data[tag])
     return result, tag
 
 
 def prediction(msg):
     ints = docker_ask(msg)
-    res, tag = getResponse(ints, intents)
+    res, tag = getResponse(ints)
     if float(ints[0]['probability']) > 0.97:
         result = {"response": res,
                   "tag": tag
@@ -107,8 +107,9 @@ def prediction(msg):
 # --------------------------------get response--------------------------------#
 def AskChintu(query):
     try:
-        if query == None or query.strip() == "":
-            return {'response':  random.choice(['what?', "Hey ssup! 🙋‍♂️", "what⁉️", "what you want?", "why did you ping me sir?"]), 'tag': "nonemsg"}
+        if query is None or query.strip() == "":
+            return {'response': random.choice(
+                ['what?', "Hey ssup! 🙋‍♂️", "what⁉️", "what you want?", "why did you ping me sir?"]), 'tag': "nonemsg"}
 
         Bot_Response = prediction(query)
 
