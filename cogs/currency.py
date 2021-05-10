@@ -30,6 +30,13 @@ class Currency(commands.Cog):
             5: "1 pair",
             6: "None of the accepted combinations"
         }
+        self.prizes = {
+            5: 2,
+            4: 1.5,
+            3: 1.3,
+            2: 1.2,
+            1: 1
+        }
 
     @commands.command()
     async def daily(self, ctx: commands.Context):
@@ -333,24 +340,24 @@ class Currency(commands.Cog):
     @commands.command()
     async def bet(self, ctx: commands.Context, amount: int):
         """Join in on some gambling action, similar to Klondike dice game"""
-        if amount >= 50:
+        if 50000 >= amount >= 50:
             balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
             if balance is not None and balance['currency'] > amount:
-                bot_arr, user_arr = np.random.randint(1, 6, 5), np.random.randint(1, 6, 5)
-                if find_pairs(bot_arr) <= find_pairs(user_arr):
+                bot_pair, user_pair = find_pairs(np.random.randint(1, 6, 5)), find_pairs(np.random.randint(1, 6, 5))
+                if bot_pair <= user_pair:
                     embed = discord.Embed(title=f"{ctx.author.display_name}'s losing bet",
                                           description=f"You lost {amount} coins",
                                           color=discord.Colour.red())
-                    embed.add_field(name="Chintu rolled:", value=self.houses[find_pairs(bot_arr)])
-                    embed.add_field(name="You rolled:", value=self.houses[find_pairs(user_arr)])
+                    embed.add_field(name="Chintu rolled:", value=self.houses[bot_pair])
+                    embed.add_field(name="You rolled:", value=self.houses[user_pair])
                     self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": -amount}})
                 else:
                     embed = discord.Embed(title=f"{ctx.author.display_name}'s winning bet",
-                                          description=f"You won {amount} coins",
+                                          description=f"You won {int(amount*self.prizes[bot_pair-user_pair]+amount)} coins",
                                           color=discord.Colour.green())
-                    embed.add_field(name="Chintu rolled:", value=self.houses[find_pairs(bot_arr)])
-                    embed.add_field(name="You rolled:", value=self.houses[find_pairs(user_arr)])
-                    self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": amount}})
+                    embed.add_field(name="Chintu rolled:", value=self.houses[bot_pair])
+                    embed.add_field(name="You rolled:", value=self.houses[user_pair])
+                    self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": int(amount*self.prizes[bot_pair-user_pair])}})
                 await ctx.send(embed=embed)
             else:
                 try:
@@ -358,6 +365,8 @@ class Currency(commands.Cog):
                 except:
                     pass
                 await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
+        elif amount >= 50000:
+            await ctx.send(f"{ctx.author.mention} If I let you bet more than 50,000 coins, you'd be broke in no time.")
         else:
             await ctx.send(f"{ctx.author.mention} Enter an amount greater than 50 coins")
 

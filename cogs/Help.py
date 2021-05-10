@@ -97,11 +97,16 @@ class Help(commands.Cog):
 
             elif input[0].lower() in self.bot_commands:
                 command = self.bot_commands[input[0].lower()]
-                emb = discord.Embed(title=f"${command.name} - Information", color=discord.Colour.green())
-                emb.add_field(name="Description:", value=command.help, inline=False)
-                if len(command.aliases) > 0:
-                    emb.add_field(name="Aliases:", value=", ".join(command.aliases), inline=False)
-                emb.add_field(name="Usage:", value=f"${command.name} {command.signature}", inline=False)
+                if not command.hidden:
+                    emb = discord.Embed(title=f"${command.name} - Information", color=discord.Colour.green())
+                    emb.add_field(name="Description:", value=command.help, inline=False)
+                    if len(command.aliases) > 0:
+                        emb.add_field(name="Aliases:", value=", ".join(command.aliases), inline=False)
+                    emb.add_field(name="Usage:", value=f"${command.name} {command.signature}", inline=False)
+                else:
+                    emb = discord.Embed(title="What's that?!",
+                                        description=f"I've never heard of a module or command called `{input[0]}` before :scream:",
+                                        color=discord.Color.orange())
 
             # if input not found
             else:
