@@ -338,9 +338,26 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
 
     @commands.command()
-    async def bet(self, ctx: commands.Context, amount: int):
+    async def bet(self, ctx: commands.Context, amount: str):
         """Join in on some gambling action, similar to Klondike dice game"""
-        if 50000 >= amount >= 50:
+        try:
+            amount = int(amount)
+        except:
+            if amount.lower() == "max" or amount.lower() == "all":
+                balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
+                if balance is None:
+                    try:
+                        insert_new_document(self.collection, ctx.author.id)
+                    except:
+                        pass
+                    await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
+                    return
+                elif balance['currency'] >= 250000:
+                    amount = 250000
+                else:
+                    amount = balance['currency']
+
+        if 250000 >= amount >= 50:
             balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
             if balance is not None and balance['currency'] > amount:
                 bot_pair, user_pair = find_pairs(np.random.randint(1, 6, 5)), find_pairs(np.random.randint(1, 6, 5))
@@ -365,7 +382,7 @@ class Currency(commands.Cog):
                 except:
                     pass
                 await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
-        elif amount >= 50000:
+        elif amount >= 250000:
             await ctx.send(f"{ctx.author.mention} If I let you bet more than 50,000 coins, you'd be broke in no time.")
         else:
             await ctx.send(f"{ctx.author.mention} Enter an amount greater than 50 coins")
