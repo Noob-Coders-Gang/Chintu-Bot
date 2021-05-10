@@ -352,7 +352,7 @@ class Currency(commands.Cog):
                         pass
                     await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
                     return
-                elif balance['currency'] >= 250000:
+                if balance['currency'] >= 250000:
                     amount = 250000
                 else:
                     amount = balance['currency']
@@ -361,7 +361,7 @@ class Currency(commands.Cog):
 
         if 250000 >= amount >= 50:
             balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
-            if balance is not None and balance['currency'] > amount:
+            if balance is not None and balance['currency'] >= amount:
                 bot_pair, user_pair = find_pairs(np.random.randint(1, 6, 5)), find_pairs(np.random.randint(1, 6, 5))
                 if bot_pair <= user_pair:
                     embed = discord.Embed(title=f"{ctx.author.display_name}'s losing bet",
