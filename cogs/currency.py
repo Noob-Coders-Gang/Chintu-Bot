@@ -14,7 +14,7 @@ class Currency(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.collection = database["wallet"]
+        self.collection = database["currency"]
         self.utils = currency_utils(self.collection)
         self.defined_currencies = json.loads(
             open('./main_resources/Assets/currency_values.json', encoding='utf-8').read())

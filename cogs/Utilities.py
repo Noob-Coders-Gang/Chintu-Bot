@@ -68,6 +68,7 @@ class Utility(commands.Cog):
                     return
                 if msg.content.lower() == "done":
                     await channel.send(embed=emb)
+                    await ctx.send("Done")
                     return
                 name = msg.content
                 await ctx.send("Add `field value` and add `inline` to set to True")
