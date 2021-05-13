@@ -486,10 +486,7 @@ class Currency(commands.Cog):
         inventory_dict = self.collection.find_one({"_id": target_user.id}, {"inventory": 1})
         if inventory_dict is not None:
             inventory_dict = inventory_dict['inventory']
-            for key, value in inventory_dict.items():
-                if value == 0:
-                    del inventory_dict[key]
-                    break
+            inventory_dict = {key: val for key, val in inventory_dict.items() if val != 0}
             total_items = len(inventory_dict)
             pages = int((total_items - 1) // 5 + 1 + (total_items - 1) % 5 / 10)
             if pages != 0:
@@ -529,6 +526,7 @@ class Currency(commands.Cog):
 
 
 def create_paged_shop(items: dict):
+    items = {key: val for key, val in items.items() if not val['archive']}
     shop_items_len = len(items)
     pages = shop_items_len // 5
     if shop_items_len % 5 != 0:

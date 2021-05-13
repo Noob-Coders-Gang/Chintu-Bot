@@ -6,7 +6,17 @@
       "resell": 15000,
       "emoji": "",
       "description": "Take Joe Mama from me if you can :sunglasses:",
-      "type": "item"
+      "type": "item",
+      "archive": false
+    },
+    "101": {
+      "name": "Autograph Notebook",
+      "value": 20000,
+      "resell": 0,
+      "emoji": "\uD83D\uDCDD",
+      "description": "Collect as many autographs as you can and ask legends to leave their mark on your notebook",
+      "type": "notebook",
+      "archive": true
     },
     "102": {
       "name": "Rick Roll Disc [Limited]",
@@ -15,7 +25,8 @@
       "emoji": "<:rick_disc:839577178400489565>",
       "description": "Rick roll your friends with this music disc :sunglasses:",
       "type": "disc",
-      "url": "https://www.youtube.com/watch?v=w5_fiYGOeLY"
+      "url": "https://www.youtube.com/watch?v=w5_fiYGOeLY",
+      "archive": false
     },
     "103": {
       "name": "QUACK QUACK disc [Limited]",
@@ -24,7 +35,8 @@
       "emoji": "<:rick_disc:839577178400489565>",
       "description": "Quack Quack Quack Quack :duck: :duck: :duck:",
       "type": "disc",
-      "url": "https://www.youtube.com/watch?v=dDgGMInTqTo"
+      "url": "https://www.youtube.com/watch?v=dDgGMInTqTo",
+      "archive": false
     },
     "104": {
       "name": "Dirt Ring",
@@ -32,7 +44,8 @@
       "resell": 500,
       "emoji": ":ring:",
       "description": "Marry the love of your life with this cheap ring (Not Recommended)",
-      "type": "ring"
+      "type": "ring",
+      "archive": false
     },
     "105": {
       "name": "Mutahar Laugh [Limited]",
@@ -41,7 +54,8 @@
       "emoji": "<:rick_disc:839577178400489565>",
       "description": "Listen to mutahar from SOG laughing in multiple variations",
       "type": "disc",
-      "url": "https://www.youtube.com/watch?v=6_Ti78RgzlY"
+      "url": "https://www.youtube.com/watch?v=6_Ti78RgzlY",
+      "archive": false
     }
   },
   "by_name": {
@@ -59,17 +73,10 @@
 
     "quack": 103,
 
-    "ring": 104
+    "ring": 104,
 
-  },
-  "archives": {
-    "101": {
-      "name": "Autograph Notebook",
-      "value": 20000,
-      "resell": 0,
-      "emoji": "\uD83D\uDCDD",
-      "description": "Collect as many autographs as you can and ask legends to leave their mark on your notebook",
-      "type": "notebook"
-    }
+    "muta": 105,
+    "mutahar": 105,
+    "laugh": 105
   }
 }
