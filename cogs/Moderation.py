@@ -40,16 +40,16 @@ class Moderation(commands.Cog):
         self.warn_collection.insert_one(warn_dict)
         try:
             user_embed = discord.Embed(title=f"You have been warned in {ctx.guild.name}",
-                                       description=f"Reason: {reason}")
+                                       description=f"Reason: {reason}", color=discord.Colour.orange())
             await warned_member.send(embed=user_embed)
             channel_embed = discord.Embed(title=f"{warned_member.name} has been warned",
-                                          description=f"Reason: {reason}")
+                                          description=f"Reason: {reason}", color=discord.Colour.orange())
             channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
             await ctx.send(embed=channel_embed)
         except Exception:
             channel_embed = discord.Embed(
                 title=f"Warning for {warned_member.name} has been logged. I couldn't DM them.",
-                description=f"Reason: {reason}")
+                description=f"Reason: {reason}", color=discord.Colour.orange())
             channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
             await ctx.send(embed=channel_embed)
 
@@ -59,7 +59,7 @@ class Moderation(commands.Cog):
         warns = list(self.warn_collection.find(
             {"member_id": member.id, "guild_id": ctx.guild.id}))
         embed = discord.Embed(
-            title=f"{member.name} has been warned {len(warns)} times")
+            title=f"{member.name} has been warned {len(warns)} times", color=discord.Colour.orange())
         for warn in warns:
             embed.add_field(
                 name=f"Warn ID: {warn['_id']}",
@@ -73,7 +73,7 @@ class Moderation(commands.Cog):
         if warn is not None:
             if ctx.guild.id == warn['guild_id']:
                 embed = discord.Embed(
-                    title=f"Warn information for warn ID:{warn_id}")
+                    title=f"Warn information for warn ID:{warn_id}", color=discord.Colour.orange())
                 embed.add_field(name="Warned member",
                                 value=warn['member_name'], inline=False)
                 embed.add_field(name="Warned by",
