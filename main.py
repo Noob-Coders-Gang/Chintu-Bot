@@ -35,7 +35,7 @@ change_status = tasks.loop(seconds=60)(loops.change_status)
 
 # --------------------------------Events--------------------------------#
 events = Events(bot, database, total_guilds_api_url, ChintuAI=True)
-#bot.event(events.on_command_error)
+bot.event(events.on_command_error)
 bot.event(events.on_message)
 bot.event(events.on_guild_join)
 
