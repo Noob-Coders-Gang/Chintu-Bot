@@ -55,14 +55,14 @@ class Utility(commands.Cog):
             def check(message):
                 return message.channel == ctx.channel and message.author.id == ctx.author.id
 
-            msg = await self.bot.wait_for('message', timeout=15.0, check=check)
+            msg = await self.bot.wait_for('message', timeout=90.0, check=check)
             if msg.content.lower() != "none":
                 emb = discord.Embed(title=title, description=msg.content)
             else:
                 emb = discord.Embed(title=title)
             while True:
                 await ctx.send("Add `field name` or `done` to send or `cancel` to cancel")
-                msg = await self.bot.wait_for('message', timeout=15.0, check=check)
+                msg = await self.bot.wait_for('message', timeout=90.0, check=check)
                 if msg.content.lower() == "cancel":
                     await ctx.send("Cancelled")
                     return
@@ -71,7 +71,7 @@ class Utility(commands.Cog):
                     return
                 name = msg.content
                 await ctx.send("Add `field value` and add `inline` to set to True")
-                msg = await self.bot.wait_for('message', timeout=15.0, check=check)
+                msg = await self.bot.wait_for('message', timeout=90.0, check=check)
                 if "inline" in msg.content.lower():
                     value = msg.content.replace("inline", "")
                     emb.add_field(name=name, value=value, inline=True)
