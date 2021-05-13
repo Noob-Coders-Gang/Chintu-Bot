@@ -6,11 +6,12 @@ class currency_utils:
     def __init__(self, collection: pymongo.collection.Collection):
         self.collection = collection
 
-    def update_and_insert(self, doc_id: int, inc_vals=None, set_vals=None, wallet=True, bank=True,
+    def update_and_insert(self, doc_id: int, inc_vals=None, set_vals=None, wallet=True, bank=True, bank_limit=True,
                           inventory=True, t_daily=True, t_weekly=True, t_monthly=True, commands=True):
         bool_dict = {
             "wallet": wallet,
             "bank": bank,
+            "bank_limit": bank_limit,
             "commands": commands,
             "t_daily": t_daily,
             "t_weekly": t_weekly,
@@ -43,6 +44,7 @@ class currency_utils:
                             doc_id: int,
                             wallet: int = 0,
                             bank:int = 0,
+                            bank_limit:int = 0,
                             commands:int = 0,
                             inventory=None,
                             t_daily: datetime = 0,
@@ -54,6 +56,7 @@ class currency_utils:
             "_id": doc_id,
             "wallet": wallet,
             "bank": bank,
+            "bank_limit": bank_limit,
             "commands": commands,
             "inventory": inventory,
             "t_daily": t_daily,

@@ -1,11 +1,9 @@
-import asyncio
 import json
 from datetime import datetime, timedelta
 
-import discord
 import numpy as np
-from discord.ext import commands
 from discord.ext.commands import CommandError
+
 from cogs.currency_utils.utils import currency_utils
 from main import database
 from main_resources.item_use import *
@@ -138,10 +136,11 @@ class Currency(commands.Cog):
         if coins is None:
             self.utils.insert_new_document(targeted_user.id)
             coins = {"wallet": 0, "bank": 0}
-        emb = discord.Embed(title=f"**{targeted_user.display_name}'s Account details**",
+        desc_str = f"**Wallet: **" \
+                   f"<a:chintucoin:839401482184163358>{coins['wallet']}\n**Bank: **" \
+                   f"<a:chintucoin:839401482184163358>{coins['bank']}"
+        emb = discord.Embed(title=f"**{targeted_user.display_name}'s Account details**", description=desc_str,
                             color=discord.Colour.green())
-        emb.add_field(name="Wallet:", value=f"<a:chintucoin:839401482184163358> {coins['wallet']}", inline=False)
-        emb.add_field(name="Bank Account:", value=f"<a:chintucoin:839401482184163358> {coins['bank']}", inline=False)
         if coins['wallet'] + coins['bank'] == 0:
             emb.set_footer(text="Poor much?")
         await ctx.send(embed=emb)
@@ -149,11 +148,12 @@ class Currency(commands.Cog):
     @commands.command(aliases=['with'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def withdraw(self, ctx: commands.Context, amount: str):
+        bank_balance = self.collection.find_one({"_id": ctx.author.id}, {"bank": 1, "wallet": 1})
+        if bank_balance is None or bank_balance["bank"] == 0:
+            self.utils.insert_new_document(ctx.author.id)
+            await ctx.send(f"{ctx.author.mention} Your bank account is empty lmfao")
+            raise CommandError
         if amount.lower() == "max" or amount.lower() == "all":
-            bank_balance = self.collection.find_one({"_id": ctx.author.id}, {"bank": 1})
-            if bank_balance is None:
-                self.utils.insert_new_document(ctx.author.id)
-                bank_balance = {"bank": 0}
             amount = bank_balance["bank"]
         else:
             try:
@@ -161,6 +161,49 @@ class Currency(commands.Cog):
             except ValueError:
                 await ctx.send(f"{ctx.author.mention} Enter a valid amount or max/all")
                 raise CommandError
+        if amount <= 0:
+            await ctx.send(f"{ctx.author.mention} Enter a valid amount or max/all")
+            raise CommandError
+        if amount > bank_balance["bank"]:
+            await ctx.send(f"{ctx.author.mention} You do not have {amount} coins in your bank account")
+            raise CommandError
+        self.utils.update(ctx.author.id, inc_vals={"wallet": amount, "bank": -amount})
+        emb = discord.Embed(title=f"{ctx.author.display_name} Withdrew {amount} coins",
+                            description=f"**Wallet: **<a:chintucoin:839401482184163358>"
+                                        f"{bank_balance['wallet'] + amount}\n**Bank: **<a:chintucoin:839401482184163358>"
+                                        f"{bank_balance['bank'] - amount}",
+                            color=discord.Colour.green())
+        await ctx.send(embed=emb)
+
+    @commands.command(aliases=['dep'])
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
+    async def deposit(self, ctx: commands.Context, amount: str):
+        balances = self.collection.find_one({"_id": ctx.author.id}, {"bank": 1, "wallet": 1})
+        if balances is None or balances["wallet"] == 0:
+            self.utils.insert_new_document(ctx.author.id)
+            await ctx.send(f"{ctx.author.mention} Your wallet is empty lmfao")
+            raise CommandError
+        if amount.lower() == "max" or amount.lower() == "all":
+            amount = balances["wallet"]
+        else:
+            try:
+                amount = int(amount)
+            except ValueError:
+                await ctx.send(f"{ctx.author.mention} Enter a valid amount or max/all")
+                raise CommandError
+        if amount <= 0:
+            await ctx.send(f"{ctx.author.mention} Enter a valid amount or max/all")
+            raise CommandError
+        if amount > balances["wallet"]:
+            await ctx.send(f"{ctx.author.mention} You do not have {amount} coins in your wallet")
+            raise CommandError
+        self.utils.update(ctx.author.id, inc_vals={"wallet": -amount, "bank": amount})
+        emb = discord.Embed(title=f"{ctx.author.display_name} Deposited {amount} coins",
+                            description=f"**Wallet: **"
+                                        f"<a:chintucoin:839401482184163358>{balances['wallet'] - amount}\n**Bank: **"
+                                        f"<a:chintucoin:839401482184163358>{balances['bank'] + amount}",
+                            color=discord.Colour.green())
+        await ctx.send(embed=emb)
 
     @commands.command(aliases=['pay'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
@@ -187,7 +230,8 @@ class Currency(commands.Cog):
             self.utils.update(ctx.author.id, inc_vals={"wallet": -amount})
             self.utils.update_and_insert(targeted_user.id, inc_vals={"wallet": amount}, wallet=False)
             await ctx.send(
-                f"** {ctx.author.mention} gave {amount} coins to {targeted_user.display_name}  <a:chintucoin:839401482184163358>**")
+                f"** {ctx.author.mention} gave {amount} coins to {targeted_user.display_name}  "
+                f"<a:chintucoin:839401482184163358>**")
 
     @commands.command()
     @commands.cooldown(rate=1, per=1.0, type=commands.BucketType.user)
@@ -335,7 +379,7 @@ class Currency(commands.Cog):
         """Join in on some gambling action, similar to Klondike dice game"""
         try:
             amount = int(amount)
-        except Exception:
+        except ValueError:
             if amount.lower() == "max" or amount.lower() == "all":
                 balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
                 if balance is None:
