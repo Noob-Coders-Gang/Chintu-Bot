@@ -8,7 +8,7 @@ from discord.ext import commands
 import main
 
 
-class Mod(commands.Cog):
+class Moderation(commands.Cog):
     ''' Moderator Commands '''
 
     def __init__(self, commands: commands.Bot):
@@ -70,25 +70,30 @@ class Mod(commands.Cog):
     @commands.has_permissions(kick_members=True)
     async def warninfo(self, ctx: commands.Context, warn_id: int):
         warn = self.warn_collection.find_one({'_id': warn_id})
-        if ctx.guild.id == warn['guild_id']:
-            embed = discord.Embed(
-                title=f"Warn information for warn ID:{warn_id}")
-            embed.add_field(name="Warned member",
-                            value=warn['member_name'], inline=False)
-            embed.add_field(name="Warned by",
-                            value=warn['moderator_name'], inline=False)
-            embed.add_field(
-                name="Warn link",
-                value=f"https://discord.com/channels/{warn['guild_id']}/{warn['channel_id']}/{warn['message_id']}",
-                inline=False)
-            embed.add_field(name="Reason", value=warn['reason'], inline=False)
-            timetuple = warn['time']
-            embed.add_field(
-                name="Warned at",
-                value=f"{timetuple[2]}/{timetuple[1]}/{timetuple[0]} {timetuple[3]}:{timetuple[4]} (UTC)", inline=False)
-            await ctx.send(embed=embed)
+        if warn is not None:
+            if ctx.guild.id == warn['guild_id']:
+                embed = discord.Embed(
+                    title=f"Warn information for warn ID:{warn_id}")
+                embed.add_field(name="Warned member",
+                                value=warn['member_name'], inline=False)
+                embed.add_field(name="Warned by",
+                                value=warn['moderator_name'], inline=False)
+                embed.add_field(
+                    name="Warn link",
+                    value=f"[Message Link](https://discord.com/channels/{warn['guild_id']}/{warn['channel_id']}/{warn['message_id']})",
+                    inline=False)
+                embed.add_field(name="Reason", value=warn['reason'], inline=False)
+                timetuple = warn['time']
+                embed.add_field(
+                    name="Warned at",
+                    value=f"{timetuple[2]}/{timetuple[1]}/{timetuple[0]} {timetuple[3]}:{timetuple[4]} (UTC)", inline=False)
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send(f"{ctx.author.mention} Warn not found!")
         else:
-            await ctx.send("Warn not found!")
+            await ctx.send(f"{ctx.author.mention} Warn not found!")
+
+
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
@@ -156,4 +161,4 @@ class Mod(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Mod(bot))
+    bot.add_cog(Moderation(bot))

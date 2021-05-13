@@ -3,10 +3,11 @@ import json
 from datetime import datetime, timedelta
 
 import discord
+import numpy as np
 from discord.ext import commands
 
+from cogs.currency_utils.utils import currency_utils
 from main import database
-import numpy as np
 
 
 class Currency(commands.Cog):
@@ -15,6 +16,7 @@ class Currency(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.collection = database["currency"]
+        self.utils = currency_utils(self.collection)
         self.defined_currencies = json.loads(
             open('./main_resources/Assets/currency_values.json', encoding='utf-8').read())
         self.items_by_id = json.loads(
@@ -46,16 +48,8 @@ class Currency(commands.Cog):
         if daily_time is None \
                 or daily_time['t_daily'] == 0 \
                 or (datetime.utcnow() - daily_time['t_daily']) >= timedelta(days=1):
-            self.collection.update_one({"_id": ctx.author.id},  # Query for update
-                                       {
-                                           "$inc": {"currency": self.defined_currencies['daily']},
-                                           "$set": {"t_daily": datetime.utcnow()},
-                                           "$setOnInsert": {
-                                               "inventory": {},
-                                               "t_weekly": 0,
-                                               "t_monthly": 0
-                                           }
-                                       }, upsert=True)
+            self.utils.update_and_insert(ctx.author.id, inc_vals={"currency": self.defined_currencies['daily']},
+                                         set_vals={"t_daily": datetime.utcnow()}, currency=False, t_daily=False)
             emb = discord.Embed(title="Enjoy your daily cold hard cash 🤑",
                                 description=f"{self.defined_currencies['daily']} coins were placed in your wallet!",
                                 color=discord.Colour.green())
@@ -81,16 +75,8 @@ class Currency(commands.Cog):
         if weekly_time is None \
                 or weekly_time['t_weekly'] == 0 \
                 or (datetime.utcnow() - weekly_time['t_weekly']) >= timedelta(days=7):
-            self.collection.update_one({"_id": ctx.author.id},  # Query for update
-                                       {
-                                           "$inc": {"currency": self.defined_currencies['weekly']},
-                                           "$set": {"t_weekly": datetime.utcnow()},
-                                           "$setOnInsert": {
-                                               "inventory": {},
-                                               "t_daily": 0,
-                                               "t_monthly": 0
-                                           }
-                                       }, upsert=True)
+            self.utils.update_and_insert(ctx.author.id, inc_vals={"currency": self.defined_currencies['weekly']},
+                                         set_vals={"t_weekly": datetime.utcnow()}, currency=False, t_weekly=False)
             emb = discord.Embed(title="Enjoy your weekly cold hard cash 🤑",
                                 description=f"{self.defined_currencies['weekly']} coins were placed in your wallet!",
                                 color=discord.Colour.green())
@@ -116,16 +102,8 @@ class Currency(commands.Cog):
         if monthly_time is None \
                 or monthly_time['t_monthly'] == 0 \
                 or (datetime.utcnow() - monthly_time['t_monthly']) >= timedelta(days=30):
-            self.collection.update_one({"_id": ctx.author.id},  # Query for update
-                                       {
-                                           "$inc": {"currency": self.defined_currencies['monthly']},
-                                           "$set": {"t_monthly": datetime.utcnow()},
-                                           "$setOnInsert": {
-                                               "inventory": {},
-                                               "t_daily": 0,
-                                               "t_weekly": 0
-                                           }
-                                       }, upsert=True)
+            self.utils.update_and_insert(ctx.author.id, inc_vals={"currency": self.defined_currencies['monthly']},
+                                         set_vals={"t_monthly": datetime.utcnow()}, currency=False, t_monthly=False)
             emb = discord.Embed(title="Enjoy your monthly cold hard cash 🤑",
                                 description=f"{self.defined_currencies['monthly']} coins were placed in your wallet!",
                                 color=discord.Colour.green())
@@ -150,7 +128,7 @@ class Currency(commands.Cog):
             targeted_user = ctx.author
         coins = self.collection.find_one({"_id": targeted_user.id}, {"currency": 1})
         if coins is None:
-            insert_new_document(self.collection, targeted_user.id)
+            self.utils.insert_new_document(targeted_user.id)
             coins = {"currency": 0}
         if coins['currency'] == 0:
             emb = discord.Embed(description=f"***{targeted_user.display_name} currently has 0 coins. Poor much?***",
@@ -175,24 +153,15 @@ class Currency(commands.Cog):
             {"_id": ctx.author.id}, {"currency": 1})
 
         if user_bal is None:
-            insert_new_document(self.collection, ctx.author.id)
+            self.utils.insert_new_document(ctx.author.id)
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
             return
         elif user_bal["currency"] < amount:
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
             return
         else:
-            self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": -amount}})
-            self.collection.update_one({"_id": targeted_user.id},  # Query for update
-                                       {
-                                           "$inc": {"currency": amount},
-                                           "$setOnInsert": {
-                                               "inventory": {},
-                                               "t_daily": 0,
-                                               "t_weekly": 0,
-                                               "t_monthly": 0
-                                           }
-                                       }, upsert=True)
+            self.utils.update(ctx.author.id, inc_vals={"currency": -amount})
+            self.utils.update_and_insert(targeted_user.id, inc_vals={"currency": amount}, currency=False)
             await ctx.send(
                 f"** {ctx.author.mention} gave {amount} coins to {targeted_user.display_name}  <a:chintucoin:839401482184163358>**")
 
@@ -237,20 +206,9 @@ class Currency(commands.Cog):
 
                         try:
                             await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
-                            self.collection.update_one({"_id": ctx.author.id},
-                                                       {"$inc": {
-                                                           f"inventory.{item_id}": -amount
-                                                       }})
-                            self.collection.update_one({"_id": target_user.id},
-                                                       {
-                                                           "$inc": {f"inventory.{item_id}": amount},
-                                                           "$setOnInsert": {
-                                                               "currency": 0,
-                                                               "t_daily": 0,
-                                                               "t_weekly": 0,
-                                                               "t_monthly": 0
-                                                           }
-                                                       }, upsert=True)
+                            self.utils.update(ctx.author.id, inc_vals={f"inventory.{item_id}": -amount})
+                            self.utils.update_and_insert(target_user.id, inc_vals={f"inventory.{item_id}": amount},
+                                                         inventory=False)
                             await ctx.send(
                                 f"{ctx.author.mention} You have successfully "
                                 f"gifted {amount} {item_dict['name']} to {target_user.name}")
@@ -266,7 +224,7 @@ class Currency(commands.Cog):
                         await ctx.send(f"{ctx.author.mention} Lmao you don't have {amount} {item_dict['name']} to"
                                        f" gift.")
                 else:
-                    insert_new_document(self.collection, ctx.author.id)
+                    self.utils.insert_new_document(ctx.author.id)
                     await ctx.send(f"{ctx.author.mention} Lmao you don't have {amount} {item_dict['name']} to gift.")
             else:
                 await ctx.send(f"{ctx.author.mention} Enter a valid amount")
@@ -306,11 +264,8 @@ class Currency(commands.Cog):
 
                         try:
                             await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
-                            self.collection.update_one({"_id": ctx.author.id},
-                                                       {"$inc": {
-                                                           "currency": -item_dict["value"] * amount,
-                                                           f"inventory.{str(item)}": amount
-                                                       }})
+                            self.utils.update(ctx.author.id, inc_vals={"currency": -item_dict["value"] * amount,
+                                                                       f"inventory.{str(item)}": amount})
                             await ctx.send(
                                 f"{ctx.author.mention} You have successfully "
                                 f"purchased {amount} {item_dict['name']} for {item_dict['value'] * amount}")
@@ -327,7 +282,7 @@ class Currency(commands.Cog):
                             f"{ctx.author.mention} You don't have enough money" +
                             f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
                 else:
-                    insert_new_document(self.collection, ctx.author.id)
+                    self.utils.insert_new_document(ctx.author.id)
                     await ctx.send(
                         f"{ctx.author.mention} You don't have enough money" +
                         f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
@@ -342,13 +297,13 @@ class Currency(commands.Cog):
         """Join in on some gambling action, similar to Klondike dice game"""
         try:
             amount = int(amount)
-        except:
+        except Exception:
             if amount.lower() == "max" or amount.lower() == "all":
                 balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
                 if balance is None:
                     try:
-                        insert_new_document(self.collection, ctx.author.id)
-                    except:
+                        self.utils.insert_new_document(ctx.author.id)
+                    except Exception:
                         pass
                     await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
                     return
@@ -369,19 +324,20 @@ class Currency(commands.Cog):
                                           color=discord.Colour.red())
                     embed.add_field(name="Chintu rolled:", value=self.houses[bot_pair])
                     embed.add_field(name="You rolled:", value=self.houses[user_pair])
-                    self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": -amount}})
+                    self.utils.update(ctx.author.id, inc_vals={"currency": -amount})
                 else:
                     embed = discord.Embed(title=f"{ctx.author.display_name}'s winning bet",
-                                          description=f"You won {int(amount*self.prizes[bot_pair-user_pair]+amount)} coins",
+                                          description=f"You won {int(amount * self.prizes[bot_pair - user_pair] + amount)} coins",
                                           color=discord.Colour.green())
                     embed.add_field(name="Chintu rolled:", value=self.houses[bot_pair])
                     embed.add_field(name="You rolled:", value=self.houses[user_pair])
-                    self.collection.update_one({"_id": ctx.author.id}, {"$inc": {"currency": int(amount*self.prizes[bot_pair-user_pair])}})
+                    self.utils.update(ctx.author.id,
+                                      inc_vals={"currency": int(amount * self.prizes[bot_pair - user_pair])})
                 await ctx.send(embed=embed)
             else:
                 try:
-                    insert_new_document(self.collection, ctx.author.id)
-                except:
+                    self.utils.insert_new_document(ctx.author.id)
+                except Exception:
                     pass
                 await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
         elif amount >= 250000:
@@ -391,35 +347,13 @@ class Currency(commands.Cog):
 
     @commands.command(hidden=True)
     @commands.is_owner()
-    async def addmoney(self, ctx: commands.Context, targeted_user: discord.Member, amount: int):
-        self.collection.update_one({"_id": targeted_user.id},  # Query for update
-                                   {
-                                       "$inc": {"currency": amount},
-                                       "$setOnInsert": {
-                                           "inventory": {},
-                                           "t_daily": 0,
-                                           "t_weekly": 0,
-                                           "t_monthly": 0
-                                       }
-                                   }, upsert=True)
+    async def addmoney(self, ctx: commands.Context, amount: int, targeted_user: discord.Member = None):
+        if targeted_user is None:
+            targeted_user = ctx.author
+        self.utils.update_and_insert(targeted_user.id, inc_vals={"currency": amount}, currency=False)
         emb = discord.Embed(description=f"***Added {amount} coins to {targeted_user.display_name}'s balance.***",
                             color=discord.Colour.green())
         await ctx.send(embed=emb)
-
-
-def insert_new_document(collection, doc_id: int, currency: int = 0, inventory=None, t_daily: datetime = 0,
-                        t_weekly: datetime = 0,
-                        t_monthly: datetime = 0):
-    if inventory is None:
-        inventory = {}
-    collection.insert_one({
-        "_id": doc_id,
-        "currency": currency,
-        "inventory": inventory,
-        "t_daily": t_daily,
-        "t_weekly": t_weekly,
-        "t_monthly": t_monthly
-    })
 
 
 def create_paged_shop(items: dict):
@@ -458,8 +392,8 @@ def find_pairs(array: np.ndarray):
         return len_without_dup
     elif len_without_dup == 3:
         set_sum = np.sum(arr_set)
-        if arr_sum - arr_set[0] * 3 == set_sum - arr_set[0] or arr_sum - arr_set[1] * 3 == set_sum - arr_set[
-            1] or arr_sum - arr_set[0] * 3 == set_sum - arr_set[0]:
+        if arr_sum - arr_set[0] * 3 == set_sum - arr_set[0] or arr_sum - arr_set[1] * 3 == set_sum - arr_set[1] \
+                or arr_sum - arr_set[0] * 3 == set_sum - arr_set[0]:
             return 6
         else:
             return 4
