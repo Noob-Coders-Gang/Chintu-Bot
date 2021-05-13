@@ -268,8 +268,10 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['how gay', 'gaypercent'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
-    async def howgay(self, ctx, member: discord.Member):
+    async def howgay(self, ctx, member: discord.Member=None):
         ''' To check gayness 🏳️‍🌈'''
+        if member is None:
+            member = ctx.author
         user = str(member.id)
         s = sum([int(x) for x in user])
 

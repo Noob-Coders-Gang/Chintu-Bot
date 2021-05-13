@@ -1,5 +1,7 @@
 {
   "daily": 500,
   "weekly": 5000,
-  "monthly": 30000
+  "monthly": 30000,
+  "per_command_set": 100,
+  "command_set": 5
 }

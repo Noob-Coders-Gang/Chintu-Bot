@@ -1,6 +1,7 @@
 import discord
 import requests
 from discord.ext import commands
+from discord.ext.commands import CommandError
 
 
 class GitHub(commands.Cog):
@@ -22,7 +23,7 @@ class GitHub(commands.Cog):
             em = discord.Embed(title=f"User {username} not found! Please check the username.",
                                color=discord.Color.red())
             await ctx.send(embed=em)
-            return
+            raise CommandError
         repos_data = requests.get(
             f"https://api.github.com/users/{username}/repos").json()
         embed = discord.Embed(
@@ -47,7 +48,7 @@ class GitHub(commands.Cog):
             em = discord.Embed(title=f"User {username} not found! Please check the username.",
                                color=discord.Color.red())
             await ctx.send(embed=em)
-            return
+            raise CommandError
         embed = discord.Embed(title=username, color=discord.Color.blue())
         embed.set_thumbnail(url=user_data["avatar_url"])
         embed.add_field(name="URL", value=user_data["html_url"])

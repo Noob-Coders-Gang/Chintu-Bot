@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import discord
 import numpy as np
 from discord.ext import commands
+from discord.ext.commands import CommandError
 from cogs.currency_utils.utils import currency_utils
 from main import database
 from main_resources.item_use import *
@@ -67,6 +68,7 @@ class Currency(commands.Cog):
             emb.add_field(name="You can claim your daily again in:",
                           value=f"{hours} hours, {minutes} minutes and {seconds} seconds")
             await ctx.send(embed=emb)
+            raise CommandError
 
     @commands.command()
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
@@ -95,6 +97,7 @@ class Currency(commands.Cog):
             emb.add_field(name="You can claim your weekly again in:",
                           value=f"{days} days, {hours} hours and {minutes} minutes")
             await ctx.send(embed=emb)
+            raise CommandError
 
     @commands.command()
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
@@ -123,6 +126,7 @@ class Currency(commands.Cog):
             emb.add_field(name="You can claim your monthly again in:",
                           value=f"{days} days, {hours} hours and {minutes} minutes")
             await ctx.send(embed=emb)
+            raise CommandError
 
     @commands.command(aliases=['bal'])
     @commands.cooldown(rate=1, per=1.0, type=commands.BucketType.user)
@@ -145,8 +149,18 @@ class Currency(commands.Cog):
     @commands.command(aliases=['with'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def withdraw(self, ctx: commands.Context, amount: str):
-        pass
-        # TODO
+        if amount.lower() == "max" or amount.lower() == "all":
+            bank_balance = self.collection.find_one({"_id": ctx.author.id}, {"bank": 1})
+            if bank_balance is None:
+                self.utils.insert_new_document(ctx.author.id)
+                bank_balance = {"bank": 0}
+            amount = bank_balance["bank"]
+        else:
+            try:
+                amount = int(amount)
+            except ValueError:
+                await ctx.send(f"{ctx.author.mention} Enter a valid amount or max/all")
+                raise CommandError
 
     @commands.command(aliases=['pay'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
@@ -154,10 +168,10 @@ class Currency(commands.Cog):
         """Give away your hard earned cash 🎁"""
         if ctx.author.id == targeted_user.id:
             await ctx.send(f"{ctx.author.mention}, you can't give coins to yourself. 😡")
-            return
+            raise CommandError
         if amount <= 0:
             await ctx.send(f"{ctx.author.mention}, enter a value greater than 0. You can't fool me. 😡")
-            return
+            raise CommandError
 
         user_bal = self.collection.find_one(
             {"_id": ctx.author.id}, {"wallet": 1})
@@ -165,10 +179,10 @@ class Currency(commands.Cog):
         if user_bal is None:
             self.utils.insert_new_document(ctx.author.id)
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
-            return
+            raise CommandError
         elif user_bal["wallet"] < amount:
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
-            return
+            raise CommandError
         else:
             self.utils.update(ctx.author.id, inc_vals={"wallet": -amount})
             self.utils.update_and_insert(targeted_user.id, inc_vals={"wallet": amount}, wallet=False)
@@ -184,6 +198,7 @@ class Currency(commands.Cog):
             await ctx.send(embed=embed)
         else:
             await ctx.send(f"{ctx.author.mention} Enter a valid page number")
+            raise CommandError
 
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
@@ -232,16 +247,21 @@ class Currency(commands.Cog):
                                              icon_url=ctx.author.avatar_url)
                             await message.edit(embed=embed)
                             await message.clear_reactions()
+                            raise CommandError
                     else:
                         await ctx.send(f"{ctx.author.mention} Lmao you don't have {amount} {item_dict['name']} to"
                                        f" gift.")
+                        raise CommandError
                 else:
                     self.utils.insert_new_document(ctx.author.id)
                     await ctx.send(f"{ctx.author.mention} Lmao you don't have {amount} {item_dict['name']} to gift.")
+                    raise CommandError
             else:
                 await ctx.send(f"{ctx.author.mention} Enter a valid amount")
+                raise CommandError
         else:
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
+            raise CommandError
 
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
@@ -289,20 +309,25 @@ class Currency(commands.Cog):
                                              icon_url=ctx.author.avatar_url)
                             await message.edit(embed=embed)
                             await message.clear_reactions()
+                            raise CommandError
                     else:
                         await ctx.send(
                             f"{ctx.author.mention} You don't have enough money" +
                             f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
+                        raise CommandError
                 else:
                     self.utils.insert_new_document(ctx.author.id)
                     await ctx.send(
                         f"{ctx.author.mention} You don't have enough money" +
                         f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
+                    raise CommandError
             else:
                 await ctx.send(f"{ctx.author.mention} Enter a valid amount")
+                raise CommandError
 
         else:
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
+            raise CommandError
 
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
@@ -319,13 +344,14 @@ class Currency(commands.Cog):
                     except Exception:
                         pass
                     await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
-                    return
+                    raise CommandError
                 if balance['wallet'] >= 250000:
                     amount = 250000
                 else:
                     amount = balance['wallet']
             else:
                 await ctx.send(f"{ctx.author.mention} Enter a proper amount or max/all.")
+                raise CommandError
 
         if 250000 >= amount >= 50:
             balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
@@ -353,10 +379,13 @@ class Currency(commands.Cog):
                 except Exception:
                     pass
                 await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
+                raise CommandError
         elif amount >= 250000:
             await ctx.send(f"{ctx.author.mention} If I let you bet more than 50,000 coins, you'd be broke in no time.")
+            raise CommandError
         else:
             await ctx.send(f"{ctx.author.mention} Enter an amount greater than 50 coins")
+            raise CommandError
 
     @commands.command()
     @commands.cooldown(rate=1, per=8.0, type=commands.BucketType.user)
@@ -380,13 +409,16 @@ class Currency(commands.Cog):
                         await eval(item_dict['type'] + '(self.bot, ctx, item_dict)')
                     else:
                         await ctx.send("This item cannot be used.")
-                except commands.MemberNotFound:
+                except Exception:
                     await ctx.send(f"Could't use {item_dict['name']}. Please report this issue using $suggest.")
+                    raise CommandError
             else:
                 await ctx.send(
                     f"You do not have {item_dict['name']}. Buy it from the shop ($shop) before trying again.")
+                raise CommandError
         else:
             await ctx.send(f"Could not find item with name or id {item}")
+            raise CommandError
 
     @commands.command(aliases=["inv"])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
@@ -405,7 +437,8 @@ class Currency(commands.Cog):
                     page_number = int(target_user)
                     target_user = ctx.author
                 except Exception:
-                    await ctx.send("Enter valid page number")
+                    await ctx.send("Enter a valid page number")
+                    raise CommandError
         inventory_dict = self.collection.find_one({"_id": target_user.id}, {"inventory": 1})
         if inventory_dict is not None:
             inventory_dict = inventory_dict['inventory']
@@ -431,11 +464,14 @@ class Currency(commands.Cog):
                     await ctx.send(embed=embed)
                 else:
                     await ctx.send(f"Enter a valid page number")
+                    raise CommandError
             else:
                 await ctx.send("The inventory is empty lmao. To buy something use $shop")
+                raise CommandError
         else:
             self.utils.insert_new_document(target_user.id)
             await ctx.send("The inventory is empty lmao. To buy something use $shop")
+            raise CommandError
 
     @commands.command(hidden=True)
     @commands.is_owner()
