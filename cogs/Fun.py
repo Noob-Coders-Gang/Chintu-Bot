@@ -4,7 +4,9 @@ import math
 import random
 import urllib.request
 from typing import Optional
-
+from urllib import parse
+import requests
+from bs4 import BeautifulSoup
 import discord
 import wikipedia
 from aiohttp import request
@@ -24,7 +26,33 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(aliases=['google', 'search'])
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    async def gsearch(self, ctx: discord.ext.commands.Context, *, query):
+        """Sends top google search result with page description"""
+        searchInput = "https://google.com/search?q=" + \
+                      parse.quote(query) + "&num=2"  # Query url for top 2 results
+        res = requests.get(searchInput)  # Gets the google search results page
+        # Parses the google search results page
+        soup = BeautifulSoup(res.text, "html.parser")
+        tag = list(soup.find('div', {'class': 'BNeawe vvjwJb AP7Wnd'}).parent.parent.parent.parent.find('div', {
+            'class': 'BNeawe s3v9rd AP7Wnd'}).find_all('div', {
+            'class': 'BNeawe s3v9rd AP7Wnd'}))  # Creates a list of parsable search results
+        # Gets the description for the parsable search result
+        text = ""
+        for div in tag:
+            if div.find(text=True, recursive=False) != " " and div.find(text=True, recursive=False) is not None:
+                text = div.find(text=True, recursive=False)
+                break
+        # Creates an embed with the relevant data, ie Result title, its url and its description
+        embed = discord.Embed(title=soup.find('div', {'class': 'BNeawe vvjwJb AP7Wnd'}).get_text(),
+                              url=soup.find('div', {'class': 'BNeawe vvjwJb AP7Wnd'}).parent.parent.get(
+                                  "href").split('=')[1],
+                              description=text)
+        await ctx.send(embed=embed)
+
     @commands.command(aliases=['8ball', 'test', 'ask'])
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def _8ball(self, ctx, *, question):
         ''' Ask question and get advice from me 🎱'''
         responses = ["It is certain.",
@@ -114,6 +142,7 @@ class Fun(commands.Cog):
                 return await ctx.send("I am busy dude, I can't think any joke right now")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def beer(self, ctx, user: discord.Member = None, *, reason: commands.clean_content = ""):
         """ Give someone a beer! 🍻 """
         if not user or user.id == ctx.author.id:
@@ -149,6 +178,7 @@ class Fun(commands.Cog):
             await msg.edit(content=beer_offer)
 
     @commands.command(aliases=["hotcalc", "hot"])
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def howhot(self, ctx, *, user: discord.Member = None):
         """ Returns a percent for how hot is a discord user 🥵"""
         user = user or ctx.author
@@ -171,6 +201,7 @@ class Fun(commands.Cog):
         await ctx.send(f"**{user.name}** is **{hot:.2f}%** hot {emoji}")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def f(self, ctx, *, text: commands.clean_content = None):
         """ Press F to pay respect 🇫 """
         hearts = ["❤", "💛", "💚", "💙", "💜"]
@@ -178,12 +209,14 @@ class Fun(commands.Cog):
         await ctx.send(f"**{ctx.author.name}** has paid their respect {reason}{random.choice(hearts)}")
 
     @commands.command(aliases=["flip", "coin"])
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def coinflip(self, ctx):
         """ Coinflip! :coin: """
         coinsides = ["Heads", "Tails"]
         await ctx.send(f"**{ctx.author.name}** flipped a coin and got **{random.choice(coinsides)}**!")
 
     @commands.command(aliases=['wikipedia'])
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def wiki(self, ctx, *, querry_: str):
         ''' Search wikipedia for any information 🔍'''
         async with ctx.channel.typing():
@@ -204,6 +237,7 @@ class Fun(commands.Cog):
                 await ctx.send("Sorry, I can find " + querry_ + " in Wikipedia")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def kill(self, ctx, user: Optional[Member]):
         ''' kill someone ⚰️'''
         if not user:
@@ -218,6 +252,7 @@ class Fun(commands.Cog):
         await ctx.send(f'{user.display_name}, {random.choice(roasts)}')
 
     @commands.command(aliases=['ppsize', 'size', 'penis'])
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def pp(self, ctx, member: discord.Member):
         ''' To check pp size 🍆'''
         size = ['', '==', '', '=', '', '====', '', '=', '======', '==========================', '===',
@@ -232,6 +267,7 @@ class Fun(commands.Cog):
         await ctx.send(embed=em)
 
     @commands.command(aliases=['how gay', 'gaypercent'])
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def howgay(self, ctx, member: discord.Member):
         ''' To check gayness 🏳️‍🌈'''
         user = str(member.id)
@@ -252,6 +288,7 @@ class Fun(commands.Cog):
         await ctx.send(embed=em)
 
     @commands.command(aliases=['pass', 'generator', 'passwordgenerator'])
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def password(self, ctx, amt: int = 8):
         ''' Get random password in DM  🔒'''
         try:
@@ -272,6 +309,7 @@ class Fun(commands.Cog):
             print(e)
 
     @command(name="insult")
+    @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def insult(self, ctx):
         """"Returns some evil insults"""
         URl = f"https://evilinsult.com/generate_insult.php?lang=en&type=json"

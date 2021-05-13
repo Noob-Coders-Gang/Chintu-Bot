@@ -1,16 +1,21 @@
 import discord
 from discord.ext import commands
 
+from cogs.currency_utils.utils import currency_utils
 from main_resources.ChintuAI import AskChintu
 from main_resources.functions import update_total_guilds, add_guild
 
 
 class Events:
-    def __init__(self, bot: commands.Bot, database, total_guilds_api_url, ChintuAI: bool = False):
+    def __init__(self, bot: commands.Bot, database, total_guilds_api_url, infinite_use_commands: list,
+                 ChintuAI: bool = False):
         self.bot = bot
         self.database = database
+        self.infinite_use_commands = infinite_use_commands
         self.cmdManager_collection = database["cmd_manager"]
+        self.currency_collection = database['currency']
         self.total_guilds_api_url = total_guilds_api_url
+        self.utils = currency_utils(self.currency_collection)
         self.ChintuAI = ChintuAI
         if ChintuAI:
             from main_resources.ChintuAI import AskChintu
@@ -47,7 +52,8 @@ class Events:
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
             em = discord.Embed(title=f"Slow it down bro!",
-                               description=f"Try again in {error.retry_after:.2f}s.", color=discord.Color.red())
+                               description=f"Try again in {error.retry_after:.2f}s.\n The default cooldown is {error.cooldown.per}s",
+                               color=discord.Color.red())
             await ctx.send(embed=em)
         elif isinstance(error, commands.CheckFailure):
             embed = discord.Embed(title=':x: oops! You do not have permission to use this command.',
@@ -75,3 +81,7 @@ class Events:
                 title=':x: Enter a valid argument',
                 color=discord.Colour.red())
             await ctx.send(embed=embed)
+
+    async def on_command_completion(self, ctx: commands.Context):
+        if ctx.command.name not in self.infinite_use_commands:
+            self.utils.update_and_insert(ctx.author.id, inc_vals={"commands": 1}, commands=False)

@@ -11,6 +11,7 @@ class Info(commands.Cog):
         self.bot = bot
 
     @commands.command()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def avatar(self, ctx, *, avamember: Member = None):
         ''' Get user avatar  '''
         userAvatarUrl = avamember.avatar_url
@@ -19,6 +20,7 @@ class Info(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['channelstats'])
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def channel_info(self, ctx, channel: TextChannel):
         ''' get channel stats/info '''
         nsfw = self.bot.get_channel(channel.id).is_nsfw()
@@ -36,6 +38,7 @@ class Info(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['guild'])
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def server(self, ctx):
         ''' Get Server Info '''
         findbots = sum(1 for member in ctx.guild.members if member.bot)
@@ -55,6 +58,7 @@ class Info(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=['whois', 'userinfo'])
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def user(self, ctx, member: Member = None):
         ''' Get User Info '''
         if member is None:

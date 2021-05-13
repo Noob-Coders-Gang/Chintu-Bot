@@ -13,6 +13,7 @@ class GitHub(commands.Cog):
         return ''' Search Github Profile '''
 
     @commands.command(aliases=["repositories", "github"])
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def repos(self, ctx: discord.ext.commands.Context, username):
         """Sends top 5 repositories of the requested user"""
         user_data = requests.get(
@@ -37,6 +38,7 @@ class GitHub(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["gitmember"])
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def gituser(self, ctx, username):
         """Sends info about a github user"""
         user_data = requests.get(

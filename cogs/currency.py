@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 import discord
 import numpy as np
 from discord.ext import commands
-
 from cogs.currency_utils.utils import currency_utils
 from main import database
 from main_resources.item_use import *
@@ -16,7 +15,7 @@ class Currency(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-        self.collection = database["currency"]
+        self.collection = database["wallet"]
         self.utils = currency_utils(self.collection)
         self.defined_currencies = json.loads(
             open('./main_resources/Assets/currency_values.json', encoding='utf-8').read())
@@ -42,6 +41,7 @@ class Currency(commands.Cog):
         }
 
     @commands.command()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def daily(self, ctx: commands.Context):
         """Daily dose of sweet cash 💰💰💰"""
         daily_time = self.collection.find_one({"_id": ctx.author.id}, {"t_daily": 1})
@@ -49,8 +49,8 @@ class Currency(commands.Cog):
         if daily_time is None \
                 or daily_time['t_daily'] == 0 \
                 or (datetime.utcnow() - daily_time['t_daily']) >= timedelta(days=1):
-            self.utils.update_and_insert(ctx.author.id, inc_vals={"currency": self.defined_currencies['daily']},
-                                         set_vals={"t_daily": datetime.utcnow()}, currency=False, t_daily=False)
+            self.utils.update_and_insert(ctx.author.id, inc_vals={"wallet": self.defined_currencies['daily']},
+                                         set_vals={"t_daily": datetime.utcnow()}, wallet=False, t_daily=False)
             emb = discord.Embed(title="Enjoy your daily cold hard cash 🤑",
                                 description=f"{self.defined_currencies['daily']} coins were placed in your wallet!",
                                 color=discord.Colour.green())
@@ -69,6 +69,7 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def weekly(self, ctx: commands.Context):
         """Weekly dose of sweet cash 💰💰💰"""
         weekly_time = self.collection.find_one({"_id": ctx.author.id}, {"t_weekly": 1})
@@ -76,8 +77,8 @@ class Currency(commands.Cog):
         if weekly_time is None \
                 or weekly_time['t_weekly'] == 0 \
                 or (datetime.utcnow() - weekly_time['t_weekly']) >= timedelta(days=7):
-            self.utils.update_and_insert(ctx.author.id, inc_vals={"currency": self.defined_currencies['weekly']},
-                                         set_vals={"t_weekly": datetime.utcnow()}, currency=False, t_weekly=False)
+            self.utils.update_and_insert(ctx.author.id, inc_vals={"wallet": self.defined_currencies['weekly']},
+                                         set_vals={"t_weekly": datetime.utcnow()}, wallet=False, t_weekly=False)
             emb = discord.Embed(title="Enjoy your weekly cold hard cash 🤑",
                                 description=f"{self.defined_currencies['weekly']} coins were placed in your wallet!",
                                 color=discord.Colour.green())
@@ -96,6 +97,7 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def monthly(self, ctx: commands.Context):
         """Monthly dose of sweet cash 💰💰💰"""
         monthly_time = self.collection.find_one({"_id": ctx.author.id}, {"t_monthly": 1})
@@ -103,8 +105,8 @@ class Currency(commands.Cog):
         if monthly_time is None \
                 or monthly_time['t_monthly'] == 0 \
                 or (datetime.utcnow() - monthly_time['t_monthly']) >= timedelta(days=30):
-            self.utils.update_and_insert(ctx.author.id, inc_vals={"currency": self.defined_currencies['monthly']},
-                                         set_vals={"t_monthly": datetime.utcnow()}, currency=False, t_monthly=False)
+            self.utils.update_and_insert(ctx.author.id, inc_vals={"wallet": self.defined_currencies['monthly']},
+                                         set_vals={"t_monthly": datetime.utcnow()}, wallet=False, t_monthly=False)
             emb = discord.Embed(title="Enjoy your monthly cold hard cash 🤑",
                                 description=f"{self.defined_currencies['monthly']} coins were placed in your wallet!",
                                 color=discord.Colour.green())
@@ -123,24 +125,31 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
 
     @commands.command(aliases=['bal'])
+    @commands.cooldown(rate=1, per=1.0, type=commands.BucketType.user)
     async def balance(self, ctx: commands.Context, targeted_user: discord.Member = None):
-        """Check the bank balance of those pesky scrubs"""
+        """Check the balance of those pesky scrubs"""
         if targeted_user is None:
             targeted_user = ctx.author
-        coins = self.collection.find_one({"_id": targeted_user.id}, {"currency": 1})
+        coins = self.collection.find_one({"_id": targeted_user.id}, {"wallet": 1, "bank": 1})
         if coins is None:
             self.utils.insert_new_document(targeted_user.id)
-            coins = {"currency": 0}
-        if coins['currency'] == 0:
-            emb = discord.Embed(description=f"***{targeted_user.display_name} currently has 0 coins. Poor much?***",
-                                color=discord.Colour.green())
-        else:
-            emb = discord.Embed(
-                description=f"***{targeted_user.display_name} currently has {coins['currency']} coins.***",
-                color=discord.Colour.green())
+            coins = {"wallet": 0, "bank": 0}
+        emb = discord.Embed(title=f"**{targeted_user.display_name}'s Account details**",
+                            color=discord.Colour.green())
+        emb.add_field(name="Wallet:", value=f"<a:chintucoin:839401482184163358> {coins['wallet']}", inline=False)
+        emb.add_field(name="Bank Account:", value=f"<a:chintucoin:839401482184163358> {coins['bank']}", inline=False)
+        if coins['wallet'] + coins['bank'] == 0:
+            emb.set_footer(text="Poor much?")
         await ctx.send(embed=emb)
 
+    @commands.command(aliases=['with'])
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
+    async def withdraw(self, ctx: commands.Context, amount: str):
+        pass
+        # TODO
+
     @commands.command(aliases=['pay'])
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def give(self, ctx: commands.Context, targeted_user: discord.Member, amount: int):
         """Give away your hard earned cash 🎁"""
         if ctx.author.id == targeted_user.id:
@@ -151,22 +160,23 @@ class Currency(commands.Cog):
             return
 
         user_bal = self.collection.find_one(
-            {"_id": ctx.author.id}, {"currency": 1})
+            {"_id": ctx.author.id}, {"wallet": 1})
 
         if user_bal is None:
             self.utils.insert_new_document(ctx.author.id)
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
             return
-        elif user_bal["currency"] < amount:
+        elif user_bal["wallet"] < amount:
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
             return
         else:
-            self.utils.update(ctx.author.id, inc_vals={"currency": -amount})
-            self.utils.update_and_insert(targeted_user.id, inc_vals={"currency": amount}, currency=False)
+            self.utils.update(ctx.author.id, inc_vals={"wallet": -amount})
+            self.utils.update_and_insert(targeted_user.id, inc_vals={"wallet": amount}, wallet=False)
             await ctx.send(
                 f"** {ctx.author.mention} gave {amount} coins to {targeted_user.display_name}  <a:chintucoin:839401482184163358>**")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=1.0, type=commands.BucketType.user)
     async def shop(self, ctx: commands.Context, page: int = 1):
         """See what treasures await your purchase"""
         if self.pages >= page >= 1:
@@ -176,6 +186,7 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid page number")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def gift(self, ctx: commands.Context, target_user: discord.Member, item: str, amount: int = 1):
         """Give away your precious items 🎁"""
         item_dict = None
@@ -233,7 +244,7 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
 
     @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def buy(self, ctx: commands.Context, item, amount: int = 1):
         """Buy the items of your dreams from the shop <a:chintucoin:839401482184163358>"""
         item_dict = None
@@ -248,9 +259,9 @@ class Currency(commands.Cog):
                 item = self.id_by_name[item]
         if item_dict is not None:
             if amount > 0:
-                balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
+                balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
                 if balance is not None:
-                    balance = balance['currency']
+                    balance = balance['wallet']
                     if balance >= self.items_by_id[str(item)]["value"] * amount:
                         embed = discord.Embed(
                             title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
@@ -265,7 +276,7 @@ class Currency(commands.Cog):
 
                         try:
                             await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
-                            self.utils.update(ctx.author.id, inc_vals={"currency": -item_dict["value"] * amount,
+                            self.utils.update(ctx.author.id, inc_vals={"wallet": -item_dict["value"] * amount,
                                                                        f"inventory.{str(item)}": amount})
                             await ctx.send(
                                 f"{ctx.author.mention} You have successfully "
@@ -294,13 +305,14 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def bet(self, ctx: commands.Context, amount: str):
         """Join in on some gambling action, similar to Klondike dice game"""
         try:
             amount = int(amount)
         except Exception:
             if amount.lower() == "max" or amount.lower() == "all":
-                balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
+                balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
                 if balance is None:
                     try:
                         self.utils.insert_new_document(ctx.author.id)
@@ -308,16 +320,16 @@ class Currency(commands.Cog):
                         pass
                     await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
                     return
-                if balance['currency'] >= 250000:
+                if balance['wallet'] >= 250000:
                     amount = 250000
                 else:
-                    amount = balance['currency']
+                    amount = balance['wallet']
             else:
                 await ctx.send(f"{ctx.author.mention} Enter a proper amount or max/all.")
 
         if 250000 >= amount >= 50:
-            balance = self.collection.find_one({"_id": ctx.author.id}, {"currency": 1})
-            if balance is not None and balance['currency'] >= amount:
+            balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
+            if balance is not None and balance['wallet'] >= amount:
                 bot_pair, user_pair = find_pairs(np.random.randint(1, 6, 5)), find_pairs(np.random.randint(1, 6, 5))
                 if bot_pair <= user_pair:
                     embed = discord.Embed(title=f"{ctx.author.display_name}'s losing bet",
@@ -325,7 +337,7 @@ class Currency(commands.Cog):
                                           color=discord.Colour.red())
                     embed.add_field(name="Chintu rolled:", value=self.houses[bot_pair])
                     embed.add_field(name="You rolled:", value=self.houses[user_pair])
-                    self.utils.update(ctx.author.id, inc_vals={"currency": -amount})
+                    self.utils.update(ctx.author.id, inc_vals={"wallet": -amount})
                 else:
                     embed = discord.Embed(title=f"{ctx.author.display_name}'s winning bet",
                                           description=f"You won {int(amount * self.prizes[bot_pair - user_pair] + amount)} coins",
@@ -333,7 +345,7 @@ class Currency(commands.Cog):
                     embed.add_field(name="Chintu rolled:", value=self.houses[bot_pair])
                     embed.add_field(name="You rolled:", value=self.houses[user_pair])
                     self.utils.update(ctx.author.id,
-                                      inc_vals={"currency": int(amount * self.prizes[bot_pair - user_pair])})
+                                      inc_vals={"wallet": int(amount * self.prizes[bot_pair - user_pair])})
                 await ctx.send(embed=embed)
             else:
                 try:
@@ -347,6 +359,7 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter an amount greater than 50 coins")
 
     @commands.command()
+    @commands.cooldown(rate=1, per=8.0, type=commands.BucketType.user)
     async def use(self, ctx: commands.Context, item):
         """Use the items you got there in your inventory"""
         item_dict = None
@@ -376,6 +389,7 @@ class Currency(commands.Cog):
             await ctx.send(f"Could not find item with name or id {item}")
 
     @commands.command(aliases=["inv"])
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def inventory(self, ctx: commands.Context, target_user=None, page_number=1):
         """Check what you have in your inventory"""
         if target_user is None:
@@ -428,7 +442,7 @@ class Currency(commands.Cog):
     async def addmoney(self, ctx: commands.Context, amount: int, targeted_user: discord.Member = None):
         if targeted_user is None:
             targeted_user = ctx.author
-        self.utils.update_and_insert(targeted_user.id, inc_vals={"currency": amount}, currency=False)
+        self.utils.update_and_insert(targeted_user.id, inc_vals={"wallet": amount}, wallet=False)
         emb = discord.Embed(description=f"***Added {amount} coins to {targeted_user.display_name}'s balance.***",
                             color=discord.Colour.green())
         await ctx.send(embed=emb)

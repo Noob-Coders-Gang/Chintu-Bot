@@ -18,6 +18,7 @@ class manage_commands(commands.Cog):
             self.cmd_list.append(cmd.name)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def remove(self, ctx: commands.Context, command_name: str):
         ''' Remove commands '''
         if command_name in self.cmd_list:
@@ -45,6 +46,7 @@ class manage_commands(commands.Cog):
             await ctx.send(embed=embed)
 
     @commands.command()
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def add(self, ctx: commands.Context, command_name: str):
         ''' Add commands'''
         if command_name in self.cmd_list:

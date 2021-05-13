@@ -17,6 +17,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def warn(self, ctx: commands.Context, warned_member: discord.Member, *, reason: str = None):
         if reason is None:
             reason = "No reason was provided"
@@ -55,6 +56,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def warns(self, ctx: commands.Context, member: discord.Member):
         warns = list(self.warn_collection.find(
             {"member_id": member.id, "guild_id": ctx.guild.id}))
@@ -68,6 +70,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def warninfo(self, ctx: commands.Context, warn_id: int):
         warn = self.warn_collection.find_one({'_id': warn_id})
         if warn is not None:
@@ -97,6 +100,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def kick(self, ctx, member: discord.Member, *, reason):
         """Kicks the mentioned member"""
         print(reason)
@@ -110,6 +114,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(ban_members=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def ban(self, ctx, member: discord.Member, *, reason):
         """Bans the mentioned member"""
         print(reason)
@@ -123,6 +128,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def mute(self, ctx, member: discord.Member, *, reason):
         """Gives muted role to the mentioned user"""
         print(reason)
@@ -137,6 +143,7 @@ class Moderation(commands.Cog):
 
     @commands.command()
     @commands.has_permissions(kick_members=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def unmute(self, ctx, member: discord.Member, *, reason="No reason specified"):
         """Unmutes the mentioned member"""
         print(reason)
@@ -151,6 +158,7 @@ class Moderation(commands.Cog):
 
     @commands.command(aliases=["purge"])
     @commands.has_permissions(manage_messages=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def clear(self, ctx, number_of_messages: int = 5):
         """Purges specified number of messages"""
         await ctx.channel.purge(limit=number_of_messages + 1)
