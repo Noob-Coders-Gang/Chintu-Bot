@@ -33,6 +33,15 @@
       "emoji": ":ring:",
       "description": "Marry the love of your life with this cheap ring (Not Recommended)",
       "type": "ring"
+    },
+    "105": {
+      "name": "Mutahar Laugh",
+      "value": 100000,
+      "resell": 1000,
+      "emoji": "<:rick_disc:839577178400489565>",
+      "description": "Listen to mutahar from SOG laughing in multiple variations",
+      "type": "disc",
+      "url": "https://www.youtube.com/watch?v=6_Ti78RgzlY"
     }
   },
   "by_name": {
