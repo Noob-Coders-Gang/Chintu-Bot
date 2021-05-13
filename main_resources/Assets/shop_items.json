@@ -26,13 +26,17 @@
       "url": "https://www.youtube.com/watch?v=w5_fiYGOeLY"
     },
     "103": {
-      "name": "QUACK QUACK",
+      "name": "QUACK QUACK disc",
       "value": 100000,
       "resell": 1000,
       "emoji": "<:rick_disc:839577178400489565>",
       "description": "Quack Quack Quack Quack :duck: :duck: :duck:",
       "type": "disc",
       "url": "https://www.youtube.com/watch?v=dDgGMInTqTo"
+    },
+    "104": {
+      "name": "Dirt Ring",
+      "value":
     }
   },
   "by_name": {
