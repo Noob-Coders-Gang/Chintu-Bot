@@ -8,14 +8,6 @@
       "description": "Take Joe Mama from me if you can :sunglasses:",
       "type": "item"
     },
-    "101": {
-      "name": "Autograph Notebook",
-      "value": 20000,
-      "resell": null,
-      "emoji": "\uD83D\uDCDD",
-      "description": "Collect as many autographs as you can and ask legends to leave their mark on your notebook",
-      "type": "notebook"
-    },
     "102": {
       "name": "Rick Roll Disc",
       "value": 100000,
@@ -33,6 +25,14 @@
       "description": "Quack Quack Quack Quack :duck: :duck: :duck:",
       "type": "disc",
       "url": "https://www.youtube.com/watch?v=dDgGMInTqTo"
+    },
+    "104": {
+      "name": "Dirt Ring",
+      "value": 20000,
+      "resell": 500,
+      "emoji": ":ring:",
+      "description": "Marry the love of your life with this cheap ring (Not Recommended)",
+      "type": "ring"
     }
   },
   "by_name": {
@@ -48,7 +48,19 @@
     "rick": 102,
     "roll": 102,
 
-    "quack": 103
+    "quack": 103,
 
+    "ring": 104
+
+  },
+  "archives": {
+    "101": {
+      "name": "Autograph Notebook",
+      "value": 20000,
+      "resell": 0,
+      "emoji": "\uD83D\uDCDD",
+      "description": "Collect as many autographs as you can and ask legends to leave their mark on your notebook",
+      "type": "notebook"
+    }
   }
 }

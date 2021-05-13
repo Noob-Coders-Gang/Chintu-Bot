@@ -533,24 +533,16 @@ def create_paged_shop(items: dict):
     pages = shop_items_len // 5
     if shop_items_len % 5 != 0:
         pages += 1
-
-    embeds = []
     i = 0
-    j = 0
+    j = -1
+    embeds = []
     for item in items:
-        if i == 0:
-            embed = discord.Embed(title="Chintu Store")
-
-        embed.add_field(name=f"{items[item]['name']} ─ {items[item]['value']}",
-                        value=f"(ID - {item}) {items[item]['description']}", inline=False)
+        if i % 5 == 0:
+            j += 1
+            embeds.append(discord.Embed(title="Chintu Store", color=discord.Colour.green()))
+        embeds[j].add_field(name=f"{items[item]['name']} ─ {items[item]['value']}",
+                            value=f"(ID - {item}) {items[item]['description']}", inline=False)
         i += 1
-        j += 1
-        if i == 4:
-            embeds.append(embed)
-            i = 0
-        elif j == shop_items_len:
-            embeds.append(embed)
-
     return embeds, pages
 
 

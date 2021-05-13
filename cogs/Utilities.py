@@ -1,5 +1,6 @@
 import math
 
+import asyncio
 import discord
 from discord.ext import commands
 
@@ -43,6 +44,44 @@ class Utility(commands.Cog):
         """Invite Chintu to your server!!!"""
         await ctx.send(
             "https://discord.com/oauth2/authorize?client_id=790900950885203978&permissions=2026368118&scope=bot")
+
+    @commands.command(hidden=True)
+    @commands.is_owner()
+    async def formemb(self, ctx: commands.Context, channel:discord.TextChannel, *, title):
+        """Create embed for announcement and stuff"""
+        try:
+            await ctx.send("Send description")
+
+            def check(message):
+                return message.channel == ctx.channel and message.author.id == ctx.author.id
+
+            msg = await self.bot.wait_for('message', timeout=15.0, check=check)
+            if msg.content.lower() != "none":
+                emb = discord.Embed(title=title, description=msg.content)
+            else:
+                emb = discord.Embed(title=title)
+            while True:
+                await ctx.send("Add `field name` or `done` to send or `cancel` to cancel")
+                msg = await self.bot.wait_for('message', timeout=15.0, check=check)
+                if msg.content.lower() == "cancel":
+                    await ctx.send("Cancelled")
+                    return
+                if msg.content.lower() == "done":
+                    await channel.send(embed=emb)
+                    return
+                name = msg.content
+                await ctx.send("Add `field value` and add `inline` to set to True")
+                msg = await self.bot.wait_for('message', timeout=15.0, check=check)
+                if "inline" in msg.content.lower():
+                    value = msg.content.replace("inline", "")
+                    emb.add_field(name=name, value=value, inline=True)
+                else:
+                    value = msg.content
+                    emb.add_field(name=name, value=value, inline=False)
+
+        except asyncio.TimeoutError:
+            await ctx.send("Cancelled")
+            return
 
 
 def setup(bot):
