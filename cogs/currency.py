@@ -492,7 +492,7 @@ class Currency(commands.Cog):
             if pages != 0:
                 if 0 < page_number <= pages:
                     keys = list(inventory_dict.keys())
-                    embed = discord.Embed(title=f"{target_user.name}'s Inventory")
+                    embed = discord.Embed(title=f"{target_user.name}'s Inventory", color=discord.Colour.orange())
                     if page_number == pages:
                         limit = total_items
                     else:
@@ -502,6 +502,7 @@ class Currency(commands.Cog):
                         embed.add_field(
                             name=f"{self.items_by_id[item_id_str]['emoji']} {self.items_by_id[item_id_str]['name']} ─ {inventory_dict[item_id_str]}",
                             value=f"(ID - {item_id_str}) {self.items_by_id[item_id_str]['description']}", inline=False)
+                    embed.set_footer(icon_url=target_user.avatar_url, text=f"Requested by {ctx.author.display_name} • Page {page_number}/{pages}")
                     await ctx.send(embed=embed)
                 else:
                     await ctx.send(f"Enter a valid page number")
