@@ -10,6 +10,7 @@ from discord.ext.commands import CommandError
 from cogs.currency_utils.utils import currency_utils
 from main import database
 from main_resources.item_use import *
+import html
 
 
 class Currency(commands.Cog):
@@ -560,7 +561,7 @@ class Currency(commands.Cog):
         alphabet_to_num = {"A": 0, "B": 1, "C": 2, "D": 3}
         for i in range(len(options)):
             desc_str += f"**{num_to_alphabet[i]}: ** {options[i]}\n"
-        q_embed = discord.Embed(title=response["question"], description=desc_str, color=discord.Colour.orange())
+        q_embed = discord.Embed(title=html.unescape(response["question"]), description=html.unescape(desc_str), color=discord.Colour.orange())
         if create_footer:
             q_embed.set_footer(text="Use $quiz help to get a list of categories")
         sent_embed = await ctx.send(embed=q_embed)
@@ -582,7 +583,7 @@ class Currency(commands.Cog):
                     await sent_embed.edit(embed=r_embed)
                 else:
                     r_embed = discord.Embed(title=f"{ctx.author.display_name} gave the incorrect answer",
-                                            description=f"The correct answer was **{num_to_alphabet[correct_option]}: {options[correct_option]}**",
+                                            description=f"The correct answer was **{num_to_alphabet[correct_option]}: {html.unescape(options[correct_option])}**",
                                             color=discord.Colour.red())
                     if create_footer:
                         r_embed.set_footer(text="Use $quiz help to get a list of categories")
@@ -591,7 +592,7 @@ class Currency(commands.Cog):
                 await ctx.send(f"{ctx.author.mention} Bruh enter a proper option next time (A/B/C/D)")
         except asyncio.TimeoutError:
             r_embed = discord.Embed(title=f"{ctx.author.display_name}'s answer time ran out",
-                                    description=f"The correct answer was **{options[correct_option]}** (Timeout = 10 seconds)",
+                                    description=f"The correct answer was **{num_to_alphabet[correct_option]}: {html.unescape(options[correct_option])}** (Timeout = 10 seconds)",
                                     color=discord.Colour.red())
             await sent_embed.edit(embed=r_embed)
             raise CommandError
