@@ -569,7 +569,7 @@ class Currency(commands.Cog):
             return message.channel == ctx.channel and message.author.id == ctx.author.id
 
         try:
-            msg: discord.Message = await self.bot.wait_for('message', timeout=7.0, check=check)
+            msg: discord.Message = await self.bot.wait_for('message', timeout=10.0, check=check)
             if msg.content.upper() in alphabet_to_num:
                 if alphabet_to_num[msg.content.upper()] == correct_option:
                     r_embed = discord.Embed(title=f"{ctx.author.display_name} gave the correct answer",
@@ -591,7 +591,7 @@ class Currency(commands.Cog):
                 await ctx.send(f"{ctx.author.mention} Bruh enter a proper option next time (A/B/C/D)")
         except asyncio.TimeoutError:
             r_embed = discord.Embed(title=f"{ctx.author.display_name}'s answer time ran out",
-                                    description=f"The correct answer was **{options[correct_option]}** (Timeout = 5 seconds)",
+                                    description=f"The correct answer was **{options[correct_option]}** (Timeout = 10 seconds)",
                                     color=discord.Colour.red())
             await sent_embed.edit(embed=r_embed)
             raise CommandError
