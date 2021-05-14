@@ -43,9 +43,9 @@ class currency_utils:
     def insert_new_document(self,
                             doc_id: int,
                             wallet: int = 0,
-                            bank:int = 0,
-                            bank_limit:int = 0,
-                            commands:int = 0,
+                            bank: int = 0,
+                            bank_limit: int = 0,
+                            commands: int = 0,
                             inventory=None,
                             t_daily: datetime = 0,
                             t_weekly: datetime = 0,
@@ -63,3 +63,11 @@ class currency_utils:
             "t_weekly": t_weekly,
             "t_monthly": t_monthly
         })
+
+    def get_balance(self, user_id: int):
+        coins = self.collection.find_one({"_id": user_id}, {"wallet": 1, "bank": 1})
+        try:
+            return coins['wallet'], coins['bank']
+        except TypeError:
+            self.insert_new_document(user_id)
+            return 0, 0

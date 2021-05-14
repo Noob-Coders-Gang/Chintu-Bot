@@ -132,29 +132,25 @@ class Currency(commands.Cog):
         """Check the balance of those pesky scrubs"""
         if targeted_user is None:
             targeted_user = ctx.author
-        coins = self.collection.find_one({"_id": targeted_user.id}, {"wallet": 1, "bank": 1})
-        if coins is None:
-            self.utils.insert_new_document(targeted_user.id)
-            coins = {"wallet": 0, "bank": 0}
+        wallet_coins, bank_coins = self.utils.get_balance(targeted_user.id)
         desc_str = f"**Wallet: **" \
-                   f"<a:chintucoin:839401482184163358>{coins['wallet']}\n**Bank: **" \
-                   f"<a:chintucoin:839401482184163358>{coins['bank']}"
+                   f"<a:chintucoin:839401482184163358>{wallet_coins}\n**Bank: **" \
+                   f"<a:chintucoin:839401482184163358>{bank_coins}"
         emb = discord.Embed(title=f"**{targeted_user.display_name}'s Account details**", description=desc_str,
                             color=discord.Colour.green())
-        if coins['wallet'] + coins['bank'] == 0:
+        if wallet_coins + bank_coins == 0:
             emb.set_footer(text="Poor much?")
         await ctx.send(embed=emb)
 
     @commands.command(aliases=['with'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def withdraw(self, ctx: commands.Context, amount: str):
-        bank_balance = self.collection.find_one({"_id": ctx.author.id}, {"bank": 1, "wallet": 1})
-        if bank_balance is None or bank_balance["bank"] == 0:
-            self.utils.insert_new_document(ctx.author.id)
+        wallet_coins, bank_coins = self.utils.get_balance(ctx.author.id)
+        if bank_coins == 0:
             await ctx.send(f"{ctx.author.mention} Your bank account is empty lmfao")
             raise CommandError
         if amount.lower() == "max" or amount.lower() == "all":
-            amount = bank_balance["bank"]
+            amount = bank_coins
         else:
             try:
                 amount = int(amount)
@@ -164,27 +160,26 @@ class Currency(commands.Cog):
         if amount <= 0:
             await ctx.send(f"{ctx.author.mention} Enter a valid amount or max/all")
             raise CommandError
-        if amount > bank_balance["bank"]:
+        if amount > bank_coins:
             await ctx.send(f"{ctx.author.mention} You do not have {amount} coins in your bank account")
             raise CommandError
         self.utils.update(ctx.author.id, inc_vals={"wallet": amount, "bank": -amount})
         emb = discord.Embed(title=f"{ctx.author.display_name} Withdrew {amount} coins",
                             description=f"**Wallet: **<a:chintucoin:839401482184163358>"
-                                        f"{bank_balance['wallet'] + amount}\n**Bank: **<a:chintucoin:839401482184163358>"
-                                        f"{bank_balance['bank'] - amount}",
+                                        f"{wallet_coins + amount}\n**Bank: **<a:chintucoin:839401482184163358>"
+                                        f"{bank_coins - amount}",
                             color=discord.Colour.green())
         await ctx.send(embed=emb)
 
     @commands.command(aliases=['dep'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def deposit(self, ctx: commands.Context, amount: str):
-        balances = self.collection.find_one({"_id": ctx.author.id}, {"bank": 1, "wallet": 1})
-        if balances is None or balances["wallet"] == 0:
-            self.utils.insert_new_document(ctx.author.id)
+        wallet_coins, bank_coins = self.utils.get_balance(ctx.author.id)
+        if wallet_coins == 0:
             await ctx.send(f"{ctx.author.mention} Your wallet is empty lmfao")
             raise CommandError
         if amount.lower() == "max" or amount.lower() == "all":
-            amount = balances["wallet"]
+            amount = wallet_coins
         else:
             try:
                 amount = int(amount)
@@ -194,14 +189,14 @@ class Currency(commands.Cog):
         if amount <= 0:
             await ctx.send(f"{ctx.author.mention} Enter a valid amount or max/all")
             raise CommandError
-        if amount > balances["wallet"]:
+        if amount > wallet_coins:
             await ctx.send(f"{ctx.author.mention} You do not have {amount} coins in your wallet")
             raise CommandError
         self.utils.update(ctx.author.id, inc_vals={"wallet": -amount, "bank": amount})
         emb = discord.Embed(title=f"{ctx.author.display_name} Deposited {amount} coins",
                             description=f"**Wallet: **"
-                                        f"<a:chintucoin:839401482184163358>{balances['wallet'] - amount}\n**Bank: **"
-                                        f"<a:chintucoin:839401482184163358>{balances['bank'] + amount}",
+                                        f"<a:chintucoin:839401482184163358>{wallet_coins - amount}\n**Bank: **"
+                                        f"<a:chintucoin:839401482184163358>{bank_coins + amount}",
                             color=discord.Colour.green())
         await ctx.send(embed=emb)
 
@@ -215,15 +210,8 @@ class Currency(commands.Cog):
         if amount <= 0:
             await ctx.send(f"{ctx.author.mention}, enter a value greater than 0. You can't fool me. 😡")
             raise CommandError
-
-        user_bal = self.collection.find_one(
-            {"_id": ctx.author.id}, {"wallet": 1})
-
-        if user_bal is None:
-            self.utils.insert_new_document(ctx.author.id)
-            await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
-            raise CommandError
-        elif user_bal["wallet"] < amount:
+        wallet_coins, bank_coins = self.utils.get_balance(ctx.author.id)
+        if wallet_coins < amount or wallet_coins == 0:
             await ctx.send(f"{ctx.author.mention} You don't have enough coins lmao, get a job.")
             raise CommandError
         else:
@@ -321,85 +309,71 @@ class Currency(commands.Cog):
             if item in self.id_by_name:
                 item_dict = self.items_by_id[str(self.id_by_name[item])]
                 item = self.id_by_name[item]
-        if item_dict is not None:
-            if amount > 0:
-                balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
-                if balance is not None:
-                    balance = balance['wallet']
-                    if balance >= self.items_by_id[str(item)]["value"] * amount:
-                        embed = discord.Embed(
-                            title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
-                            description="React with 👍 within 15 seconds to purchase", color=discord.Colour.green())
-                        embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
-                        message = await ctx.send(embed=embed)
-                        await message.add_reaction("👍")
-
-                        def check(reaction, user):
-                            return user.id == ctx.author.id and str(
-                                reaction.emoji) == '👍' and reaction.message.id == message.id
-
-                        try:
-                            await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
-                            self.utils.update(ctx.author.id, inc_vals={"wallet": -item_dict["value"] * amount,
-                                                                       f"inventory.{str(item)}": amount})
-                            await ctx.send(
-                                f"{ctx.author.mention} You have successfully "
-                                f"purchased {amount} {item_dict['name']} for {item_dict['value'] * amount}")
-                        except asyncio.TimeoutError:
-                            embed = discord.Embed(
-                                title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
-                                description="Purchase failed. Please try again", color=discord.Colour.red())
-                            embed.set_footer(text=f"Requested by {ctx.author.display_name}",
-                                             icon_url=ctx.author.avatar_url)
-                            await message.edit(embed=embed)
-                            await message.clear_reactions()
-                            raise CommandError
-                    else:
-                        await ctx.send(
-                            f"{ctx.author.mention} You don't have enough money" +
-                            f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
-                        raise CommandError
-                else:
-                    self.utils.insert_new_document(ctx.author.id)
-                    await ctx.send(
-                        f"{ctx.author.mention} You don't have enough money" +
-                        f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
-                    raise CommandError
-            else:
-                await ctx.send(f"{ctx.author.mention} Enter a valid amount")
-                raise CommandError
-
-        else:
+        if item_dict is None:
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
             raise CommandError
+        if amount < 0:
+            await ctx.send(f"{ctx.author.mention} Enter a valid amount")
+            raise CommandError
+        wallet_coins, bank_coins = self.utils.get_balance(ctx.author.id)
+        if wallet_coins <= 0 or wallet_coins < self.items_by_id[str(item)]["value"] * amount:
+            await ctx.send(
+                f"{ctx.author.mention} You don't have enough money" +
+                f" for buying {self.items_by_id[str(item)]['name']}. Get a job lmao.")
+            raise CommandError
+
+        embed = discord.Embed(
+            title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
+            description="React with 👍 within 15 seconds to purchase", color=discord.Colour.green())
+        embed.set_footer(text=f"Requested by {ctx.author.display_name}", icon_url=ctx.author.avatar_url)
+        message = await ctx.send(embed=embed)
+        await message.add_reaction("👍")
+
+        def check(reaction, user):
+            return user.id == ctx.author.id and str(
+                reaction.emoji) == '👍' and reaction.message.id == message.id
+
+        try:
+            await self.bot.wait_for('reaction_add', timeout=15.0, check=check)
+            self.utils.update(ctx.author.id, inc_vals={"wallet": -item_dict["value"] * amount,
+                                                       f"inventory.{str(item)}": amount})
+            await ctx.send(
+                f"{ctx.author.mention} You have successfully "
+                f"purchased {amount} {item_dict['name']} for {item_dict['value'] * amount}")
+        except asyncio.TimeoutError:
+            embed = discord.Embed(
+                title=f"Do you want to purchase {amount} {item_dict['name']} for {item_dict['value'] * amount}?",
+                description="Purchase failed. Please try again", color=discord.Colour.red())
+            embed.set_footer(text=f"Requested by {ctx.author.display_name}",
+                             icon_url=ctx.author.avatar_url)
+            await message.edit(embed=embed)
+            await message.clear_reactions()
+            raise CommandError
+
 
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def bet(self, ctx: commands.Context, amount: str):
         """Join in on some gambling action, similar to Klondike dice game"""
+        wallet_coins, bank_coins = self.utils.get_balance(ctx.author.id)
         try:
             amount = int(amount)
         except ValueError:
             if amount.lower() == "max" or amount.lower() == "all":
                 balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
-                if balance is None:
-                    try:
-                        self.utils.insert_new_document(ctx.author.id)
-                    except Exception:
-                        pass
+                if wallet_coins <= 0:
                     await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
                     raise CommandError
-                if balance['wallet'] >= 250000:
+                if wallet_coins >= 250000:
                     amount = 250000
                 else:
-                    amount = balance['wallet']
+                    amount = wallet_coins
             else:
                 await ctx.send(f"{ctx.author.mention} Enter a proper amount or max/all.")
                 raise CommandError
 
         if 250000 >= amount >= 50:
-            balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
-            if balance is not None and balance['wallet'] >= amount:
+            if wallet_coins >= amount and wallet_coins > 0:
                 bot_pair, user_pair = find_pairs(np.random.randint(1, 6, 5)), find_pairs(np.random.randint(1, 6, 5))
                 if bot_pair <= user_pair:
                     embed = discord.Embed(title=f"{ctx.author.display_name}'s losing bet",
@@ -418,10 +392,6 @@ class Currency(commands.Cog):
                                       inc_vals={"wallet": int(amount * self.prizes[bot_pair - user_pair])})
                 await ctx.send(embed=embed)
             else:
-                try:
-                    self.utils.insert_new_document(ctx.author.id)
-                except Exception:
-                    pass
                 await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
                 raise CommandError
         elif amount >= 250000:
