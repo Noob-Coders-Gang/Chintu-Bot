@@ -1,7 +1,10 @@
 import json
+import os
+import random
 from datetime import datetime, timedelta
 
 import numpy as np
+import requests
 from discord.ext.commands import CommandError
 
 from cogs.currency_utils.utils import currency_utils
@@ -37,6 +40,48 @@ class Currency(commands.Cog):
             3: 1.3,
             2: 1.2,
             1: 1
+        }
+        self.quiz_categories = {
+            "gk": 9,
+            "books": 10,
+            "film": 11,
+            "music": 12,
+            "theatre": 13,
+            "tv": 14,
+            "games": 15,
+            "bgames": 16,
+            "sci": 17,
+            "cs": 18,
+            "math": 19,
+            "myth": 20,
+            "sports": 21,
+            "geography": 22,
+            "history": 23,
+            "pol": 24,
+            "art": 25,
+            "celeb": 26,
+            "animals": 27
+        }
+        self.quiz_help_dict = {
+            "gk": "General Knowldege",
+            "books": "Books",
+            "film": "Films",
+            "music": "Music",
+            "theatre": "Musicals and Theatre",
+            "tv": "Television",
+            "games": "Video Games",
+            "bgames": "Board Games",
+            "sci": "Science and Nature",
+            "cs": "Computer Science",
+            "math": "Mathematics",
+            "myth": "Mythology",
+            "sports": "Sports",
+            "geography": "Geography",
+            "history": "History",
+            "pol": "Politics",
+            "art": "Art",
+            "celeb": "Celebrities",
+            "animals": "Animals"
         }
 
     @commands.command()
@@ -350,7 +395,6 @@ class Currency(commands.Cog):
             await message.clear_reactions()
             raise CommandError
 
-
     @commands.command()
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def bet(self, ctx: commands.Context, amount: str):
@@ -360,7 +404,6 @@ class Currency(commands.Cog):
             amount = int(amount)
         except ValueError:
             if amount.lower() == "max" or amount.lower() == "all":
-                balance = self.collection.find_one({"_id": ctx.author.id}, {"wallet": 1})
                 if wallet_coins <= 0:
                     await ctx.send(f"{ctx.author.mention} Lmao you don't have enough coins to bet.")
                     raise CommandError
@@ -472,7 +515,8 @@ class Currency(commands.Cog):
                         embed.add_field(
                             name=f"{self.items_by_id[item_id_str]['emoji']} {self.items_by_id[item_id_str]['name']} ─ {inventory_dict[item_id_str]}",
                             value=f"(ID - {item_id_str}) {self.items_by_id[item_id_str]['description']}", inline=False)
-                    embed.set_footer(icon_url=target_user.avatar_url, text=f"Requested by {ctx.author.display_name} • Page {page_number}/{pages}")
+                    embed.set_footer(icon_url=target_user.avatar_url,
+                                     text=f"Requested by {ctx.author.display_name} • Page {page_number}/{pages}")
                     await ctx.send(embed=embed)
                 else:
                     await ctx.send(f"Enter a valid page number")
@@ -483,6 +527,73 @@ class Currency(commands.Cog):
         else:
             self.utils.insert_new_document(target_user.id)
             await ctx.send("The inventory is empty lmao. To buy something use $shop")
+            raise CommandError
+
+    @commands.command()
+    @commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
+    async def quiz(self, ctx: commands.Context, category: str = None):
+        """Get coins for answering questions."""
+        if category is None:
+            category = "none"
+        category = category.lower()
+        if category == "help":
+            embed = discord.Embed(title="Available Quiz Categories: ", color=discord.Colour.orange())
+            for avl_category in self.quiz_help_dict:
+                embed.add_field(name=self.quiz_help_dict[avl_category], value=f"$quiz {avl_category}")
+            await ctx.send(embed=embed)
+            return
+        create_footer = False
+        if category in self.quiz_categories:
+            category = self.quiz_categories[category]
+        else:
+            category = random.randint(9, 28)
+            create_footer = True
+        response = requests.get(
+            f"https://opentdb.com/api.php?amount=1&type=multiple&category={category}").json()[
+            "results"][0]
+        options = response["incorrect_answers"]
+        options.append(response["correct_answer"])
+        random.shuffle(options)
+        correct_option = options.index(response["correct_answer"])
+        desc_str = ""
+        num_to_alphabet = {0: "A", 1: "B", 2: "C", 3: "D"}
+        alphabet_to_num = {"A": 0, "B": 1, "C": 2, "D": 3}
+        for i in range(len(options)):
+            desc_str += f"**{num_to_alphabet[i]}: ** {options[i]}\n"
+        q_embed = discord.Embed(title=response["question"], description=desc_str, color=discord.Colour.orange())
+        if create_footer:
+            q_embed.set_footer(text="Use $quiz help to get a list of categories")
+        sent_embed = await ctx.send(embed=q_embed)
+
+        def check(message):
+            return message.channel == ctx.channel and message.author.id == ctx.author.id
+
+        try:
+            msg: discord.Message = await self.bot.wait_for('message', timeout=7.0, check=check)
+            if msg.content.upper() in alphabet_to_num:
+                if alphabet_to_num[msg.content.upper()] == correct_option:
+                    r_embed = discord.Embed(title=f"{ctx.author.display_name} gave the correct answer",
+                                            description=f"{self.defined_currencies['quiz']} coins were added to your wallet",
+                                            color=discord.Colour.green())
+                    if create_footer:
+                        r_embed.set_footer(text="Use $quiz help to get a list of categories")
+                    self.utils.update_and_insert(ctx.author.id, inc_vals={"wallet": self.defined_currencies['quiz']},
+                                                 wallet=False)
+                    await sent_embed.edit(embed=r_embed)
+                else:
+                    r_embed = discord.Embed(title=f"{ctx.author.display_name} gave the incorrect answer",
+                                            description=f"The correct answer was **{num_to_alphabet[correct_option]}: {options[correct_option]}**",
+                                            color=discord.Colour.red())
+                    if create_footer:
+                        r_embed.set_footer(text="Use $quiz help to get a list of categories")
+                    await sent_embed.edit(embed=r_embed)
+            else:
+                await ctx.send(f"{ctx.author.mention} Bruh enter a proper option next time (A/B/C/D)")
+        except asyncio.TimeoutError:
+            r_embed = discord.Embed(title=f"{ctx.author.display_name}'s answer time ran out",
+                                    description=f"The correct answer was **{options[correct_option]}** (Timeout = 5 seconds)",
+                                    color=discord.Colour.red())
+            await sent_embed.edit(embed=r_embed)
             raise CommandError
 
     @commands.command(hidden=True)

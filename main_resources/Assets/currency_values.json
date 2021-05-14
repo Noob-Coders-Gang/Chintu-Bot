@@ -3,5 +3,6 @@
   "weekly": 5000,
   "monthly": 30000,
   "per_command_set": 100,
-  "command_set": 5
+  "command_set": 5,
+  "quiz": 20
 }
