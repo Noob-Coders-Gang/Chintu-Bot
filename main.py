@@ -54,7 +54,7 @@ def load_extensions(fun_bot, unloaded_cogs: list):
 
 if __name__ == '__main__':
     print("loading extensions...")
-    load_extensions(bot, ["manage_commands.py", "Help.py", "Memes.py"])
+    load_extensions(bot, ["manage_commands.py", "Help.py"])
     bot.load_extension("cogs.manage_commands")
     bot.load_extension("cogs.Help")
     print("logging in...")
