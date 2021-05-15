@@ -42,7 +42,8 @@ $ source path/to/venv//bin/activate
 ```shell script
 $ pip install -r requirements.txt
 ```
-* Fill in environment variables in the `.env` file
+* Create a copy of [`dummy.env`](dummy.env) file and name it `.env` in the project root
+* Fill in the environment variables in the said `.env` file
 * Run the bot 
 ```shell script
 $ python main.py
