@@ -43,7 +43,9 @@ $ source path/to/venv//bin/activate
 $ pip install -r requirements.txt
 ```
 * Create a copy of [`dummy.env`](dummy.env) file and name it `.env` in the project root
+
 * Fill in the environment variables in the said `.env` file
+
 * Run the bot 
 ```shell script
 $ python main.py
@@ -56,6 +58,7 @@ updating databases...
 Logged in as Chintu#2757
 ```
 ![Bot Online](https://cdn.discordapp.com/attachments/819532187820883968/843057699167535124/unknown.png)
+
 ####Note
 If an extension is not working properly, you can turn it off by adding the extension file name to this line in [main.py](./main.py):
 ```python
