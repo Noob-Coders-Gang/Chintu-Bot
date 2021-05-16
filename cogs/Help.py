@@ -2,6 +2,7 @@ import discord
 from discord.errors import Forbidden
 from discord.ext import commands
 from main import guild_prefix_storage, database, DEFAULT_PREFIX
+from main import guild_prefix_storage, database, DEFAULT_PREFIX
 from main_resources.functions import *
 
 
@@ -106,11 +107,11 @@ class Help(commands.Cog):
             elif input[0].lower() in self.bot_commands:
                 command = self.bot_commands[input[0].lower()]
                 if not command.hidden:
-                    emb = discord.Embed(title=f"${command.name} - Information", color=discord.Colour.green())
+                    emb = discord.Embed(title=f"{prefix}{command.name} - Information", color=discord.Colour.green())
                     emb.add_field(name="Description:", value=command.help, inline=False)
                     if len(command.aliases) > 0:
                         emb.add_field(name="Aliases:", value=", ".join(command.aliases), inline=False)
-                    emb.add_field(name="Usage:", value=f"${command.name} {command.signature}", inline=False)
+                    emb.add_field(name="Usage:", value=f"{prefix}{command.name} {command.signature}", inline=False)
                 else:
                     emb = discord.Embed(title="What's that?!",
                                         description=f"I've never heard of a module or command called `{input[0]}` before :scream:",
