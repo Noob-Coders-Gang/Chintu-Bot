@@ -10,7 +10,7 @@ from discord.ext import commands
 class Images(commands.Cog):
     """ Roast From Images  """
 
-    @commands.command()
+    @commands.command(name="slap")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def slap(self, ctx, user: Optional[Member]):
         user1 = ctx.author
@@ -35,7 +35,7 @@ class Images(commands.Cog):
         slap.save("main_resources/Images/send.jpg")
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
-    @commands.command()
+    @commands.command(name="worthless")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def worthless(self, ctx, user: Optional[Member]):
         if not user:
@@ -49,7 +49,7 @@ class Images(commands.Cog):
         worthless.save("main_resources/Images/send.jpg")
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
-    @commands.command(aliases=['kq'])
+    @commands.command(name="keepquiet", aliases=['kq'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def keepquiet(self, ctx, user: Optional[Member]):
         if not user:
@@ -63,7 +63,7 @@ class Images(commands.Cog):
         stop.save("main_resources/Images/send.jpg")
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
-    @commands.command()
+    @commands.command(name="fart")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def fart(self, ctx, user: Optional[Member]):
         if not user:
@@ -78,7 +78,7 @@ class Images(commands.Cog):
         fart.save("main_resources/Images/send.jpg")
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
-    @commands.command()
+    @commands.command(name="pee")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def pee(self, ctx, user: Optional[Member]):
         if not user:
@@ -93,7 +93,7 @@ class Images(commands.Cog):
         pee.save("main_resources/Images/send.jpg")
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
-    @commands.command()
+    @commands.command(name="coffindance")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def coffindance(self, ctx, user: Optional[Member]):
         if not user:
@@ -130,7 +130,7 @@ class Images(commands.Cog):
         smash.save("main_resources/Images/send.jpg")
         await ctx.send(file=discord.File("main_resources/Images/send.jpg"))
 
-    @commands.command()
+    @commands.command(name="wanted")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def wanted(self, ctx, user: Optional[Member]):
         if user is None:
@@ -145,7 +145,7 @@ class Images(commands.Cog):
         wanted.save("main_resources/Images/profile.jpg")
         await ctx.send(file=discord.File("main_resources/Images/profile.jpg"))
 
-    @commands.command()
+    @commands.command(name="gay")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def gay(self, ctx, user: Optional[Member]):
         if user is None:

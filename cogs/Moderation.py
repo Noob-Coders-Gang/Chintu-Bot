@@ -15,7 +15,7 @@ class Moderation(commands.Cog):
         self.commands = commands
         self.warn_collection = main.database["warns"]
 
-    @commands.command()
+    @commands.command(name="warn")
     @commands.has_permissions(kick_members=True)
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def warn(self, ctx: commands.Context, warned_member: discord.Member, *, reason: str = None):
@@ -54,7 +54,7 @@ class Moderation(commands.Cog):
             channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
             await ctx.send(embed=channel_embed)
 
-    @commands.command()
+    @commands.command(name="warns")
     @commands.has_permissions(kick_members=True)
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def warns(self, ctx: commands.Context, member: discord.Member):
@@ -68,7 +68,7 @@ class Moderation(commands.Cog):
                 value=f"Reason: {str(warn['reason'])}, Warned by: {warn['moderator_name']}", inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(name="warninfo")
     @commands.has_permissions(kick_members=True)
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def warninfo(self, ctx: commands.Context, warn_id: int):
@@ -98,7 +98,7 @@ class Moderation(commands.Cog):
 
 
 
-    @commands.command()
+    @commands.command(name="kick")
     @commands.has_permissions(kick_members=True)
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def kick(self, ctx, member: discord.Member, *, reason):
@@ -112,7 +112,7 @@ class Moderation(commands.Cog):
         await member.send(embed=embed)
         await member.kick(reason=reason)
 
-    @commands.command()
+    @commands.command(name="ban")
     @commands.has_permissions(ban_members=True)
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def ban(self, ctx, member: discord.Member, *, reason):
@@ -126,7 +126,7 @@ class Moderation(commands.Cog):
         await member.send(embed=embed)
         await member.ban(reason=reason)
 
-    @commands.command()
+    @commands.command(name="mute")
     @commands.has_permissions(kick_members=True)
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def mute(self, ctx, member: discord.Member, *, reason):
@@ -141,7 +141,7 @@ class Moderation(commands.Cog):
         )
         await member.send(embed=embed)
 
-    @commands.command()
+    @commands.command(name="unmute")
     @commands.has_permissions(kick_members=True)
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def unmute(self, ctx, member: discord.Member, *, reason="No reason specified"):
@@ -156,7 +156,7 @@ class Moderation(commands.Cog):
         )
         await member.send(embed=embed)
 
-    @commands.command(aliases=["purge"])
+    @commands.command(name="clear", aliases=["purge"])
     @commands.has_permissions(manage_messages=True)
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def clear(self, ctx, number_of_messages: int = 5):

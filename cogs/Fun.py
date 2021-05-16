@@ -26,7 +26,7 @@ class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases=['google', 'search'])
+    @commands.command(name="gsearch", aliases=['google', 'search'])
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def gsearch(self, ctx: discord.ext.commands.Context, *, query):
         """Sends top google search result with page description"""
@@ -51,7 +51,7 @@ class Fun(commands.Cog):
                               description=text)
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['8ball', 'test', 'ask'])
+    @commands.command(name="8ball", aliases=['ask'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def _8ball(self, ctx, *, question):
         ''' Ask question and get advice from me 🎱'''
@@ -79,8 +79,9 @@ class Fun(commands.Cog):
                            colour=discord.Colour.orange())
         em.add_field(name=f"**Question:** {question}",
                      value=f"**Answer:** {random.choice(responses)}")
+        await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.command(name="urban")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def urban(self, ctx, *, search: str):
         """ Find the 'best' definition to your words 📚"""
@@ -111,7 +112,7 @@ class Fun(commands.Cog):
                 color=discord.Colour.red())
             await ctx.send(embed=em)
 
-    @commands.command(aliases=["joke", "funjoke"])
+    @commands.command(name="jokes", aliases=["joke", "funjoke"])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def jokes(self, ctx):
         """ Request I'll tell a joke 🤣"""
@@ -141,7 +142,7 @@ class Fun(commands.Cog):
             except Exception as e:
                 return await ctx.send("I am busy dude, I can't think any joke right now")
 
-    @commands.command()
+    @commands.command(name="beer")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def beer(self, ctx, user: discord.Member = None, *, reason: commands.clean_content = ""):
         """ Give someone a beer! 🍻 """
@@ -177,7 +178,7 @@ class Fun(commands.Cog):
                          f"\n\n**Reason:** {reason}" if reason else beer_offer
             await msg.edit(content=beer_offer)
 
-    @commands.command(aliases=["hotcalc", "hot"])
+    @commands.command(name="howhot", aliases=["hotcalc", "hot"])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def howhot(self, ctx, *, user: discord.Member = None):
         """ Returns a percent for how hot is a discord user 🥵"""
@@ -200,7 +201,7 @@ class Fun(commands.Cog):
 
         await ctx.send(f"**{user.name}** is **{hot:.2f}%** hot {emoji}")
 
-    @commands.command()
+    @commands.command(name="f")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def f(self, ctx, *, text: commands.clean_content = None):
         """ Press F to pay respect 🇫 """
@@ -208,14 +209,14 @@ class Fun(commands.Cog):
         reason = f"for **{text}** " if text else ""
         await ctx.send(f"**{ctx.author.name}** has paid their respect {reason}{random.choice(hearts)}")
 
-    @commands.command(aliases=["flip", "coin"])
+    @commands.command(name="coinflip", aliases=["flip", "coin"])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def coinflip(self, ctx):
         """ Coinflip! :coin: """
         coinsides = ["Heads", "Tails"]
         await ctx.send(f"**{ctx.author.name}** flipped a coin and got **{random.choice(coinsides)}**!")
 
-    @commands.command(aliases=['wikipedia'])
+    @commands.command(name="wiki", aliases=['wikipedia'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def wiki(self, ctx, *, querry_: str):
         ''' Search wikipedia for any information 🔍'''
@@ -236,7 +237,7 @@ class Fun(commands.Cog):
             except:
                 await ctx.send("Sorry, I can find " + querry_ + " in Wikipedia")
 
-    @commands.command()
+    @commands.command(name="kill")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def kill(self, ctx, user: Optional[Member]):
         ''' kill someone ⚰️'''
@@ -244,14 +245,14 @@ class Fun(commands.Cog):
             user = ctx.author
         await ctx.send(f'{user.display_name} {random.choice(kills)}')
 
-    @commands.command()
+    @commands.command(name="roast")
     async def roast(self, ctx, user: discord.Member = None):
         ''' roast someone 🍳'''
         if user == None:
             user = ctx.author
         await ctx.send(f'{user.display_name}, {random.choice(roasts)}')
 
-    @commands.command(aliases=['ppsize', 'size', 'penis'])
+    @commands.command(name="pp", aliases=['ppsize', 'size', 'penis'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def pp(self, ctx, member: discord.Member):
         ''' To check pp size 🍆'''
@@ -266,7 +267,7 @@ class Fun(commands.Cog):
                      value=f"8{random.choice(size)}D")
         await ctx.send(embed=em)
 
-    @commands.command(aliases=['how gay', 'gaypercent'])
+    @commands.command(name="howgay", aliases=['how gay', 'gaypercent'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def howgay(self, ctx, member: discord.Member=None):
         ''' To check gayness 🏳️‍🌈'''
@@ -289,7 +290,7 @@ class Fun(commands.Cog):
 
         await ctx.send(embed=em)
 
-    @commands.command(aliases=['pass', 'generator', 'passwordgenerator'])
+    @commands.command(name="password", aliases=['pass', 'generator', 'passwordgenerator'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def password(self, ctx, amt: int = 8):
         ''' Get random password in DM  🔒'''

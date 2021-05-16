@@ -85,7 +85,7 @@ class Currency(commands.Cog):
             "animals": "Animals"
         }
 
-    @commands.command()
+    @commands.command(name="daily")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def daily(self, ctx: commands.Context):
         """Daily dose of sweet cash 💰💰💰"""
@@ -114,7 +114,7 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
             raise CommandError
 
-    @commands.command()
+    @commands.command(name="weekly")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def weekly(self, ctx: commands.Context):
         """Weekly dose of sweet cash 💰💰💰"""
@@ -143,7 +143,7 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
             raise CommandError
 
-    @commands.command()
+    @commands.command(name="monthly")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def monthly(self, ctx: commands.Context):
         """Monthly dose of sweet cash 💰💰💰"""
@@ -172,7 +172,7 @@ class Currency(commands.Cog):
             await ctx.send(embed=emb)
             raise CommandError
 
-    @commands.command(aliases=['bal'])
+    @commands.command(name="balance", aliases=['bal'])
     @commands.cooldown(rate=1, per=1.0, type=commands.BucketType.user)
     async def balance(self, ctx: commands.Context, targeted_user: discord.Member = None):
         """Check the balance of those pesky scrubs"""
@@ -188,7 +188,7 @@ class Currency(commands.Cog):
             emb.set_footer(text="Poor much?")
         await ctx.send(embed=emb)
 
-    @commands.command(aliases=['with'])
+    @commands.command(name="withdraw", aliases=['with'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def withdraw(self, ctx: commands.Context, amount: str):
         wallet_coins, bank_coins = self.utils.get_balance(ctx.author.id)
@@ -217,7 +217,7 @@ class Currency(commands.Cog):
                             color=discord.Colour.green())
         await ctx.send(embed=emb)
 
-    @commands.command(aliases=['dep'])
+    @commands.command(name="deposit", aliases=['dep'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def deposit(self, ctx: commands.Context, amount: str):
         wallet_coins, bank_coins = self.utils.get_balance(ctx.author.id)
@@ -246,7 +246,7 @@ class Currency(commands.Cog):
                             color=discord.Colour.green())
         await ctx.send(embed=emb)
 
-    @commands.command(aliases=['pay'])
+    @commands.command(name="give", aliases=['pay'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def give(self, ctx: commands.Context, targeted_user: discord.Member, amount: int):
         """Give away your hard earned cash 🎁"""
@@ -267,7 +267,7 @@ class Currency(commands.Cog):
                 f"** {ctx.author.mention} gave {amount} coins to {targeted_user.display_name}  "
                 f"<a:chintucoin:839401482184163358>**")
 
-    @commands.command()
+    @commands.command(name="shop")
     @commands.cooldown(rate=1, per=1.0, type=commands.BucketType.user)
     async def shop(self, ctx: commands.Context, page: int = 1):
         """See what treasures await your purchase"""
@@ -278,7 +278,7 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid page number")
             raise CommandError
 
-    @commands.command()
+    @commands.command(name="gift")
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def gift(self, ctx: commands.Context, target_user: discord.Member, item: str, amount: int = 1):
         """Give away your precious items 🎁"""
@@ -341,7 +341,7 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter a valid item ID or name")
             raise CommandError
 
-    @commands.command()
+    @commands.command(name="buy")
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def buy(self, ctx: commands.Context, item, amount: int = 1):
         """Buy the items of your dreams from the shop <a:chintucoin:839401482184163358>"""
@@ -396,7 +396,7 @@ class Currency(commands.Cog):
             await message.clear_reactions()
             raise CommandError
 
-    @commands.command()
+    @commands.command(name="bet")
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def bet(self, ctx: commands.Context, amount: str):
         """Join in on some gambling action, similar to Klondike dice game"""
@@ -445,7 +445,7 @@ class Currency(commands.Cog):
             await ctx.send(f"{ctx.author.mention} Enter an amount greater than 50 coins")
             raise CommandError
 
-    @commands.command()
+    @commands.command(name="use")
     @commands.cooldown(rate=1, per=8.0, type=commands.BucketType.user)
     async def use(self, ctx: commands.Context, item):
         """Use the items you got there in your inventory"""
@@ -478,7 +478,7 @@ class Currency(commands.Cog):
             await ctx.send(f"Could not find item with name or id {item}")
             raise CommandError
 
-    @commands.command(aliases=["inv"])
+    @commands.command(name="inventory", aliases=["inv"])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def inventory(self, ctx: commands.Context, target_user=None, page_number=1):
         """Check what you have in your inventory"""
@@ -530,7 +530,7 @@ class Currency(commands.Cog):
             await ctx.send("The inventory is empty lmao. To buy something use $shop")
             raise CommandError
 
-    @commands.command()
+    @commands.command(name="quiz")
     @commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
     async def quiz(self, ctx: commands.Context, category: str = None):
         """Get coins for answering questions."""
@@ -597,7 +597,7 @@ class Currency(commands.Cog):
             await sent_embed.edit(embed=r_embed)
             raise CommandError
 
-    @commands.command(hidden=True)
+    @commands.command(name="addmoney", hidden=True)
     @commands.is_owner()
     async def addmoney(self, ctx: commands.Context, amount: int, targeted_user: discord.Member = None):
         if targeted_user is None:

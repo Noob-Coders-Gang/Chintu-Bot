@@ -10,7 +10,7 @@ class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(name="avatar")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def avatar(self, ctx, *, avamember: Member = None):
         ''' Get user avatar  '''
@@ -19,7 +19,7 @@ class Info(commands.Cog):
         embed.set_image(url=userAvatarUrl)
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['channelstats'])
+    @commands.command(name="channel_info", aliases=['channelstats'])
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def channel_info(self, ctx, channel: TextChannel):
         ''' get channel stats/info '''
@@ -37,7 +37,7 @@ class Info(commands.Cog):
                         value=str(news))
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['guild'])
+    @commands.command(name="server", aliases=['guild'])
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def server(self, ctx):
         ''' Get Server Info '''
@@ -57,7 +57,7 @@ class Info(commands.Cog):
             ctx.guild.created_at.strftime("%a, %d %B %Y, %I:%M %p UTC")))
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=['whois', 'userinfo'])
+    @commands.command(name="user", aliases=['whois', 'userinfo'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def user(self, ctx, member: Member = None):
         ''' Get User Info '''

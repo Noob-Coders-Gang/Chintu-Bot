@@ -67,7 +67,7 @@ class Help(commands.Cog):
         self.bot_commands = bot_commands
         self.default_help_embed = prebuild_embed(bot)  # Predifining default embed for speeding up command execution
 
-    @commands.command()
+    @commands.command(name="help")
     async def help(self, ctx, *input):
         """Shows all modules of the bot"""
         prefix = '$'

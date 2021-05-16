@@ -41,7 +41,7 @@ class Memes(commands.Cog):
     def __init__(self, commands):
         self.commands = commands
 
-    @commands.command()
+    @commands.command(name="csmeme")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def csmeme(self, ctx):
         try:
@@ -54,7 +54,7 @@ class Memes(commands.Cog):
         except Exception as e:
             await ctx.send('f')
 
-    @commands.command(aliases=['memes', 'dankmemes'])
+    @commands.command(name="meme", aliases=['memes', 'dankmemes'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def meme(self, ctx):
         title, url = get_memes('Memes')
@@ -64,7 +64,7 @@ class Memes(commands.Cog):
             ctx.author.avatar_url))
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.command(name="foodporn")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def foodporn(self, ctx):
         title, url = get_memes('FoodPorn')
@@ -72,7 +72,7 @@ class Memes(commands.Cog):
         em.set_image(url=url)
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.command(name="wsmeme")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def wsmeme(self, ctx):
         title, url = get_memes('WholesomeMemes')
@@ -80,7 +80,7 @@ class Memes(commands.Cog):
         em.set_image(url=url)
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.command(name="uwu")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def uwu(self, ctx):
         rand = random.randint(0, 2)

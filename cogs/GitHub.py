@@ -13,7 +13,7 @@ class GitHub(commands.Cog):
     def __srt__(self):
         return ''' Search Github Profile '''
 
-    @commands.command(aliases=["repositories", "github"])
+    @commands.command(name="repos", aliases=["repositories", "github"])
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def repos(self, ctx: discord.ext.commands.Context, username):
         """Sends top 5 repositories of the requested user"""
@@ -38,7 +38,7 @@ class GitHub(commands.Cog):
                             value=result["html_url"], inline=False)
         await ctx.send(embed=embed)
 
-    @commands.command(aliases=["gitmember"])
+    @commands.command(name="gituser", aliases=["gitmember"])
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def gituser(self, ctx, username):
         """Sends info about a github user"""

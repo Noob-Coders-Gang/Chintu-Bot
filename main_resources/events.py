@@ -3,7 +3,7 @@ from discord.ext import commands
 
 from cogs.currency_utils.utils import currency_utils
 from main_resources.ChintuAI import AskChintu
-from main_resources.functions import update_total_guilds, add_guild
+from main_resources.functions import update_total_guilds, add_guild, update_guild_storage
 
 
 class Events:
@@ -14,6 +14,7 @@ class Events:
         self.infinite_use_commands = infinite_use_commands
         self.cmdManager_collection = database["cmd_manager"]
         self.currency_collection = database['currency']
+        self.bot_util_collection = database['bot_util']
         self.total_guilds_api_url = total_guilds_api_url
         self.utils = currency_utils(self.currency_collection)
         self.ChintuAI = ChintuAI
@@ -24,6 +25,8 @@ class Events:
         guilds = self.bot.guilds
         update_total_guilds(guilds, self.total_guilds_api_url)
         add_guild(self.bot, self.database, guild)
+        update_guild_storage(self.database)
+
 
     async def on_message(self, message: discord.Message):
         if self.ChintuAI:

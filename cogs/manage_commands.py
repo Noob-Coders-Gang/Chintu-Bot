@@ -17,7 +17,7 @@ class manage_commands(commands.Cog):
             # Get all commands registered with the bot
             self.cmd_list.append(cmd.name)
 
-    @commands.command()
+    @commands.command(name="remove")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def remove(self, ctx: commands.Context, command_name: str):
         ''' Remove commands '''
@@ -45,7 +45,7 @@ class manage_commands(commands.Cog):
                 title=f"I don't have any command named {command_name}", color=discord.Colour.red())
             await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(name="add")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def add(self, ctx: commands.Context, command_name: str):
         ''' Add commands'''

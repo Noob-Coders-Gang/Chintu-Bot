@@ -4,6 +4,9 @@ import asyncio
 import discord
 from discord.ext import commands
 
+from main import database
+from main_resources.functions import update_prefix
+
 intervals = (
     ('years', 604800 * 52),
     ('months', 604800 * 4),
@@ -22,14 +25,14 @@ class Utility(commands.Cog):
         self.bot = bot
         self.count = 0
 
-    @commands.command()
+    @commands.command(name="ping")
     async def ping(self, ctx):
         """Sends the latency of the bot"""
         em = discord.Embed(title='Latency', description='🏓Pong {0}'.format(math.trunc(self.bot.latency * 1000)) + 'ms',
                            color=discord.Color(0x4293f5))
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.command(name="suggest")
     async def suggest(self, ctx: discord.ext.commands.Context, *, suggestion: str):
         """Suggest a feature or an improvement for chintu!"""
         em = discord.Embed(
@@ -39,13 +42,19 @@ class Utility(commands.Cog):
         await self.bot.get_channel(813268502839820318).send(embed=sugg_em)
         await ctx.send(embed=em)
 
-    @commands.command()
+    @commands.command(name="invite")
     async def invite(self, ctx):
         """Invite Chintu to your server!!!"""
         await ctx.send(
             "https://discord.com/oauth2/authorize?client_id=790900950885203978&permissions=2026368118&scope=bot")
 
-    @commands.command(hidden=True)
+    @commands.command(name="prefix", aliases=["changeprefix"])
+    @commands.has_permissions(manage_server=True)
+    async def prefix(self, ctx, prefix: str):
+        """Change prefix"""
+        update_prefix(database, ctx.server.id, prefix)
+
+    @commands.command(name="formemb", hidden=True)
     @commands.is_owner()
     async def formemb(self, ctx: commands.Context, channel:discord.TextChannel, *, title):
         """Create embed for announcement and stuff"""
