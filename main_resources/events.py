@@ -80,6 +80,7 @@ class Events:
 
     async def on_update_prefix(self, ctx, prefix):
         update_guild_storage(self.guild_prefix_store, ctx.guild.id, prefix)
+        await ctx.guild.me.edit(nick=f"{self.bot.user.name} [{prefix}]")
 
     async def on_add_command(self, ctx, command_name):
         try:
