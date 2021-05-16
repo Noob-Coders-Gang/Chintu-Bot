@@ -57,7 +57,7 @@ class Utility(commands.Cog):
     @commands.command(name="prefix", aliases=["changeprefix"])
     @commands.has_permissions(manage_guild=True)
     async def prefix(self, ctx, prefix: str):
-        """Change prefix"""
+        """Change Chintu's prefix (Use double quotes [" "] around the prefix to add whitespace [$prefix "pls "])"""
         update_prefix(database["guilds_data"], ctx.guild.id, prefix)
         self.bot.dispatch("update_prefix", ctx, prefix)
         embed = discord.Embed(title=f"The prefix of your guild was changed to {prefix}",
@@ -67,6 +67,7 @@ class Utility(commands.Cog):
     @commands.command(name="add")
     @commands.has_permissions(manage_guild=True)
     async def add(self, ctx, command_name: str):
+        """Add a previously removed command back to your server"""
         if command_name in self.cmd_list:
             remove_cmd_from_collection(database["guilds_data"], ctx.guild.id, command_name, os.getenv("PREFIX"))
             self.bot.dispatch("add_command", ctx, command_name)
@@ -81,6 +82,7 @@ class Utility(commands.Cog):
     @commands.command(name="remove")
     @commands.has_permissions(manage_guild=True)
     async def remove(self, ctx, command_name:str):
+        """Remove a command from your server"""
         if command_name in self.cmd_list:
             add_cmd_to_collection(database["guilds_data"], ctx.guild.id, command_name, os.getenv("PREFIX"))
             self.bot.dispatch("remove_command", ctx, command_name)
