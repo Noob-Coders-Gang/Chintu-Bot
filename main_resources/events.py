@@ -31,6 +31,7 @@ class Events:
         update_guild_storage(self.guild_prefix_store, guild.id, self.default_prefix)
 
     async def on_message(self, message: discord.Message):
+        message.content = message.content.lower()
         await self.bot.process_commands(message)
         if self.ChintuAI:
             if message.author == self.bot or message.content.startswith(self.default_prefix):
