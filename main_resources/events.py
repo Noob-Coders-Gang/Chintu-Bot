@@ -1,56 +1,44 @@
 import discord
 from discord.ext import commands
+from discord.ext.commands import CommandError
 
 from cogs.currency_utils.utils import currency_utils
 from main_resources.ChintuAI import AskChintu
-from main_resources.functions import update_total_guilds, add_guild, update_guild_storage
+from main_resources.functions import *
 
 
 class Events:
-    def __init__(self, bot: commands.Bot, database, total_guilds_api_url, infinite_use_commands: list,
+    def __init__(self, bot: commands.Bot, database, total_guilds_api_url, guild_prefix_store, disabled_commands,
+                 default_prefix, infinite_use_commands: list,
                  ChintuAI: bool = False):
         self.bot = bot
         self.database = database
         self.infinite_use_commands = infinite_use_commands
-        self.cmdManager_collection = database["cmd_manager"]
-        self.currency_collection = database['currency']
-        self.bot_util_collection = database['bot_util']
         self.total_guilds_api_url = total_guilds_api_url
-        self.utils = currency_utils(self.currency_collection)
+        self.utils = currency_utils(database["currency"])
+        self.guilds_data = database["guilds_data"]
         self.ChintuAI = ChintuAI
+        self.guild_prefix_store = guild_prefix_store
+        self.default_prefix = default_prefix
+        self.disabled_commands = disabled_commands
         if ChintuAI:
             from main_resources.ChintuAI import AskChintu
 
     async def on_guild_join(self, guild: discord.Guild):
         guilds = self.bot.guilds
         update_total_guilds(guilds, self.total_guilds_api_url)
-        add_guild(self.bot, self.database, guild)
-        update_guild_storage(self.database)
-
+        add_guild(self.guilds_data, guild.id, self.default_prefix)
+        update_guild_storage(self.guild_prefix_store, guild.id, self.default_prefix)
 
     async def on_message(self, message: discord.Message):
+        await self.bot.process_commands(message)
         if self.ChintuAI:
-            if message.author == self.bot:
+            if message.author == self.bot or message.content.startswith(self.default_prefix):
                 return
             mention = f'<@!{self.bot.user.id}>'
             if self.bot.user.mentioned_in(message):
                 user_message = message.content.replace(mention, "")
                 await message.channel.send(AskChintu(user_message)['response'])
-        if message.content.startswith(self.bot.command_prefix):
-            cmd = message.content.replace(self.bot.command_prefix, "").split()[
-                0]  # Strip the command from the message
-            try:
-                disabled_commands = self.cmdManager_collection.find_one({"_id": message.guild.id})[
-                    "disabled_commands"]  # Get disabled commands for the specific guild
-            except Exception:
-                disabled_commands = []
-                pass
-            if cmd in disabled_commands:  # Deny processing
-                embed = discord.Embed(title=f"This command is disabled in your server!",
-                                      color=discord.Colour.red())
-                await message.channel.send(embed=embed)
-            else:  # Process the command
-                await self.bot.process_commands(message)
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
@@ -88,3 +76,18 @@ class Events:
     async def on_command_completion(self, ctx: commands.Context):
         if ctx.command.name not in self.infinite_use_commands:
             self.utils.update_and_insert(ctx.author.id, inc_vals={"commands": 1}, commands=False)
+
+    async def on_update_prefix(self, ctx, prefix):
+        update_guild_storage(self.guild_prefix_store, ctx.guild.id, prefix)
+
+    async def on_add_command(self, ctx, command_name):
+        try:
+            remove_disabled_command(self.disabled_commands, ctx.guild.id, command_name)
+        except ValueError:
+            pass
+
+    async def on_remove_command(self, ctx, command_name):
+        try:
+            add_disabled_command(self.disabled_commands, ctx.guild.id, command_name)
+        except ValueError:
+            pass

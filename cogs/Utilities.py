@@ -1,11 +1,13 @@
 import math
 
 import asyncio
+import os
+
 import discord
 from discord.ext import commands
 
 from main import database
-from main_resources.functions import update_prefix
+from main_resources.functions import *
 
 intervals = (
     ('years', 604800 * 52),
@@ -21,9 +23,13 @@ intervals = (
 class Utility(commands.Cog):
     ''' Utility Commands '''
 
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.count = 0
+        self.cmd_list = []
+        for cmd in bot.commands:
+            # Get all commands registered with the bot
+            self.cmd_list.append(cmd.name)
 
     @commands.command(name="ping")
     async def ping(self, ctx):
@@ -49,14 +55,46 @@ class Utility(commands.Cog):
             "https://discord.com/oauth2/authorize?client_id=790900950885203978&permissions=2026368118&scope=bot")
 
     @commands.command(name="prefix", aliases=["changeprefix"])
-    @commands.has_permissions(manage_server=True)
+    @commands.has_permissions(manage_guild=True)
     async def prefix(self, ctx, prefix: str):
         """Change prefix"""
-        update_prefix(database, ctx.server.id, prefix)
+        update_prefix(database["guilds_data"], ctx.guild.id, prefix)
+        self.bot.dispatch("update_prefix", ctx, prefix)
+        embed = discord.Embed(title=f"The prefix of your guild was changed to {prefix}",
+                              color=discord.Colour.green())
+        await ctx.send(embed=embed)
+
+    @commands.command(name="add")
+    @commands.has_permissions(manage_guild=True)
+    async def add(self, ctx, command_name: str):
+        if command_name in self.cmd_list:
+            remove_cmd_from_collection(database["guilds_data"], ctx.guild.id, command_name, os.getenv("PREFIX"))
+            self.bot.dispatch("add_command", ctx, command_name)
+            embed = discord.Embed(title=f"I have added the {command_name} command back to your server!",
+                                  color=discord.Colour.green())
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(
+                title=f"I don't have any command named {command_name}", color=discord.Colour.red())
+            await ctx.send(embed=embed)
+
+    @commands.command(name="remove")
+    @commands.has_permissions(manage_guild=True)
+    async def remove(self, ctx, command_name:str):
+        if command_name in self.cmd_list:
+            add_cmd_to_collection(database["guilds_data"], ctx.guild.id, command_name, os.getenv("PREFIX"))
+            self.bot.dispatch("remove_command", ctx, command_name)
+            embed = discord.Embed(title=f"I have removed the {command_name} command from your server!",
+                                  color=discord.Colour.green())
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(
+                title=f"I don't have any command named {command_name}", color=discord.Colour.red())
+            await ctx.send(embed=embed)
 
     @commands.command(name="formemb", hidden=True)
     @commands.is_owner()
-    async def formemb(self, ctx: commands.Context, channel:discord.TextChannel, *, title):
+    async def formemb(self, ctx: commands.Context, channel: discord.TextChannel, *, title):
         """Create embed for announcement and stuff"""
         try:
             await ctx.send("Send description")

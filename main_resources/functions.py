@@ -1,9 +1,10 @@
 import os
 
+import discord
 import pymongo
 import requests
+from discord.ext.commands import CommandError
 
-from main import guild_storage
 
 def update_total_guilds(guild_list, total_guilds_api_url):
     """Update the number of guilds in the total guilds API"""
@@ -28,36 +29,87 @@ def create_database_connection(mongo_db_url: str):
     return client["Chintu-Bot"]  # Return the Chintu-Bot database
 
 
-def update_cmdManager_coll(bot, database):
+def update_guilds_data(bot, collection, default_prefix):
     guilds_to_add = []
-    cmdManager_collection = database["cmd_manager"]  # Get the cmd_manager collection
     current_guilds = list(
-        cmdManager_collection.find({}, {"_id": 1, "disabled_commands": 0}))  # Get the list of already registered guilds
+        collection.find({}, {"_id": 1}))  # Get the list of already registered guilds
     for guild in bot.guilds:
         if {"_id": guild.id} not in current_guilds:
             guilds_to_add.append(
-                {"_id": guild.id, "disabled_commands": []})  # Add all the guilds that are not registered to a list
+                {"_id": guild.id, "disabled_commands": [],
+                 "prefix": default_prefix})  # Add all the guilds that are not registered to a list
     if len(guilds_to_add) > 0:
-        cmdManager_collection.insert_many(guilds_to_add)  # update the collection with the list
+        collection.insert_many(guilds_to_add)  # update the collection with the list
 
 
-def add_guild(bot, database, guild):
-    cmdManager_collection = database["cmd_manager"]
-    current_guilds = list(cmdManager_collection.find({}, {"_id": 1, "disabled_commands": 0}))
-    if {"_id": guild.id} not in current_guilds:
-        cmdManager_collection.insert({"_id": guild.id, "disabled_commands": []})
-    
-    bot_util_collection = database['bot_util']
-    guilds = list(bot_util_collection.find({}, {"_id": 1, "prefix": 0}))
-    if {"_id": guild.id} not in guilds:
-        bot_util_collection.insert({"_id": guild.id, "prefix": os.getenv('PREFIX')})
+def add_guild(collection, guild_id: int, default_prefix):
+    collection.update_one({"_id": guild_id}, {
+        "$setOnInsert": {
+            "disabled_commands": [],
+            "prefix": default_prefix
+        }
+    }, upsert=True)
 
-def update_guild_storage(database):
-    global guild_storage
-    bot_util_collection = database['bot_util']
-    guild_storage.clear()
-    guild_storage.append(list(bot_util_collection.find({}, {"_id": 1, "prefix": 0})))
 
-def update_prefix(database,server_id, prefix):
-    bot_util_collection = database['bot_util']
-    bot_util_collection.insert({"_id": server_id, "prefix": prefix})
+def update_guild_storage(guild_store, guild_id, prefix):
+    guild_store[guild_id] = prefix
+
+
+def add_disabled_command(disabled_commands_store, guild_id, disabled_command):
+    disabled_commands_store[guild_id].append(disabled_command)
+
+
+def remove_disabled_command(disabled_commands_store: dict, guild_id, enabled_command):
+    disabled_commands_store[guild_id].remove(enabled_command)
+
+
+def create_guild_store(collection):
+    guild_store = {}
+    for document in collection.find({}, {"_id": 1, "prefix": 1}):
+        guild_store[document["_id"]] = document["prefix"]
+    return guild_store
+
+
+def create_disabled_commands_store(collection):
+    guild_store = {}
+    for document in collection.find({}, {"_id": 1, "disabled_commands": 1}):
+        guild_store[document["_id"]] = document["disabled_commands"]
+    return guild_store
+
+
+def update_prefix(collection, server_id, prefix):
+    collection.update_one({"_id": server_id}, {
+        "$set": {"prefix": prefix},
+        "$setOnInsert": {"disabled_commands": []}
+    }, upsert=True)
+
+
+def add_cmd_to_collection(collection, server_id, disabled_command, default_prefix):
+    collection.update_one({"_id": server_id}, {
+        "$addToSet": {"disabled_commands": disabled_command},
+        "$setOnInsert": {"prefix": default_prefix}
+    }, upsert=True)
+
+
+def remove_cmd_from_collection(collection, server_id, disabled_command, default_prefix):
+    collection.update_one({"_id": server_id}, {
+        "$pull": {"disabled_commands": disabled_command},
+        "$setOnInsert": {"prefix": default_prefix}
+    }, upsert=True)
+
+
+class before_invoke:
+    def __init__(self, disabled_commands):
+        self.disabled_commands = disabled_commands
+
+    async def check_before_invoke(self, ctx):
+        command_name = ctx.command.name
+        if command_name != "add":
+            try:
+                if command_name in self.disabled_commands[ctx.guild.id]:
+                    embed = discord.Embed(title=f"This command is disabled in your server!",
+                                          color=discord.Colour.red())
+                    await ctx.send(embed=embed)
+                    raise CommandError
+            except KeyError:
+                self.disabled_commands[ctx.guild.id] = []

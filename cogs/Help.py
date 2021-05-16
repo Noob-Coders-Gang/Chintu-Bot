@@ -1,6 +1,8 @@
 import discord
 from discord.errors import Forbidden
 from discord.ext import commands
+from main import guild_prefix_storage, database, DEFAULT_PREFIX
+from main_resources.functions import *
 
 
 async def send_embed(ctx, embed):
@@ -20,18 +22,12 @@ async def send_embed(ctx, embed):
 
 def prebuild_embed(bot):
     # starting to build embed
-    prefix = '$'
-    emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
-                        description=f'Use `{prefix}help <module>` to gain more information about that module '
-                                    f':smiley:\n')
 
     # ------------------- iterating trough cogs, gathering descriptions------------------#
 
     cogs_desc = ''
     for cog in bot.cogs:
         cogs_desc += f'`{cog}` {bot.cogs[cog].__doc__}\n'
-
-    emb.add_field(name='Modules', value=cogs_desc, inline=False)
 
     # ------------------- Adding all cogs to Help embed ------------------#
 
@@ -43,13 +39,16 @@ def prebuild_embed(bot):
         if not command.cog_name and not command.hidden:
             commands_desc += f'{command.name} - {command.help}\n'
 
-    if commands_desc:
-        emb.add_field(name='Not belonging to a module',
-                      value=commands_desc, inline=False)
-    emb.add_field(
-        name="About", value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
+    return cogs_desc, commands_desc
 
-    return emb
+
+def get_prefix(bot, message: discord.Message):
+    guild_id = message.guild.id
+    if guild_id in guild_prefix_storage:
+        return guild_prefix_storage[guild_id]
+    else:
+        add_guild(database["guilds_data"], guild_id, DEFAULT_PREFIX)
+        return DEFAULT_PREFIX
 
 
 class Help(commands.Cog):
@@ -64,16 +63,25 @@ class Help(commands.Cog):
         bot_commands = {}
         for command in bot.walk_commands():
             bot_commands[command.name] = command
+        self.cogs_desc, self.commands_desc = prebuild_embed(bot)
         self.bot_commands = bot_commands
-        self.default_help_embed = prebuild_embed(bot)  # Predifining default embed for speeding up command execution
 
-    @commands.command(name="help")
+    @commands.command()
     async def help(self, ctx, *input):
         """Shows all modules of the bot"""
-        prefix = '$'
+        prefix = get_prefix(self.bot, ctx.message)
         if not input:
             # default help embed
-            emb = self.default_help_embed
+            emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
+                                description=f'Use `{prefix}help <module>` to gain more information about that module '
+                                            f':smiley:\n')
+            emb.add_field(name='Modules', value=self.cogs_desc, inline=False)
+            if self.commands_desc:
+                emb.add_field(name='Not belonging to a module',
+                              value=self.commands_desc, inline=False)
+            emb.add_field(
+                name="About",
+                value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
         # block called when one cog-name is given
         # trying to find matching cog and it's commands
         elif len(input) == 1:
@@ -128,6 +136,10 @@ class Help(commands.Cog):
 
         # sending reply embed using our own function defined above
         await send_embed(ctx, emb)
+
+    @commands.Cog.listener()
+    async def on_update_prefix(self, ctx, prefix):
+        update_guild_storage(guild_prefix_storage, ctx.guild.id, prefix)
 
 
 def setup(bot):
