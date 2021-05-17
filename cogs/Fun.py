@@ -5,11 +5,12 @@ import random
 import urllib.request
 from typing import Optional
 from urllib import parse
-import requests
-from bs4 import BeautifulSoup
+
 import discord
+import requests
 import wikipedia
 from aiohttp import request
+from bs4 import BeautifulSoup
 from discord import Member
 from discord.ext import commands
 from discord.ext.commands import command
@@ -36,8 +37,7 @@ class Fun(commands.Cog):
         # Parses the google search results page
         soup = BeautifulSoup(res.text, "html.parser")
         tag = list(soup.find('div', {'class': 'BNeawe vvjwJb AP7Wnd'}).parent.parent.parent.parent.find('div', {
-            'class': 'BNeawe s3v9rd AP7Wnd'}).find_all('div', {
-            'class': 'BNeawe s3v9rd AP7Wnd'}))  # Creates a list of parsable search results
+            'class': 'BNeawe s3v9rd AP7Wnd'}).find_all('div', {'class': 'BNeawe s3v9rd AP7Wnd'}))  # Creates a list of parsable search results
         # Gets the description for the parsable search result
         text = ""
         for div in tag:
@@ -54,7 +54,7 @@ class Fun(commands.Cog):
     @commands.command(name="8ball", aliases=['ask'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def _8ball(self, ctx, *, question):
-        ''' Ask question and get advice from me 🎱'''
+        """ Ask question and get advice from me 🎱"""
         responses = ["It is certain.",
                      "It is decidedly so.",
                      "Without a doubt.",
@@ -89,7 +89,7 @@ class Fun(commands.Cog):
             try:
                 with urllib.request.urlopen(f"https://api.urbandictionary.com/v0/define?term={search}") as url:
                     url = json.loads(url.read().decode())
-            except:
+            except Exception:
                 return await ctx.send("Urban API returned invalid data... might be down atm.")
 
             if not url:
@@ -139,7 +139,7 @@ class Fun(commands.Cog):
                     else:
                         await ctx.send(url['joke'])
 
-            except Exception as e:
+            except Exception:
                 return await ctx.send("I am busy dude, I can't think any joke right now")
 
     @commands.command(name="beer")
@@ -155,8 +155,7 @@ class Fun(commands.Cog):
                 f"I would love to give beer to the bot **{ctx.author.name}**, but I don't think it will respond to you :/")
 
         beer_offer = f"**{user.name}**, you got a 🍺 offer from **{ctx.author.name}**"
-        beer_offer = beer_offer + \
-                     f"\n\n**Reason:** {reason}" if reason else beer_offer
+        beer_offer = beer_offer + f"\n\n**Reason:** {reason}" if reason else beer_offer
         msg = await ctx.send(beer_offer)
 
         def reaction_check(m):
@@ -174,8 +173,7 @@ class Fun(commands.Cog):
         except discord.Forbidden:
             # Yeah so, bot doesn't have reaction permission, drop the "offer" word
             beer_offer = f"**{user.name}**, you got a 🍺 from **{ctx.author.name}**"
-            beer_offer = beer_offer + \
-                         f"\n\n**Reason:** {reason}" if reason else beer_offer
+            beer_offer = beer_offer + f"\n\n**Reason:** {reason}" if reason else beer_offer
             await msg.edit(content=beer_offer)
 
     @commands.command(name="howhot", aliases=["hotcalc", "hot"])
@@ -183,9 +181,6 @@ class Fun(commands.Cog):
     async def howhot(self, ctx, *, user: discord.Member = None):
         """ Returns a percent for how hot is a discord user 🥵"""
         user = user or ctx.author
-        userid = int(user.id)
-
-        per = float((abs(math.sin(userid))) * 100)
         random.seed(user.id)
         r = random.randint(1, 100)
         hot = r / 1.17
@@ -219,7 +214,7 @@ class Fun(commands.Cog):
     @commands.command(name="wiki", aliases=['wikipedia'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def wiki(self, ctx, *, querry_: str):
-        ''' Search wikipedia for any information 🔍'''
+        """ Search wikipedia for any information 🔍"""
         async with ctx.channel.typing():
             try:
                 results = wikipedia.search(querry_, results=5)
@@ -228,39 +223,35 @@ class Fun(commands.Cog):
                 em = discord.Embed(title=result_title,
                                    color=discord.Color(0xf58742))
                 em.set_footer(text=result_summary)
-                em2 = discord.Embed(color=discord.Color(0xf58742))
 
                 # em2.set_footer(text=f'Recommended searches : ' +
                 #                f'{results[1:-1]}'[1:-1])
                 await ctx.send(embed=em)
                 # await ctx.send(embed=em2)
-            except:
+            except Exception:
                 await ctx.send("Sorry, I can find " + querry_ + " in Wikipedia")
 
     @commands.command(name="kill")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def kill(self, ctx, user: Optional[Member]):
-        ''' kill someone ⚰️'''
+        """ kill someone ⚰️"""
         if not user:
             user = ctx.author
         await ctx.send(f'{user.display_name} {random.choice(kills)}')
 
     @commands.command(name="roast")
     async def roast(self, ctx, user: discord.Member = None):
-        ''' roast someone 🍳'''
-        if user == None:
+        """ roast someone 🍳"""
+        if user is None:
             user = ctx.author
         await ctx.send(f'{user.display_name}, {random.choice(roasts)}')
 
     @commands.command(name="pp", aliases=['ppsize', 'size', 'penis'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def pp(self, ctx, member: discord.Member):
-        ''' To check pp size 🍆'''
+        """ To check pp size 🍆"""
         i = random.randint(0, 40)
-        size = ""
-
-        for x in range(0, i):
-            size += '='
+        size = "=" * i
         em = discord.Embed(color=discord.Colour.blue(),
                            title="PeePee size calculator")
 
@@ -270,8 +261,8 @@ class Fun(commands.Cog):
 
     @commands.command(name="howgay", aliases=['how gay', 'gaypercent'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
-    async def howgay(self, ctx, member: discord.Member=None):
-        ''' To check gayness 🏳️‍🌈'''
+    async def howgay(self, ctx, member: discord.Member = None):
+        """ To check gayness 🏳️‍🌈"""
         if member is None:
             member = ctx.author
         user = str(member.id)
@@ -294,7 +285,7 @@ class Fun(commands.Cog):
     @commands.command(name="password", aliases=['pass', 'generator', 'passwordgenerator'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def password(self, ctx, amt: int = 8):
-        ''' Get random password in DM  🔒'''
+        """ Get random password in DM  🔒"""
         try:
             nwpss = []
             lst = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
