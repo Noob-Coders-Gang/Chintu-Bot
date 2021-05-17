@@ -138,6 +138,22 @@ class Help(commands.Cog):
         # sending reply embed using our own function defined above
         await send_embed(ctx, emb)
 
+    @commands.command(hidden=True)
+    async def invoked_help(self, ctx: commands.Context):
+        prefix = get_prefix(self.bot, ctx.message)
+        emb = discord.Embed(title='Commands and modules', color=discord.Color.blue(),
+                            description=f'Use `{prefix}help <module>` to gain more information about that module '
+                                        f':smiley:\n')
+        emb.add_field(name='Modules', value=self.cogs_desc, inline=False)
+        if self.commands_desc:
+            emb.add_field(name='Not belonging to a module',
+                          value=self.commands_desc, inline=False)
+        emb.add_field(
+            name="About",
+            value=f"Please visit https://github.com/Noob-Coders-Gang/Chintu-Bot to submit ideas or bugs.")
+        emb.set_footer(text=f"Chintu's prefix in this guild is \"{prefix}\"")
+        await ctx.send(embed=emb)
+
     @commands.Cog.listener()
     async def on_update_prefix(self, ctx, prefix):
         update_guild_storage(guild_prefix_storage, ctx.guild.id, prefix)

@@ -32,14 +32,19 @@ class Events:
 
     async def on_message(self, message: discord.Message):
         message.content = message.content.lower()
-        await self.bot.process_commands(message)
-        if self.ChintuAI:
-            if message.author == self.bot or message.content.startswith(self.default_prefix):
-                return
-            mention = f'<@!{self.bot.user.id}>'
-            if self.bot.user.mentioned_in(message):
-                user_message = message.content.replace(mention, "")
-                await message.channel.send(AskChintu(user_message)['response'])
+        ctx: commands.Context = await self.bot.get_context(message)
+        if ctx.command is None:
+            if message.content.startswith("$help"):
+                await ctx.invoke(self.bot.get_command("invoked_help"))
+            elif self.ChintuAI:
+                if message.author == self.bot or message.content.startswith(self.default_prefix):
+                    return
+                mention = f'<@!{self.bot.user.id}>'
+                if self.bot.user.mentioned_in(message):
+                    user_message = message.content.replace(mention, "")
+                    await message.channel.send(AskChintu(user_message)['response'])
+        else:
+            await self.bot.invoke(ctx)
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
