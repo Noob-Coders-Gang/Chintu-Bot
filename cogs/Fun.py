@@ -256,15 +256,16 @@ class Fun(commands.Cog):
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def pp(self, ctx, member: discord.Member):
         ''' To check pp size 🍆'''
-        size = ['', '==', '', '=', '', '====', '', '=', '======', '==========================', '===',
-                "===============",
-                "========", "===", "===================", "===", '========', '=====',
-                "======================================", "===", "============"]
+        i = random.randint(0, 40)
+        size = ""
+
+        for x in range(0, i):
+            size += '='
         em = discord.Embed(color=discord.Colour.blue(),
                            title="PeePee size calculator")
 
         em.add_field(name=f"{member.display_name}s penis:eggplant:",
-                     value=f"8{random.choice(size)}D")
+                     value=f"8{size}D")
         await ctx.send(embed=em)
 
     @commands.command(name="howgay", aliases=['how gay', 'gaypercent'])
