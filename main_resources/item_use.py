@@ -1,9 +1,21 @@
 import asyncio
-
-import youtube_dl
-import discord
-from discord.ext import commands
+import random
 import traceback
+
+import discord
+import youtube_dl
+from discord.ext import commands
+
+from cogs.currency_utils.utils import currency_utils
+from main import database
+
+collection = database["currency"]
+utils = currency_utils(collection)
+
+properties = {}
+for doc in collection.find({}, {"properties": 1, "_id": 1}):
+    if "properties" in doc:
+        properties[doc["_id"]] = doc["properties"]
 
 
 async def disc(bot, ctx: commands.Context, item_dict: dict):
@@ -37,6 +49,51 @@ async def disc(bot, ctx: commands.Context, item_dict: dict):
 
 async def notebook(bot, ctx: commands.Context, item_dict: dict):
     await ctx.send("Under Development")
+
+
+async def mom(bot, ctx: commands.Context, item_dict: dict):
+    uses = random.randint(10, 50)
+    if ctx.author.id in properties:
+        if "100_uses" in properties[ctx.author.id]:
+            properties[ctx.author.id]["100_uses"] += uses
+            utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
+        else:
+            properties[ctx.author.id]["100_uses"] = uses
+            utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
+    else:
+        properties[ctx.author.id] = {"100_uses": uses}
+        utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
+    await ctx.send(
+        f"{ctx.author.mention} You used Joe Mama. {uses} uses were added and a total of {properties[ctx.author.id]['100_uses']} uses are left.")
+    print(properties[ctx.author.id])
+
+
+async def on_message(bot:commands.Bot, message: discord.Message):
+    if len(message.mentions) > 0:
+        mentioned_member: discord.User = message.mentions[0]
+    else:
+        return
+    if mentioned_member.id not in properties or "100_uses" not in properties[mentioned_member.id] or \
+            properties[mentioned_member.id]["100_uses"] <= 0 or mentioned_member.id == message.author.id or message.author.id == bot.user.id:
+        return
+    if "ur" in message.content.lower() or "your" in message.content.lower():
+        try:
+            webhook:discord.Webhook = await message.channel.create_webhook(name=mentioned_member.name)
+            await webhook.send(f"{message.author.mention} no ur mom", username=mentioned_member.name,
+                               avatar_url=mentioned_member.avatar_url)
+            await webhook.delete()
+        except commands.MissingPermissions:
+            await message.channel.send(f"{message.author.mention} no ur mom")
+        finally:
+            properties[mentioned_member.id]["100_uses"] -= 1
+
+
+def properties_100(ctx:commands.Context):
+    if ctx.author.id not in properties or "100_uses" not in properties[ctx.author.id] or \
+            properties[ctx.author.id]["100_uses"] <= 0:
+        return f"{ctx.author.mention} You have 0 Joe Mama replies."
+    else:
+        return f'{ctx.author.mention} You have {properties[ctx.author.id]["100_uses"]} Joe Mama replies.'
 
 
 ytdl_format_options = {

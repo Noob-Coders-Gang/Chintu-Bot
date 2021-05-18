@@ -1,16 +1,12 @@
+import html
 import json
-import os
-import random
 from datetime import datetime, timedelta
 
 import numpy as np
 import requests
 from discord.ext.commands import CommandError
 
-from cogs.currency_utils.utils import currency_utils
-from main import database
 from main_resources.item_use import *
-import html
 
 
 class Currency(commands.Cog):
@@ -84,6 +80,10 @@ class Currency(commands.Cog):
             "celeb": "Celebrities",
             "animals": "Animals"
         }
+
+    @commands.Cog.listener(name="on_message")
+    async def on_message(self, message:discord.Message):
+        await on_message(self.bot, message)
 
     @commands.command(name="daily")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
@@ -478,6 +478,28 @@ class Currency(commands.Cog):
             await ctx.send(f"Could not find item with name or id {item}")
             raise CommandError
 
+    @commands.command(name="iteminfo")
+    @commands.cooldown(rate=1, per=10.0, type=commands.BucketType.user)
+    async def iteminfo(self, ctx: commands.Context, item_name):
+        item_dict = None
+        item = item_name.lower()
+        try:
+            item = int(item)
+            if str(item) in self.items_by_id:
+                item_dict = self.items_by_id[str(item)]
+        except Exception:
+            if item in self.id_by_name:
+                item_dict = self.items_by_id[str(self.id_by_name[item])]
+                item = self.id_by_name[item]
+        if item_dict:
+            if item_dict["properties"]:
+                await ctx.send(eval(f"properties_{item}(ctx)"))
+            else:
+                await ctx.send(f"{ctx.author.mention} No info available for this item")
+        else:
+            await ctx.send(f"Could not find item with name or id {item}")
+            raise CommandError
+
     @commands.command(name="inventory", aliases=["inv"])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def inventory(self, ctx: commands.Context, target_user=None, page_number=1):
@@ -561,7 +583,8 @@ class Currency(commands.Cog):
         alphabet_to_num = {"A": 0, "B": 1, "C": 2, "D": 3}
         for i in range(len(options)):
             desc_str += f"**{num_to_alphabet[i]}: ** {options[i]}\n"
-        q_embed = discord.Embed(title=html.unescape(response["question"]), description=html.unescape(desc_str), color=discord.Colour.orange())
+        q_embed = discord.Embed(title=html.unescape(response["question"]), description=html.unescape(desc_str),
+                                color=discord.Colour.orange())
         if create_footer:
             q_embed.set_footer(text="Use $quiz help to get a list of categories")
         sent_embed = await ctx.send(embed=q_embed)

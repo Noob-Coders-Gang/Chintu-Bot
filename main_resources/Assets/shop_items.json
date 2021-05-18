@@ -6,7 +6,8 @@
       "resell": 15000,
       "emoji": "",
       "description": "Take Joe Mama from me if you can :sunglasses:",
-      "type": "item",
+      "type": "mom",
+      "properties": true,
       "archive": false
     },
     "101": {
@@ -16,6 +17,7 @@
       "emoji": "\uD83D\uDCDD",
       "description": "Collect as many autographs as you can and ask legends to leave their mark on your notebook",
       "type": "notebook",
+      "properties": false,
       "archive": true
     },
     "102": {
@@ -26,6 +28,7 @@
       "description": "Rick roll your friends with this music disc :sunglasses: [usable]",
       "type": "disc",
       "url": "https://www.youtube.com/watch?v=w5_fiYGOeLY",
+      "properties": false,
       "archive": false
     },
     "103": {
@@ -36,6 +39,7 @@
       "description": "Quack Quack Quack Quack :duck: :duck: :duck: [usable]",
       "type": "disc",
       "url": "https://www.youtube.com/watch?v=dDgGMInTqTo",
+      "properties": false,
       "archive": false
     },
     "104": {
@@ -45,6 +49,7 @@
       "emoji": ":ring:",
       "description": "Marry the love of your life with this cheap ring (Not Recommended) [usable]",
       "type": "ring",
+      "properties": false,
       "archive": false
     },
     "105": {
@@ -55,6 +60,7 @@
       "description": "Listen to mutahar from SOG laughing in multiple variations [usable]",
       "type": "disc",
       "url": "https://www.youtube.com/watch?v=6_Ti78RgzlY",
+      "properties": false,
       "archive": false
     }
   },
