@@ -307,11 +307,16 @@ class Fun(commands.Cog):
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
     async def insult(self, ctx):
         """"Returns some evil insults"""
-        URl = f"https://evilinsult.com/generate_insult.php?lang=en&type=json"
-        async with request("GET", URl) as res:
+        URL = f"https://evilinsult.com/generate_insult.php?lang=en&type=json"
+        async with request("GET", URL) as res:
             if res.status == 200:
                 evil_insult = await res.json()
                 await ctx.send(f"{evil_insult['insult']}")
+
+    @command(name="say", hidden=True)
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    async def say(self, ctx:commands.Context, *, message:str):
+        await ctx.send(message)
 
 
 def setup(bot):

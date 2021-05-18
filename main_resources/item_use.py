@@ -65,7 +65,6 @@ async def mom(bot, ctx: commands.Context, item_dict: dict):
         utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
     await ctx.send(
         f"{ctx.author.mention} You used Joe Mama. {uses} uses were added and a total of {properties[ctx.author.id]['100_uses']} uses are left.")
-    print(properties[ctx.author.id])
 
 
 async def on_message(bot:commands.Bot, message: discord.Message):
@@ -86,6 +85,7 @@ async def on_message(bot:commands.Bot, message: discord.Message):
             await message.channel.send(f"{message.author.mention} no ur mom")
         finally:
             properties[mentioned_member.id]["100_uses"] -= 1
+            utils.update(mentioned_member.id, inc_vals={"properties.100_uses":-1})
 
 
 def properties_100(ctx:commands.Context):
