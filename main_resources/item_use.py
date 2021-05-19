@@ -1,6 +1,7 @@
 import asyncio
 import random
 import traceback
+from datetime import datetime
 
 import discord
 import youtube_dl
@@ -67,17 +68,45 @@ async def mom(bot, ctx: commands.Context, item_dict: dict):
         f"{ctx.author.mention} You used Joe Mama. {uses} uses were added and a total of {properties[ctx.author.id]['100_uses']} uses are left.")
 
 
-async def on_message(bot:commands.Bot, message: discord.Message):
+# async def ring(bot, ctx:commands.Context, item_dict: dict):
+#     converter = commands.MemberConverter
+#     message_list = ctx.message.content.replace(ctx.prefix, "").split(" ")
+#     if len(message_list) < 1
+#     mentioned_user = await converter.convert(ctx, )
+
+
+def properties_104(ctx: commands.Context):
+    if ctx.author.id not in properties or "104_member" not in properties[ctx.author.id]:
+        return f"{ctx.author.mention} You are not married to any user."
+    else:
+        del_time = datetime.utcnow() - properties[ctx.author.id]['104_member']['datetime']
+        days, seconds = del_time.days, del_time.seconds
+        hours = days * 24 + seconds // 3600
+        minutes = (seconds % 3600) // 60
+        return f"{ctx.author.mention} You are married to {properties[ctx.author.id]['104_member']['name']} since {days} " \
+               f"days, {hours} hours and {minutes} minutes"
+
+
+def properties_100(ctx: commands.Context):
+    if ctx.author.id not in properties or "100_uses" not in properties[ctx.author.id] or \
+            properties[ctx.author.id]["100_uses"] <= 0:
+        return f"{ctx.author.mention} You have 0 Joe Mama replies."
+    else:
+        return f'{ctx.author.mention} You have {properties[ctx.author.id]["100_uses"]} Joe Mama replies.'
+
+
+async def on_message(bot: commands.Bot, message: discord.Message):
     if len(message.mentions) > 0:
         mentioned_member: discord.User = message.mentions[0]
     else:
         return
     if mentioned_member.id not in properties or "100_uses" not in properties[mentioned_member.id] or \
-            properties[mentioned_member.id]["100_uses"] <= 0 or mentioned_member.id == message.author.id or message.author.id == bot.user.id:
+            properties[mentioned_member.id][
+                "100_uses"] <= 0 or mentioned_member.id == message.author.id or message.author.id == bot.user.id:
         return
     if "ur" in message.content.lower() or "you're" in message.content.lower() or "youre" in message.content.lower():
         try:
-            webhook:discord.Webhook = await message.channel.create_webhook(name=mentioned_member.name)
+            webhook: discord.Webhook = await message.channel.create_webhook(name=mentioned_member.name)
             await webhook.send(f"{message.author.mention} no ur mom", username=mentioned_member.name,
                                avatar_url=mentioned_member.avatar_url)
             await webhook.delete()
@@ -85,15 +114,7 @@ async def on_message(bot:commands.Bot, message: discord.Message):
             await message.channel.send(f"{message.author.mention} no ur mom")
         finally:
             properties[mentioned_member.id]["100_uses"] -= 1
-            utils.update(mentioned_member.id, inc_vals={"properties.100_uses":-1})
-
-
-def properties_100(ctx:commands.Context):
-    if ctx.author.id not in properties or "100_uses" not in properties[ctx.author.id] or \
-            properties[ctx.author.id]["100_uses"] <= 0:
-        return f"{ctx.author.mention} You have 0 Joe Mama replies."
-    else:
-        return f'{ctx.author.mention} You have {properties[ctx.author.id]["100_uses"]} Joe Mama replies.'
+            utils.update(mentioned_member.id, inc_vals={"properties.100_uses": -1})
 
 
 ytdl_format_options = {
