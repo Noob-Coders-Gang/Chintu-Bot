@@ -460,13 +460,13 @@ class Currency(commands.Cog):
                 item_dict = self.items_by_id[str(self.id_by_name[item])]
                 item = self.id_by_name[item]
         if item_dict:
-            inventory_dict = self.collection.find_one({"_id": ctx.author.id}, {"inventory": 1})["inventory"]
-            if str(item) in inventory_dict and inventory_dict[str(item)] > 0:
+            if item_dict['type'] == "item":
+                await ctx.send("This item cannot be used.")
+                raise CommandError
+            inventory_dict = self.collection.find_one({"_id": ctx.author.id}, {"inventory": 1})
+            if inventory_dict is not None and str(item) in inventory_dict["inventory"] and inventory_dict["inventory"][str(item)] > 0:
                 try:
-                    if item_dict['type'] != "item":
-                        await eval(item_dict['type'] + '(self.bot, ctx, item_dict)')
-                    else:
-                        await ctx.send("This item cannot be used.")
+                    await eval(item_dict['type'] + '(self.bot, ctx, item_dict)')
                 except Exception as e:
                     if not isinstance(e, CommandError):
                         await ctx.send(f"Could't use {item_dict['name']}. Please report this issue using $suggest.")

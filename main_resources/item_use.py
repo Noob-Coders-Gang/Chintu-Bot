@@ -67,7 +67,7 @@ async def notebook(bot, ctx: commands.Context, item_dict: dict):
 
 async def mom(bot, ctx: commands.Context, item_dict: dict):
     uses = random.randint(10, 50)
-    utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
+    utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses, "inventory.100":-1})
     update_user_properties(ctx.author.id)
     await ctx.send(
         f"{ctx.author.mention} You used Joe Mama. {uses} uses were added and a total of {properties[ctx.author.id]['100_uses']} uses are left.")
