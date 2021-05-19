@@ -2,10 +2,10 @@
   "by_id": {
     "100": {
       "name": "Joe Mama",
-      "value": 50000,
-      "resell": 15000,
+      "value": 10000,
+      "resell": 2000,
       "emoji": "",
-      "description": "Take Joe Mama from me if you can :sunglasses:",
+      "description": "Take Joe Mama from me if you can :sunglasses: [usable]",
       "type": "mom",
       "properties": true,
       "archive": false
@@ -22,7 +22,7 @@
     },
     "102": {
       "name": "Rick Roll Disc [Limited]",
-      "value": 100000,
+      "value": 50000,
       "resell": 1000,
       "emoji": "<:rick_disc:839577178400489565>",
       "description": "Rick roll your friends with this music disc :sunglasses: [usable]",
@@ -33,7 +33,7 @@
     },
     "103": {
       "name": "QUACK QUACK disc [Limited]",
-      "value": 100000,
+      "value": 50000,
       "resell": 1000,
       "emoji": "<:rick_disc:839577178400489565>",
       "description": "Quack Quack Quack Quack :duck: :duck: :duck: [usable]",
@@ -47,14 +47,14 @@
       "value": 20000,
       "resell": 500,
       "emoji": ":ring:",
-      "description": "Marry the love of your life with this cheap ring (Not Recommended) [usable]",
-      "type": "ring",
+      "description": "Marry the love of your life with this cheap ring (Not Recommended)",
+      "type": "item",
       "properties": false,
       "archive": false
     },
     "105": {
       "name": "Mutahar Laugh [Limited]",
-      "value": 100000,
+      "value": 50000,
       "resell": 1000,
       "emoji": "<:rick_disc:839577178400489565>",
       "description": "Listen to mutahar from SOG laughing in multiple variations [usable]",
