@@ -5,7 +5,7 @@
       "value": 10000,
       "resell": 2000,
       "emoji": "",
-      "description": "Take Joe Mama from me if you can :sunglasses:",
+      "description": "Take Joe Mama from me if you can :sunglasses: [usable]",
       "type": "mom",
       "properties": true,
       "archive": false
@@ -47,8 +47,8 @@
       "value": 20000,
       "resell": 500,
       "emoji": ":ring:",
-      "description": "Marry the love of your life with this cheap ring (Not Recommended) [usable]",
-      "type": "ring",
+      "description": "Marry the love of your life with this cheap ring (Not Recommended)",
+      "type": "item",
       "properties": false,
       "archive": false
     },
