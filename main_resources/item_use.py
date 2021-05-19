@@ -84,6 +84,16 @@ async def ring(bot, ctx: commands.Context, item_dict: dict):
     except:
         await ctx.send(f"{ctx.author.mention} Couldn't find user {message_list[2]}")
         raise CommandError
+    if ctx.author.id in properties and f"{item_dict['id']}_member" in properties[ctx.author.id] and \
+            properties[ctx.author.id][f"{item_dict['id']}_member"] is not None:
+        await ctx.send(
+            f"{ctx.author.mention} You are already married! Buy and use Divorce papers from the shop to marry someone else")
+        raise CommandError
+    if mentioned_user.id in properties and f"{item_dict['id']}_member" in properties[mentioned_user.id] and \
+            properties[mentioned_user.id][f"{item_dict['id']}_member"] is not None:
+        await ctx.send(
+            f"{ctx.author.mention}, {mentioned_user.display_name} is already married to someone else! Ask them to divorce their significant other using Divorce papers from the shop")
+        raise CommandError
     embed = discord.Embed(
         title=f"{mentioned_user.display_name}, {ctx.author.display_name} has proposed you with a {item_dict['name']} "
               f"ring! Would you like to marry them?",
@@ -99,14 +109,16 @@ async def ring(bot, ctx: commands.Context, item_dict: dict):
     try:
         await bot.wait_for('reaction_add', timeout=15.0, check=check)
         time_of_marriage = datetime.utcnow()
-        utils.update(ctx.author.id, set_vals={"properties.104_member.id": mentioned_user.id,
-                                              "properties.104_member.name": mentioned_user.display_name,
-                                              "properties.104_member.datetime": time_of_marriage})
-        utils.update(mentioned_user.id, set_vals={"properties.104_member.id": ctx.author.id,
-                                                  "properties.104_member.name": ctx.author.display_name,
-                                                  "properties.104_member.datetime": time_of_marriage})
-        update_user_properties(mentioned_user.id)
-        update_user_properties(ctx.author.id)
+        utils.update(ctx.author.id,
+                     set_vals={f"properties.{item_dict['id']}_member.id": mentioned_user.id,
+                               f"properties.{item_dict['id']}_member.name": mentioned_user.display_name,
+                               f"properties.{item_dict['id']}_member.datetime": time_of_marriage},
+                     inc_vals={f"inventory.{item_dict['id']}": -1})
+        utils.update(mentioned_user.id,
+                     set_vals={f"properties.{item_dict['id']}_member.id": ctx.author.id,
+                               f"properties.{item_dict['id']}_member.name": ctx.author.display_name,
+                               f"properties.{item_dict['id']}_member.datetime": time_of_marriage})
+        utils.update(ctx.author.id)
         await ctx.send(
             f"{ctx.author.mention} and {mentioned_user.mention} are now married to each other! Please don't ask them to invite you on their honeymoon")
     except asyncio.TimeoutError:

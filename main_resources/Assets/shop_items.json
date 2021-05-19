@@ -50,7 +50,8 @@
       "description": "Marry the love of your life with this cheap ring (Not Recommended) [usable]",
       "type": "ring",
       "properties": true,
-      "archive": false
+      "archive": false,
+      "id": 104
     },
     "105": {
       "name": "Mutahar Laugh [Limited]",
@@ -71,7 +72,7 @@
       "description": "Divorce someone you are married to and become a loner again! [Under development]",
       "type": "item",
       "properties": false,
-      "archive": true
+      "archive": false
     }
   },
   "by_name": {
