@@ -47,9 +47,9 @@
       "value": 20000,
       "resell": 500,
       "emoji": ":ring:",
-      "description": "Marry the love of your life with this cheap ring (Not Recommended)",
-      "type": "item",
-      "properties": false,
+      "description": "Marry the love of your life with this cheap ring (Not Recommended) [usable]",
+      "type": "ring",
+      "properties": true,
       "archive": false
     },
     "105": {
@@ -62,6 +62,16 @@
       "url": "https://www.youtube.com/watch?v=6_Ti78RgzlY",
       "properties": false,
       "archive": false
+    },
+    "106": {
+      "name": "Divorce Papers",
+      "value": 20000,
+      "resell": 1000,
+      "emoji": ":newspaper:",
+      "description": "Divorce someone you are married to and become a loner again! [Under development]",
+      "type": "item",
+      "properties": false,
+      "archive": true
     }
   },
   "by_name": {
@@ -80,6 +90,8 @@
     "quack": 103,
 
     "ring": 104,
+    "dirt": 104,
+    "dirtring": 104,
 
     "muta": 105,
     "mutahar": 105,

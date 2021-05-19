@@ -6,6 +6,7 @@ from datetime import datetime
 import discord
 import youtube_dl
 from discord.ext import commands
+from discord.ext.commands import CommandError
 
 from cogs.currency_utils.utils import currency_utils
 from main import database
@@ -17,6 +18,18 @@ properties = {}
 for doc in collection.find({}, {"properties": 1, "_id": 1}):
     if "properties" in doc:
         properties[doc["_id"]] = doc["properties"]
+
+
+def update_properties():
+    properties.clear()
+    for document in collection.find({}, {"properties": 1, "_id": 1}):
+        if "properties" in document:
+            properties[document["_id"]] = document["properties"]
+
+
+def update_user_properties(id_: int):
+    document = collection.find_one({"_id": id_}, {"properties": 1, "_id": 1})
+    properties[id_] = document["properties"]
 
 
 async def disc(bot, ctx: commands.Context, item_dict: dict):
@@ -54,25 +67,65 @@ async def notebook(bot, ctx: commands.Context, item_dict: dict):
 
 async def mom(bot, ctx: commands.Context, item_dict: dict):
     uses = random.randint(10, 50)
-    if ctx.author.id in properties:
-        if "100_uses" in properties[ctx.author.id]:
-            properties[ctx.author.id]["100_uses"] += uses
-            utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
-        else:
-            properties[ctx.author.id]["100_uses"] = uses
-            utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
-    else:
-        properties[ctx.author.id] = {"100_uses": uses}
-        utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
+    utils.update(ctx.author.id, inc_vals={"properties.100_uses": uses})
+    update_user_properties(ctx.author.id)
     await ctx.send(
         f"{ctx.author.mention} You used Joe Mama. {uses} uses were added and a total of {properties[ctx.author.id]['100_uses']} uses are left.")
 
 
-# async def ring(bot, ctx:commands.Context, item_dict: dict):
-#     converter = commands.MemberConverter
-#     message_list = ctx.message.content.replace(ctx.prefix, "").split(" ")
-#     if len(message_list) < 1
-#     mentioned_user = await converter.convert(ctx, )
+async def ring(bot, ctx: commands.Context, item_dict: dict):
+    converter = commands.MemberConverter()
+    message_list = ctx.message.content.replace(ctx.prefix, "").split(" ")
+    if len(message_list) != 3:
+        await ctx.send(f"{ctx.author.mention} Mention a user to marry them!")
+        raise CommandError
+    try:
+        mentioned_user = await converter.convert(ctx, message_list[2])
+    except:
+        await ctx.send(f"{ctx.author.mention} Couldn't find user {message_list[2]}")
+        raise CommandError
+    embed = discord.Embed(
+        title=f"{mentioned_user.display_name}, {ctx.author.display_name} has proposed you with a {item_dict['name']} "
+              f"ring! Would you like to marry them?",
+        description="React with 👍 within 15 seconds to confirm", color=discord.Colour.green())
+    embed.set_footer(text=f"Pls marry this loner", icon_url=ctx.author.avatar_url)
+    message = await ctx.send(mentioned_user.mention, embed=embed)
+    await message.add_reaction("👍")
+
+    def check(reaction, user):
+        return user.id == mentioned_user.id and str(
+            reaction.emoji) == '👍' and reaction.message.id == message.id
+
+    try:
+        await bot.wait_for('reaction_add', timeout=15.0, check=check)
+        time_of_marriage = datetime.utcnow()
+        utils.update(ctx.author.id, set_vals={"properties.104_member.id": mentioned_user.id,
+                                              "properties.104_member.name": mentioned_user.display_name,
+                                              "properties.104_member.datetime": time_of_marriage})
+        utils.update(mentioned_user.id, set_vals={"properties.104_member.id": ctx.author.id,
+                                                  "properties.104_member.name": ctx.author.display_name,
+                                                  "properties.104_member.datetime": time_of_marriage})
+        update_user_properties(mentioned_user.id)
+        update_user_properties(ctx.author.id)
+        await ctx.send(
+            f"{ctx.author.mention} and {mentioned_user.mention} are now married to each other! Please don't ask them to invite you on their honeymoon")
+    except asyncio.TimeoutError:
+        embed = discord.Embed(
+            title=f"{mentioned_user.display_name}, {ctx.author.display_name} has proposed you with a {item_dict['name']} "
+                  f"ring! Would you like to marry them?",
+            description=f"Proposal failed. I guess {mentioned_user.display_name} doesn't like you",
+            color=discord.Colour.red())
+        await message.edit(embed=embed)
+        await message.clear_reactions()
+        raise CommandError
+
+
+def properties_100(ctx: commands.Context):
+    if ctx.author.id not in properties or "100_uses" not in properties[ctx.author.id] or \
+            properties[ctx.author.id]["100_uses"] <= 0:
+        return f"{ctx.author.mention} You have 0 Joe Mama replies."
+    else:
+        return f'{ctx.author.mention} You have {properties[ctx.author.id]["100_uses"]} Joe Mama replies.'
 
 
 def properties_104(ctx: commands.Context):
@@ -85,14 +138,6 @@ def properties_104(ctx: commands.Context):
         minutes = (seconds % 3600) // 60
         return f"{ctx.author.mention} You are married to {properties[ctx.author.id]['104_member']['name']} since {days} " \
                f"days, {hours} hours and {minutes} minutes"
-
-
-def properties_100(ctx: commands.Context):
-    if ctx.author.id not in properties or "100_uses" not in properties[ctx.author.id] or \
-            properties[ctx.author.id]["100_uses"] <= 0:
-        return f"{ctx.author.mention} You have 0 Joe Mama replies."
-    else:
-        return f'{ctx.author.mention} You have {properties[ctx.author.id]["100_uses"]} Joe Mama replies.'
 
 
 async def on_message(bot: commands.Bot, message: discord.Message):

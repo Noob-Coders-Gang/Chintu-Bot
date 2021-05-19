@@ -467,8 +467,9 @@ class Currency(commands.Cog):
                         await eval(item_dict['type'] + '(self.bot, ctx, item_dict)')
                     else:
                         await ctx.send("This item cannot be used.")
-                except Exception:
-                    await ctx.send(f"Could't use {item_dict['name']}. Please report this issue using $suggest.")
+                except Exception as e:
+                    if not isinstance(e, CommandError):
+                        await ctx.send(f"Could't use {item_dict['name']}. Please report this issue using $suggest.")
                     raise CommandError
             else:
                 await ctx.send(
