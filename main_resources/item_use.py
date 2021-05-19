@@ -141,7 +141,7 @@ def properties_100(ctx: commands.Context):
 
 
 def properties_104(ctx: commands.Context):
-    if ctx.author.id not in properties or "104_member" not in properties[ctx.author.id]:
+    if ctx.author.id not in properties or "104_member" not in properties[ctx.author.id] or properties[ctx.author.id]["104_member"] is None:
         return f"{ctx.author.mention} You are not married to any user."
     else:
         del_time = datetime.utcnow() - properties[ctx.author.id]['104_member']['datetime']
