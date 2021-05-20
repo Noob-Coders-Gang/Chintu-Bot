@@ -4,5 +4,5 @@
   "monthly": 50000,
   "per_command_set": 100,
   "command_set": 5,
-  "quiz": 20
+  "quiz": 100
 }

@@ -28,7 +28,7 @@ class GitHub(commands.Cog):
             f"https://api.github.com/users/{username}/repos").json()
         embed = discord.Embed(
             title=f"Top 5 repositories of {username}", color=discord.Color.blue())
-        embed.set_thumbnail(url=user_data)
+        embed.set_thumbnail(url=user_data["avatar_url"])
         embed.set_footer(
             text=f"{username} has {user_data['public_repos']} repositories!")
         if len(repos_data) > 5:

@@ -12,17 +12,19 @@ class Info(commands.Cog):
 
     @commands.command(name="avatar")
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
-    async def avatar(self, ctx, *, avamember: Member = None):
+    async def avatar(self, ctx:commands.Context, *, member: Member = None):
         ''' Get user avatar  '''
-        userAvatarUrl = avamember.avatar_url
-        embed = Embed(title=f'{avamember} avatar!!', url=f"{userAvatarUrl}")
+        member = member or ctx.author
+        userAvatarUrl = member.avatar_url
+        embed = Embed(title=f'{member} avatar!!', url=f"{userAvatarUrl}")
         embed.set_image(url=userAvatarUrl)
         await ctx.send(embed=embed)
 
     @commands.command(name="channel_info", aliases=['channelstats'])
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
-    async def channel_info(self, ctx, channel: TextChannel):
+    async def channel_info(self, ctx:commands.Context, channel: TextChannel):
         ''' get channel stats/info '''
+        channel = channel or ctx.channel
         nsfw = self.bot.get_channel(channel.id).is_nsfw()
         news = self.bot.get_channel(channel.id).is_news()
         embed = Embed(title='Channel Infromation: ' + str(channel),
@@ -59,7 +61,7 @@ class Info(commands.Cog):
 
     @commands.command(name="user", aliases=['whois', 'userinfo'])
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
-    async def user(self, ctx, member: Member = None):
+    async def user(self, ctx:commands.Context, member: Member = None):
         ''' Get User Info '''
         if member is None:
             member = ctx.author

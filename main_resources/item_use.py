@@ -85,12 +85,12 @@ async def ring(bot, ctx: commands.Context, item_dict: dict):
         await ctx.send(f"{ctx.author.mention} Couldn't find user {message_list[2]}")
         raise CommandError
     if ctx.author.id in properties and f"{item_dict['id']}_member" in properties[ctx.author.id] and \
-            properties[ctx.author.id][f"{item_dict['id']}_member"] is not None:
+            properties[ctx.author.id][f"{item_dict['id']}_member"]["married"]:
         await ctx.send(
             f"{ctx.author.mention} You are already married! Buy and use Divorce papers from the shop to marry someone else")
         raise CommandError
     if mentioned_user.id in properties and f"{item_dict['id']}_member" in properties[mentioned_user.id] and \
-            properties[mentioned_user.id][f"{item_dict['id']}_member"] is not None:
+            properties[mentioned_user.id][f"{item_dict['id']}_member"]["married"]:
         await ctx.send(
             f"{ctx.author.mention}, {mentioned_user.display_name} is already married to someone else! Ask them to divorce their significant other using Divorce papers from the shop")
         raise CommandError
@@ -112,13 +112,14 @@ async def ring(bot, ctx: commands.Context, item_dict: dict):
         utils.update(ctx.author.id,
                      set_vals={f"properties.{item_dict['id']}_member.id": mentioned_user.id,
                                f"properties.{item_dict['id']}_member.name": mentioned_user.display_name,
+                               f"properties.{item_dict['id']}_member.married": True,
                                f"properties.{item_dict['id']}_member.datetime": time_of_marriage},
                      inc_vals={f"inventory.{item_dict['id']}": -1})
         utils.update(mentioned_user.id,
                      set_vals={f"properties.{item_dict['id']}_member.id": ctx.author.id,
                                f"properties.{item_dict['id']}_member.name": ctx.author.display_name,
+                               f"properties.{item_dict['id']}_member.married": True,
                                f"properties.{item_dict['id']}_member.datetime": time_of_marriage})
-        utils.update(ctx.author.id)
         await ctx.send(
             f"{ctx.author.mention} and {mentioned_user.mention} are now married to each other! Please don't ask them to invite you on their honeymoon")
     except asyncio.TimeoutError:
@@ -130,6 +131,9 @@ async def ring(bot, ctx: commands.Context, item_dict: dict):
         await message.edit(embed=embed)
         await message.clear_reactions()
         raise CommandError
+    finally:
+        update_user_properties(ctx.author.id)
+        update_user_properties(mentioned_user.id)
 
 
 def properties_100(ctx: commands.Context):
@@ -141,7 +145,7 @@ def properties_100(ctx: commands.Context):
 
 
 def properties_104(ctx: commands.Context):
-    if ctx.author.id not in properties or "104_member" not in properties[ctx.author.id] or properties[ctx.author.id]["104_member"] is None:
+    if ctx.author.id not in properties or "104_member" not in properties[ctx.author.id] or not properties[ctx.author.id]["104_member"]["married"]:
         return f"{ctx.author.mention} You are not married to any user."
     else:
         del_time = datetime.utcnow() - properties[ctx.author.id]['104_member']['datetime']
@@ -161,13 +165,13 @@ async def on_message(bot: commands.Bot, message: discord.Message):
             properties[mentioned_member.id][
                 "100_uses"] <= 0 or mentioned_member.id == message.author.id or message.author.id == bot.user.id:
         return
-    if "ur" in message.content.lower() or "you're" in message.content.lower() or "youre" in message.content.lower():
+    if "ur" in message.content.lower() or "you're" in message.content.lower() or "youre" in message.content.lower() or "you are" in message.content.lower():
         try:
             webhook: discord.Webhook = await message.channel.create_webhook(name=mentioned_member.name)
             await webhook.send(f"{message.author.mention} no ur mom", username=mentioned_member.name,
                                avatar_url=mentioned_member.avatar_url)
             await webhook.delete()
-        except commands.MissingPermissions:
+        except discord.errors.Forbidden:
             await message.channel.send(f"{message.author.mention} no ur mom")
         finally:
             properties[mentioned_member.id]["100_uses"] -= 1
