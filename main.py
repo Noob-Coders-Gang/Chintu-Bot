@@ -44,6 +44,7 @@ bot.before_invoke(check_class.check_before_invoke)
 @bot.event
 async def on_ready():
     change_status.start()
+    clear_game.start()
     print("Updating databases...")
     update_guilds_data(bot, guilds_data, DEFAULT_PREFIX)
     print(f'Logged in as {bot.user.name}#{bot.user.discriminator} ID = {bot.user.id}')
@@ -52,6 +53,7 @@ async def on_ready():
 
 loops = Loops(bot, custom_statuses)
 change_status = tasks.loop(seconds=60)(loops.change_status)
+clear_game = tasks.loop(seconds=10)(loops.clear_game)
 
 # --------------------------------Events--------------------------------#
 events = Events(bot, database, total_guilds_api_url, guild_prefix_storage, disabled_commands_store, DEFAULT_PREFIX,
@@ -64,6 +66,7 @@ bot.event(events.on_command_completion)
 bot.event(events.on_update_prefix)
 bot.event(events.on_add_command)
 bot.event(events.on_remove_command)
+bot.event(events.on_reaction_add)
 
 
 # --------------------------------Load Extensions/cogs--------------------------------#

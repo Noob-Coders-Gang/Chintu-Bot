@@ -255,7 +255,7 @@ class Fun(commands.Cog):
         em = discord.Embed(color=discord.Colour.blue(),
                            title="PeePee size calculator")
 
-        em.add_field(name=f"{member.display_name}s penis:eggplant:",
+        em.add_field(name=f"{member.display_name}'s penis:eggplant:",
                      value=f"8{size}D")
         await ctx.send(embed=em)
 
