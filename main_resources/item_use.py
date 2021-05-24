@@ -165,7 +165,8 @@ async def on_message(bot: commands.Bot, message: discord.Message):
             properties[mentioned_member.id][
                 "100_uses"] <= 0 or mentioned_member.id == message.author.id or message.author.id == bot.user.id:
         return
-    if "ur" in message.content.lower() or "you're" in message.content.lower() or "youre" in message.content.lower() or "you are" in message.content.lower():
+    message_contents_list = message.content.lower().split(" ")
+    if "ur" in message_contents_list or "you're" in message_contents_list or "youre" in message_contents_list or "you are" in message_contents_list:
         try:
             webhook: discord.Webhook = await message.channel.create_webhook(name=mentioned_member.name)
             await webhook.send(f"{message.author.mention} no ur mom", username=mentioned_member.name,
