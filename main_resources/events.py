@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord.ext.commands import CommandError
 
 from cogs.currency_utils.utils import currency_utils
+from cogs.utils import GameGrid
 from main_resources.ChintuAI import AskChintu
 from main_resources.functions import *
 
@@ -98,3 +99,72 @@ class Events:
             add_disabled_command(self.disabled_commands, ctx.guild.id, command_name)
         except ValueError:
             pass
+
+    async def on_reaction_add(self, reaction, user):
+        if user.id == self.bot.user.id:
+            return
+
+        message = reaction.message
+
+        if GameGrid.getGamesByUser(str(user.id)) is not None:
+            game = GameGrid.getGamesByUser(str(user.id))
+            if str(game.getMessageId()) == str(message.id):
+                if str(reaction.emoji) == '⬆':
+                    prev = game.getEmojiMessage()
+                    game.slideUp()
+                elif str(reaction.emoji) == '⬇':
+                    prev = game.getEmojiMessage()
+                    game.slideDown()
+                elif str(reaction.emoji) == '➡':
+                    prev = game.getEmojiMessage()
+                    game.slideRight()
+                elif str(reaction.emoji) == '⬅':
+                    prev = game.getEmojiMessage()
+                    game.slideLeft()
+                elif str(reaction.emoji) == '❌':
+                    msg = game.getEmojiMessage()
+                    point = game.getPoint()
+                    game.stop()
+                    await message.delete()
+                    embed = discord.Embed(title="2048 Game Over!", 
+                                          description=f"Points: {point}\n\n{msg}", 
+                                          color=discord.Color.orange())
+                    embed.set_footer(text=f'Game session of {user.name}', icon_url=user.avatar_url)
+                    await message.channel.send(embed=embed)
+                    return
+
+                await message.remove_reaction(reaction, user)
+
+                if prev == game.getEmojiMessage():
+                    return
+                game.randomNumber()
+                game.updatePoint(1)
+                msg = game.getEmojiMessage()
+
+                await message.edit(content=msg)
+
+                if game.isGameWon():
+                    asyncio.sleep(5)
+                    msg = game.getEmojiMessage()
+                    point = game.getPoint()
+                    game.stop()
+                    await message.delete()
+                    embed = discord.Embed(title="Congratulations!", 
+                                          description=f"You won the game!\nPoints: {point}\n\n{msg}", 
+                                          color=discord.Color.green())
+                    embed.set_footer(text=f'Game session of {user.name}', icon_url=user.avatar_url)
+                    await message.channel.send(embed=embed)
+                    return
+
+                if game.isGameOver():
+                    asyncio.sleep(5)
+                    msg = game.getEmojiMessage()
+                    point = game.getPoint()
+                    game.stop()
+                    await message.delete()
+                    embed = discord.Embed(title="2048 Game Over!", 
+                                          description=f"Points: {point}\n\n{msg}", 
+                                          color=discord.Color.orange())
+                    embed.set_footer(text=f'Game session of {user.name}', icon_url=user.avatar_url)
+                    await message.channel.send(embed=embed)
+                    return
