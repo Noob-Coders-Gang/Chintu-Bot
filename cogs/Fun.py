@@ -248,8 +248,10 @@ class Fun(commands.Cog):
 
     @commands.command(name="pp", aliases=['ppsize', 'size', 'penis'])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
-    async def pp(self, ctx, member: discord.Member):
+    async def pp(self, ctx, member: discord.Member = None):
         """ To check pp size 🍆"""
+        if member is None:
+            member = ctx.author
         i = random.randint(0, 40)
         size = "=" * i
         em = discord.Embed(color=discord.Colour.blue(),

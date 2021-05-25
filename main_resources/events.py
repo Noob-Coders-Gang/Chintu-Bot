@@ -1,6 +1,6 @@
 import discord
+import asyncio
 from discord.ext import commands
-from discord.ext.commands import CommandError
 
 from cogs.currency_utils.utils import currency_utils
 from cogs.utils import GameGrid
@@ -147,12 +147,14 @@ class Events:
                     asyncio.sleep(5)
                     msg = game.getEmojiMessage()
                     point = game.getPoint()
+                    coins = int((point / 2) + 1000)
                     game.stop()
                     await message.delete()
                     embed = discord.Embed(title="Congratulations!", 
-                                          description=f"You won the game!\nPoints: {point}\n\n{msg}", 
+                                          description=f"You won the game!\n**Points:** {point}\n**Coins:** {coins}\n\n{msg}", 
                                           color=discord.Color.green())
                     embed.set_footer(text=f'Game session of {user.name}', icon_url=user.avatar_url)
+                    self.utils.update_and_insert(int(user.id), inc_vals={"wallet": coins}, wallet=False)
                     await message.channel.send(embed=embed)
                     return
 
@@ -160,11 +162,13 @@ class Events:
                     asyncio.sleep(5)
                     msg = game.getEmojiMessage()
                     point = game.getPoint()
+                    coins = int(point / 2)
                     game.stop()
                     await message.delete()
                     embed = discord.Embed(title="2048 Game Over!", 
-                                          description=f"Points: {point}\n\n{msg}", 
+                                          description=f"**Points:** {point}\n**Coins:** {coins}\n\n{msg}", 
                                           color=discord.Color.orange())
                     embed.set_footer(text=f'Game session of {user.name}', icon_url=user.avatar_url)
+                    self.utils.update_and_insert(int(user.id), inc_vals={"wallet": coins}, wallet=False)
                     await message.channel.send(embed=embed)
                     return

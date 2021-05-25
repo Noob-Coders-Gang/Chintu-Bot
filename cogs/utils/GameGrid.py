@@ -24,7 +24,7 @@ def getGamesByMessage(message: str):
 
 class GameGrid:
 
-    def __init__(self, user_id: str):
+    def __init__(self, user_id: str, name: str, url: str):
         self.message_id = ''
         self.channel = ''
         self.matrix = np.array([[0, 0, 0, 0], 
@@ -32,6 +32,8 @@ class GameGrid:
                                 [0, 0, 0, 0], 
                                 [0, 0, 0, 0]])
         self.user = user_id
+        self.name = name
+        self.url = url
         self.last_update = datetime.datetime.now()
         self.point = 0
         self.running = True
