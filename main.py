@@ -59,7 +59,7 @@ clear_game = tasks.loop(seconds=10)(loops.clear_game)
 events = Events(bot, database, total_guilds_api_url, guild_prefix_storage, disabled_commands_store, DEFAULT_PREFIX,
                 ["help", "kick", "ban", "warn", "warninfo", "warns", "mute", "unmute", "clear"],
                 ChintuAI=True)
-bot.event(events.on_command_error)
+#bot.event(events.on_command_error)
 bot.event(events.on_message)
 bot.event(events.on_guild_join)
 bot.event(events.on_command_completion)
