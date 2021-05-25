@@ -26,7 +26,7 @@ class Minigames(commands.Cog):
             await message.add_reaction('❌')
             return
 
-        game = GameGrid.GameGrid(f'{ctx.author.id}')
+        game = GameGrid.GameGrid(str(ctx.author.id), str(ctx.author.name), str(ctx.author.avatar_url))
         game.start()
 
         message = await ctx.send(game.getEmojiMessage())
