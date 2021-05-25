@@ -2,12 +2,11 @@ import discord
 from discord.ext import commands
 from itertools import cycle
 from cogs.utils import GameGrid
-from main import database
 from cogs.currency_utils.utils import currency_utils
 
 
 class Loops:
-    def __init__(self, bot: commands.Bot, custom_statuses):
+    def __init__(self, bot: commands.Bot, custom_statuses, database):
         self.bot = bot
         self.custom_statuses = custom_statuses
         self.collection = database["currency"]

@@ -51,7 +51,7 @@ async def on_ready():
 
 # --------------------------------Task loops--------------------------------#
 
-loops = Loops(bot, custom_statuses)
+loops = Loops(bot, custom_statuses, database)
 change_status = tasks.loop(seconds=60)(loops.change_status)
 clear_game = tasks.loop(seconds=10)(loops.clear_game)
 
