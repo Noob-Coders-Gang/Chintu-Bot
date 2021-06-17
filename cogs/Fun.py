@@ -201,7 +201,7 @@ class Fun(commands.Cog):
     async def f(self, ctx):
         """ Press F to pay respect 🇫 """
         try:
-            await ctx.delete()
+            await ctx.message.delete()
         except:
             pass
         finally:
