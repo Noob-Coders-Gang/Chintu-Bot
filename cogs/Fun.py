@@ -198,11 +198,15 @@ class Fun(commands.Cog):
 
     @commands.command(name="f")
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
-    async def f(self, ctx, *, text: commands.clean_content = None):
+    async def f(self, ctx):
         """ Press F to pay respect 🇫 """
-        hearts = ["❤", "💛", "💚", "💙", "💜"]
-        reason = f"for **{text}** " if text else ""
-        await ctx.send(f"**{ctx.author.name}** has paid their respect {reason}{random.choice(hearts)}")
+        try:
+            await ctx.delete()
+        except:
+            pass
+        finally:
+            await ctx.send(f"**{ctx.author.mention}** has paid their respects")
+        
 
     @commands.command(name="coinflip", aliases=["flip", "coin"])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
