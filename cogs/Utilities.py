@@ -149,6 +149,7 @@ class Utility(commands.Cog):
             self.emojis = {e.name.lower(): str(e) for e in self.bot.emojis}
         message = re.sub(r':[^:]+:', self.get_emoji, message, count=0)
         webhooks = await ctx.channel.webhooks()
+        await ctx.message.delete()
         if len(webhooks) > 0:
             for webhook in webhooks:
                 try:
