@@ -2,6 +2,7 @@ import math
 
 import asyncio
 import os
+import re
 
 import discord
 from discord.ext import commands
@@ -24,6 +25,7 @@ class Utility(commands.Cog):
     ''' Utility Commands '''
 
     def __init__(self, bot: commands.Bot):
+        self.emojis = None
         self.bot = bot
         self.count = 0
         self.cmd_list = []
@@ -81,7 +83,7 @@ class Utility(commands.Cog):
 
     @commands.command(name="remove")
     @commands.has_permissions(manage_guild=True)
-    async def remove(self, ctx, command_name:str):
+    async def remove(self, ctx, command_name: str):
         """Remove a command from your server"""
         if command_name in self.cmd_list:
             add_cmd_to_collection(database["guilds_data"], ctx.guild.id, command_name, os.getenv("PREFIX"))
@@ -132,6 +134,35 @@ class Utility(commands.Cog):
         except asyncio.TimeoutError:
             await ctx.send("Cancelled")
             return
+
+    def get_emoji(self, match):
+        try:
+            return self.emojis[str(match.group()).replace(":", "")]
+        except KeyError:
+            return str(match.group())
+
+    @commands.command(name="nitro", aliases=["n"])
+    async def nitro(self, ctx: commands.Context, *, message):
+        """Use any emote that Chintu has access to in your message!"""
+        sent = False
+        if self.emojis is None:
+            self.emojis = {e.name.lower(): str(e) for e in self.bot.emojis}
+        message = re.sub(r':[^:]+:', self.get_emoji, message, count=0)
+        webhooks = await ctx.channel.webhooks()
+        if len(webhooks) > 0:
+            for webhook in webhooks:
+                try:
+                    await webhook.send(message, username=ctx.author.name, avatar_url=ctx.author.avatar_url)
+                    sent = True
+                    break
+                except discord.errors.InvalidArgument:
+                    continue
+            if not sent:
+                webhook = await ctx.channel.create_webhook(name=self.bot.user.name)
+                await webhook.send(message, username=ctx.author.name, avatar_url=ctx.author.avatar_url)
+        else:
+            webhook = await ctx.channel.create_webhook(name=ctx.author.name)
+            await webhook.send(message, username=ctx.author.name, avatar_url=ctx.author.avatar_url)
 
 
 def setup(bot):
