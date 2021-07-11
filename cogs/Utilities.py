@@ -190,6 +190,7 @@ class Utility(commands.Cog):
                 await ctx.send("Your default nitro status is OFF")
 
     @commands.command(name="server_nitro")
+    @commands.has_permissions(manage_guild=True)
     async def server_nitro(self, ctx: commands.Context, set_value: str):
         """Turn on or off default nitro for your server"""
         set_value = set_value.lower()
