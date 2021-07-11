@@ -1,10 +1,7 @@
-import math
-
 import asyncio
-import os
+import math
 import re
 
-import discord
 from discord.ext import commands
 
 from main import database
@@ -29,6 +26,8 @@ class Utility(commands.Cog):
         self.bot = bot
         self.count = 0
         self.cmd_list = []
+        self.user_data = database["user_data"]
+        self.guild_data = database["guilds_data"]
         for cmd in bot.commands:
             # Get all commands registered with the bot
             self.cmd_list.append(cmd.name)
@@ -164,6 +163,56 @@ class Utility(commands.Cog):
         else:
             webhook = await ctx.channel.create_webhook(name=ctx.author.name)
             await webhook.send(message, username=ctx.author.name, avatar_url=ctx.author.avatar_url)
+
+    @commands.command(name="default_nitro")
+    async def default_nitro(self, ctx: commands.Context, set_value: str = None):
+        """Turn on or off default nitro, converts emojis in your messages to emojis if your server allows it"""
+        set_value = set_value.lower()
+        current_status = self.user_data.find_one({"_id": ctx.author.id}, {"nitro": 1})
+        if set_value == "on" or set_value == "true":
+            if current_status and "nitro" in current_status and current_status["nitro"]:
+                await ctx.send("Your default nitro is already on")
+            else:
+                self.user_data.update_one({"_id": ctx.author.id}, {"$set": {"nitro": True}}, upsert=True)
+                self.bot.dispatch("user_data_update", ctx.author.id)
+                await ctx.send("Your default nitro has been turned on!")
+        elif set_value == "off" or set_value == "false":
+            if current_status and "nitro" in current_status and current_status["nitro"]:
+                self.user_data.update_one({"_id": ctx.author.id}, {"$set": {"nitro": False}}, upsert=True)
+                self.bot.dispatch("user_data_update", ctx.author.id)
+                await ctx.send("Your default nitro has been turned off!")
+            else:
+                await ctx.send("Your default nitro is already off")
+        else:
+            if current_status and "nitro" in current_status and current_status["nitro"]:
+                await ctx.send("Your default nitro status is ON")
+            else:
+                await ctx.send("Your default nitro status is OFF")
+
+    @commands.command(name="server_nitro")
+    async def server_nitro(self, ctx: commands.Context, set_value: str):
+        """Turn on or off default nitro for your server"""
+        set_value = set_value.lower()
+        current_status = self.guild_data.find_one({"_id": ctx.guild.id}, {"nitro": 1})
+        if set_value == "on" or set_value == "true":
+            if current_status and "nitro" in current_status and current_status["nitro"]:
+                await ctx.send("Default nitro for your server is already on")
+            else:
+                self.guild_data.update_one({"_id": ctx.guild.id}, {"$set": {"nitro": True}}, upsert=True)
+                self.bot.dispatch("guild_data_update", ctx.guild.id)
+                await ctx.send("Default nitro for your server has been turned on!")
+        elif set_value == "off" or set_value == "false":
+            if current_status and "nitro" in current_status and current_status["nitro"]:
+                self.guild_data.update_one({"_id": ctx.guild.id}, {"$set": {"nitro": False}}, upsert=True)
+                self.bot.dispatch("guild_data_update", ctx.guild.id)
+                await ctx.send("Default nitro for your server has been turned off!")
+            else:
+                await ctx.send("Default nitro for your server is already off")
+        else:
+            if current_status and "nitro" in current_status and current_status["nitro"]:
+                await ctx.send("Default nitro for your server is ON")
+            else:
+                await ctx.send("Default nitro for your server OFF")
 
 
 def setup(bot):

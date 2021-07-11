@@ -60,7 +60,7 @@ events = Events(bot, database, total_guilds_api_url, guild_prefix_storage, disab
                 ["help", "kick", "ban", "warn", "warninfo", "warns", "mute", "unmute", "clear"],
                 ChintuAI=True)
 
-bot.event(events.on_command_error)
+# bot.event(events.on_command_error)
 bot.event(events.on_message)
 bot.event(events.on_guild_join)
 bot.event(events.on_command_completion)
@@ -68,6 +68,8 @@ bot.event(events.on_update_prefix)
 bot.event(events.on_add_command)
 bot.event(events.on_remove_command)
 bot.event(events.on_reaction_add)
+bot.event(events.on_user_data_update)
+bot.event(events.on_guild_data_update)
 
 
 # --------------------------------Load Extensions/cogs--------------------------------#
