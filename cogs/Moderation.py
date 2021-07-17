@@ -147,7 +147,7 @@ class Moderation(commands.Cog):
         mutedRole = discord.utils.get(ctx.guild.roles, name="Muted")
         if not mutedRole:
             bot_integration_role = ctx.guild.me.roles[-1]
-            mutedRole = await ctx.guild.create_role(name="Muted", color=0x000000)
+            mutedRole = await ctx.guild.create_role(name="Muted", color=0x010101)
             await mutedRole.edit(position=bot_integration_role.position-1)
             for channel in ctx.guild.channels:
                 await channel.set_permissions(mutedRole, send_messages=False)
