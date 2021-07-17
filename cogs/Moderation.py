@@ -12,19 +12,22 @@ class BannedUser(commands.Converter):
     async def convert(self, ctx, arg):
         banned = [e.user for e in await ctx.guild.bans()]
         if banned:
-            user = find(lambda u: str(u) == arg, banned)
+            user = find(lambda u: str(u) == str(arg), banned)
             if user:
                 return user
-            else:
-                raise commands.BadArgument
-
+            elif str(arg).isdigit():
+                user = find(lambda u: u.id == int(arg), banned)
+                if user:
+                    return user
+                else:
+                    raise commands.BadArgument
 
 
 class Moderation(commands.Cog):
-    ''' Moderator Commands '''
+    """ Moderator Commands """
 
-    def __init__(self, commands: commands.Bot):
-        self.commands = commands
+    def __init__(self, bot: commands.Bot):
+        self.bot = bot
         self.warn_collection = main.database["warns"]
 
     @commands.command(name="warn")
@@ -114,11 +117,7 @@ class Moderation(commands.Cog):
     @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
     async def kick(self, ctx, member: discord.Member, *, reason):
         """Kicks the mentioned member"""
-        embed = discord.Embed(
-            description=str(
-                str(member) + " is Kicked | reason = " + reason),
-            colour=discord.Colour.green()
-        )
+        embed = discord.Embed(title=str(str(member) + " is Kicked | reason = " + reason), colour=discord.Colour.green())
         await member.send(embed=embed)
         await member.kick(reason=reason)
 
@@ -129,16 +128,34 @@ class Moderation(commands.Cog):
         """Bans the mentioned member"""
         if not reason:
             reason = "No reason was provided"
-        embed = discord.Embed(
-            description=str(member) + " has been banned | reason = " + reason,
-            colour=discord.Colour.green()
-        )
+        await member.ban(reason=reason)
+        embed_guild = discord.Embed(title=str(member) + " has been banned | reason = " + reason,
+                                    colour=discord.Colour.green())
+        embed = discord.Embed(title=f"{str(member)}, You have been banned from {str(ctx.guild)}",
+                              color=discord.Color.red())
+        await ctx.send(embed=embed_guild)
         try:
             await member.send(embed=embed)
         except Exception:
-            pass
-        finally:
-            await member.ban(reason=reason)
+            return
+
+    @commands.command(name="unban")
+    @commands.has_permissions(ban_members=True)
+    @commands.cooldown(rate=1, per=3.0, type=commands.BucketType.user)
+    async def unban(self, ctx, user: BannedUser, reason: str = None):
+        """Unbans the mentioned member"""
+        if not reason:
+            reason = "No reason was provided"
+        await ctx.guild.unban(user, reason=reason)
+        embed_guild = discord.Embed(title=f"{str(user)} has been unbanned{' | reason = ' + reason if reason else ''}",
+                                    colour=discord.Colour.green())
+        embed = discord.Embed(title=f"{str(user)}, You have been banned from {str(ctx.guild)}",
+                              color=discord.Colour.red())
+        await ctx.send(embed=embed_guild)
+        try:
+            await user.send(embed=embed)
+        except Exception:
+            return
 
     @commands.command(name="mute")
     @commands.has_permissions(manage_roles=True)
@@ -148,7 +165,7 @@ class Moderation(commands.Cog):
         if not mutedRole:
             bot_integration_role = ctx.guild.me.roles[-1]
             mutedRole = await ctx.guild.create_role(name="Muted", color=0x010101)
-            await mutedRole.edit(position=bot_integration_role.position-1)
+            await mutedRole.edit(position=bot_integration_role.position - 1)
             for channel in ctx.guild.channels:
                 await channel.set_permissions(mutedRole, send_messages=False)
         if not reason:
@@ -170,10 +187,7 @@ class Moderation(commands.Cog):
         Muted = discord.utils.get(ctx.guild.roles, name="Muted")
         await member.remove_roles(Muted)
         embed = discord.Embed(
-            description=str(
-                str(member) + " has been Unmuted | reason = " + reason),
-            colour=discord.Colour.green()
-        )
+            title=str(str(member) + " has been Unmuted | reason = " + reason), colour=discord.Colour.green())
         await member.send(embed=embed)
 
     @commands.command(name="clear", aliases=["purge"])
