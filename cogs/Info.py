@@ -65,8 +65,8 @@ class Info(commands.Cog):
         ''' Get User Info '''
         if member is None:
             member = ctx.author
-        pos = sum(
-            m.joined_at < member.joined_at for m in ctx.guild.members if m.joined_at is not None)
+        # pos = sum(m.joined_at < member.joined_at for m in ctx.guild.members if m.joined_at is not None)
+        #TODO: will not work without enabling members intent
         roles = [role for role in member.roles]
         embed = Embed(color=Colour.gold(),
                       timestamp=datetime.datetime.utcnow())
@@ -91,7 +91,7 @@ class Info(commands.Cog):
         for role in roles:
             display_roles += role.mention
         embed.add_field(name=f"Roles ({len(roles)})", value=f"{display_roles}")
-        embed.add_field(name='Join position', value=f"{pos}")
+        # embed.add_field(name='Join position', value=f"{pos}") #TODO: will not work without enabling members intent
         embed.set_footer(icon_url=member.avatar_url,
                          text=f'Requested By: {ctx.author.name}')
         await ctx.send(embed=embed)
