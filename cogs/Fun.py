@@ -244,6 +244,7 @@ class Fun(commands.Cog):
         await ctx.send(f'{user.display_name} {random.choice(kills)}')
 
     @commands.command(name="roast")
+    @commands.cooldown(rate=1, per=1, type=commands.BucketType.user)
     async def roast(self, ctx, user: discord.Member = None):
         """ roast someone 🍳"""
         if user is None:
