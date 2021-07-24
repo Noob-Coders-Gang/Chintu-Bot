@@ -80,16 +80,13 @@ class Chess(commands.Cog):
 
     @chess.command(name="play")
     async def play(self, ctx: Context, level: int, color: str = "white"):
-        print("ok")
         dump_channel = self.bot.get_channel(int(os.getenv("DUMP_CHANNEL", "868392499348144180")))
         WHITE = berserk.Color.WHITE
         BLACK = berserk.Color.BLACK
         level, color, headers, board = setup_game(ctx, level, color)
         game_dict = self.utils.create_ai_game(level, color)
         game_id = game_dict["id"]
-        print("sneding")
         message = await send_attachment_embed(ctx, dump_channel, **self.utils.render_board(board, headers))
-        print("ok done")
         looper = Loop_creator(self.bot, self.client, game_id)
         looper.start_gameState_listener.start()
 
