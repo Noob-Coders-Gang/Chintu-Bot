@@ -16,5 +16,5 @@ beautifulsoup4~=4.9.3
 pynacl
 youtube_dl
 berserk
-python-chess
+python-chess==0.31.4
 cairosvg
