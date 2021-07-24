@@ -42,7 +42,13 @@ class Chess(commands.Cog):
                 if str(reaction.emoji) == "▶":
                     if position_index < len(positions)-1:
                         position_index += 1
-                        embed, image_file = self.utils.create_position_embed(game, positions[position_index].board())
+                        if position_index == len(positions)-1:
+                            embed, image_file = self.utils.create_position_embed(game,
+                                                                                 positions[position_index].board(),
+                                                                                 end=True)
+                        else:
+                            embed, image_file = self.utils.create_position_embed(game,
+                                                                                 positions[position_index].board())
                         dump_message = await dump_channel.send(file=image_file)
                         await message.edit(embed=embed.set_image(url=dump_message.attachments[0].url))
                 elif str(reaction.emoji) == "◀":

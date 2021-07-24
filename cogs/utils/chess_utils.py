@@ -33,13 +33,13 @@ class ChessUtils:
         cairosvg.svg2png(file_obj=io.StringIO(str(boardsvg)), write_to=f"move{ply}.png")
 
     @classmethod
-    def create_position_embed(cls, game: chess.pgn.Game, board: chess.Board):
+    def create_position_embed(cls, game: chess.pgn.Game, board: chess.Board, end=False):
         board_svg = chess.svg.board(board)
         png_bytes = cairosvg.svg2png(file_obj=io.StringIO(str(board_svg)))
         file = discord.File(io.BytesIO(png_bytes), filename="chess.png")
         embed = discord.Embed(
             title=f":white_circle: {game.headers['White']}({game.headers['WhiteElo']}) vs. "
                   f":black_circle: {game.headers['Black']}({game.headers['BlackElo']})",
-            description=f"Event: {game.headers['Event']}"
+            description=f"Event: {game.headers['Event']} | Result: {game.headers['Result']}{' | End of game' if end else ''}"
         )
         return embed, file
