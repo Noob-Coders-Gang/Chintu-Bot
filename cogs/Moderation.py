@@ -5,6 +5,7 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 from discord.utils import find
+from cogs.utils.db_utils import db_utils
 import main
 
 
@@ -29,6 +30,7 @@ class Moderation(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.warn_collection = main.database["warns"]
+        self.db_util = db_utils(main.database["warns"])
 
     @commands.command(name="warn")
     @commands.has_permissions(kick_members=True)
@@ -37,26 +39,23 @@ class Moderation(commands.Cog):
         if reason is None:
             reason = "No reason was provided"
         warn_id = random.randint(10000000, 99999999)
-        check_repeat_dict = self.warn_collection.find_one({"_id": warn_id})
-        while check_repeat_dict:
+        while self.warn_collection.find_one({"_id": warn_id}):
             warn_id = random.randint(10000000, 9999999)
-            check_repeat_dict = self.warn_collection.find_one({"_id": warn_id})
-        warn_dict = {
-            "_id": warn_id,
-            "guild_id": ctx.guild.id,
-            "member_id": warned_member.id,
-            "member_name": warned_member.name,
-            "reason": reason,
-            "message_id": ctx.message.id,
-            "moderator_id": ctx.author.id,
-            "moderator_name": ctx.author.name,
-            "channel_id": ctx.channel.id,
-            "time": datetime.utcnow().timetuple()
-        }
-        self.warn_collection.insert_one(warn_dict)
+        self.db_util.initialize().add(
+            _id=warn_id,
+            guild_id=ctx.guild.id,
+            member_id=warned_member.id,
+            member_name=warned_member.name,
+            reason=reason,
+            message_id=ctx.message.id,
+            moderator_id=ctx.author.id,
+            moderator_name=ctx.author.name,
+            channel_id=ctx.channel.id,
+            time=datetime.utcnow().timetuple()
+        ).insert_one()
         try:
             user_embed = discord.Embed(title=f"You have been warned in {ctx.guild.name}",
-                                       description=f"Reason: {reason}", color=discord.Colour.orange())
+                                       description=f"Reason: {reason} | ID:{warn_id}", color=discord.Colour.orange())
             await warned_member.send(embed=user_embed)
             channel_embed = discord.Embed(title=f"{warned_member.name} has been warned",
                                           description=f"Reason: {reason}", color=discord.Colour.orange())
@@ -65,7 +64,7 @@ class Moderation(commands.Cog):
         except Exception:
             channel_embed = discord.Embed(
                 title=f"Warning for {warned_member.name} has been logged. I couldn't DM them.",
-                description=f"Reason: {reason}", color=discord.Colour.orange())
+                description=f"Reason: {reason} | ID:{warn_id}", color=discord.Colour.orange())
             channel_embed.set_footer(text=f"Warned by {ctx.author.name}", icon_url=ctx.author.avatar_url)
             await ctx.send(embed=channel_embed)
 

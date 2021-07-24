@@ -3,7 +3,7 @@ import re
 
 from discord.ext import commands
 
-from cogs.currency_utils.utils import currency_utils
+from cogs.utils.db_utils import db_utils, create_dict
 from cogs.utils import GameGrid
 from main_resources.ChintuAI import AskChintu
 from main_resources.functions import *
@@ -44,7 +44,15 @@ class Events:
         self.database = database
         self.infinite_use_commands = infinite_use_commands
         self.total_guilds_api_url = total_guilds_api_url
-        self.utils = currency_utils(database["currency"])
+        self.db_utils = db_utils(database["currency"],
+                                 wallet=0,
+                                 bank=0,
+                                 bank_limit=0,
+                                 commands=0,
+                                 inventory=None,
+                                 t_daily=0,
+                                 t_weekly=0,
+                                 t_monthly=0)
         self.ChintuAI = ChintuAI
         self.guild_prefix_store = guild_prefix_store
         self.default_prefix = default_prefix
@@ -156,7 +164,9 @@ class Events:
 
     async def on_command_completion(self, ctx: commands.Context):
         if ctx.command.name not in self.infinite_use_commands:
-            self.utils.update_and_insert(ctx.author.id, inc_vals={"commands": 1}, commands=False)
+            self.db_utils.initialize_template().add_operators(
+                inc=create_dict(commands=1)
+            ).upsert_from_template(create_dict(_id=ctx.author.id), commands=0)
 
     async def on_update_prefix(self, ctx, prefix):
         update_guild_storage(self.guild_prefix_store, ctx.guild.id, prefix)
@@ -228,7 +238,9 @@ class Events:
                                           description=f"You won the game!\n**Points:** {point}\n**Coins:** {coins}\n\n{msg}",
                                           color=discord.Color.green())
                     embed.set_footer(text=f'Game session of {user.name}', icon_url=user.avatar_url)
-                    self.utils.update_and_insert(int(user.id), inc_vals={"wallet": coins}, wallet=False)
+                    self.db_utils.initialize_template().add_operators(
+                        inc=create_dict(wallet=coins)
+                    ).upsert_from_template(create_dict(_id=int(user.id)), wallet=0)
                     await message.channel.send(embed=embed)
                     return
 
@@ -243,6 +255,8 @@ class Events:
                                           description=f"**Points:** {point}\n**Coins:** {coins}\n\n{msg}",
                                           color=discord.Color.orange())
                     embed.set_footer(text=f'Game session of {user.name}', icon_url=user.avatar_url)
-                    self.utils.update_and_insert(int(user.id), inc_vals={"wallet": coins}, wallet=False)
+                    self.db_utils.initialize_template().add_operators(
+                        inc=create_dict(wallet=coins)
+                    ).upsert_from_template(create_dict(_id=int(user.id)), wallet=0)
                     await message.channel.send(embed=embed)
                     return

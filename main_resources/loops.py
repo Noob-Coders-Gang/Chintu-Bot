@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 from itertools import cycle
 from cogs.utils import GameGrid
-from cogs.currency_utils.utils import currency_utils
+from cogs.utils.currency_utils import currency_utils
 
 
 class Loops:

@@ -1,12 +1,13 @@
 from discord.ext import commands
 from cogs.utils import GameGrid
 
+
 class Minigames(commands.Cog):
     """Minigames"""
 
     def __init__(self, bot):
         self.bot = bot
-    
+
     @commands.command(name="2048")
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
     async def _2048(self, ctx):
@@ -39,6 +40,7 @@ class Minigames(commands.Cog):
         await message.add_reaction('➡')
         await message.add_reaction('⬅')
         await message.add_reaction('❌')
+
 
 def setup(bot):
     bot.add_cog(Minigames(bot))

@@ -8,7 +8,7 @@ import youtube_dl
 from discord.ext import commands
 from discord.ext.commands import CommandError
 
-from cogs.currency_utils.utils import currency_utils
+from cogs.utils.currency_utils import currency_utils
 from main import database
 
 collection = database["currency"]

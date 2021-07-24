@@ -36,7 +36,7 @@ def get_memes(subreddit):
 
 
 class Memes(commands.Cog):
-    ''' Meme commads '''
+    """ Meme commads """
 
     def __init__(self, commands):
         self.commands = commands
