@@ -5,6 +5,7 @@ asyncio~=3.4.3
 python-dotenv~=0.17.1
 requests~=2.25.1
 discord~=1.0.1
+discord-components==1.1.4
 numpy~=1.19.5
 keras~=2.4.3
 nltk~=3.6.2
