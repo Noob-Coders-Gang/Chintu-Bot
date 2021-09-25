@@ -43,59 +43,59 @@ class Minigames(commands.Cog):
 
     @commands.command(aliases=['rps'])
     async def rockpaperscissors(self, ctx):
-    ch1 = ["Rock","Scissors","Paper"]
-    comp = choice(ch1)
+        ch1 = ["Rock","Scissors","Paper"]
+        comp = choice(ch1)
     
-    yet = discord.Embed(title = f"{ctx.author.display_name}'s Rock Paper Scissors Game!", description = f"Status: You haven't clicked on any button yet!", color =  ctx.author.color)
+        yet = discord.Embed(title = f"{ctx.author.display_name}'s Rock Paper Scissors Game!", description = f"Status: You haven't clicked on any button yet!", color =  ctx.author.color)
     
-    win = discord.Embed(title = f"{ctx.author.display_name}, You Won!", description = f"Status: **You have won!** Bot chose {comp}", color =  0x00FF00)
+        win = discord.Embed(title = f"{ctx.author.display_name}, You Won!", description = f"Status: **You have won!** Bot chose {comp}", color =  0x00FF00)
     
-    out = discord.Embed(title = f"{ctx.author.display_name},  You did not click on time!", description = f"Status: **Timed Out!**", color =  discord.Colour.red())
+        out = discord.Embed(title = f"{ctx.author.display_name},  You did not click on time!", description = f"Status: **Timed Out!**", color =  discord.Colour.red())
     
-    lost = discord.Embed(title = f"{ctx.author.display_name}, You Lost!!", description = f"Status: **You have Lost!** Bot had chosen {comp}", color =  discord.Color.red())
+        lost = discord.Embed(title = f"{ctx.author.display_name}, You Lost!!", description = f"Status: **You have Lost!** Bot had chosen {comp}", color =  discord.Color.red())
   
-    tie = discord.Embed(title = f"{ctx.author.display_name}, It was a Tie!", description = f"Status: **Tie!**, Bot had chosen {comp}", color =  ctx.author.color)
-    m = await ctx.send(
+        tie = discord.Embed(title = f"{ctx.author.display_name}, It was a Tie!", description = f"Status: **Tie!**, Bot had chosen {comp}", color =  ctx.author.color)
+        m = await ctx.send(
         embed=yet,
         components=[[Button(style=1, label="Rock"),Button(style=3, label="Paper"),Button(style=ButtonStyle.red, label="Scissors")]
         ],
     )
 
-    def check(res):
-        return ctx.author == res.user and res.channel == ctx.channel
+        def check(res):
+            return ctx.author == res.user and res.channel == ctx.channel
 
-    try:
-        res = await client.wait_for("button_click", check=check, timeout=15)
-        player = res.component.label
+        try:
+            res = await client.wait_for("button_click", check=check, timeout=15)
+            player = res.component.label
         
-        if player==comp:
-          await m.edit(embed=tie,components=[])
+            if player==comp:
+                await m.edit(embed=tie,components=[])
           
-        if player=="Rock" and comp=="Paper":
-          await m.edit(embed=lost,components=[])
+            if player=="Rock" and comp=="Paper":
+                await m.edit(embed=lost,components=[])
           
-        if player=="Rock" and comp=="Scissors":
-          await m.edit(embed=win,components=[])
+            if player=="Rock" and comp=="Scissors":
+                await m.edit(embed=win,components=[])
         
         
-        if player=="Paper" and comp=="Rock":
-          await m.edit(embed=win,components=[])
+            if player=="Paper" and comp=="Rock":
+                await m.edit(embed=win,components=[])
           
-        if player=="Paper" and comp=="Scissors":
-          await m.edit(embed=lost,components=[])
+            if player=="Paper" and comp=="Scissors":
+                await m.edit(embed=lost,components=[])
           
           
-        if player=="Scissors" and comp=="Rock":
-          await m.edit(embed=lost,components=[])
+            if player=="Scissors" and comp=="Rock":
+                await m.edit(embed=lost,components=[])
           
-        if player=="Scissors" and comp=="Paper":
-          await m.edit(embed=win,components=[])
+            if player=="Scissors" and comp=="Paper":
+                await m.edit(embed=win,components=[])
         
 
-    except TimeoutError:
-        await m.edit(
-          embed=out,
-          components=[],
-            )       
+        except TimeoutError:
+            await m.edit(
+            embed=out,
+            components=[],
+                )       
 def setup(bot):
     bot.add_cog(Minigames(bot))
