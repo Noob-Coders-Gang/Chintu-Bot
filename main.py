@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
+from discord_components import *
 
 from main_resources.events import Events
 from main_resources.functions import *
@@ -45,6 +46,7 @@ bot.before_invoke(check_class.check_before_invoke)
 async def on_ready():
     change_status.start()
     clear_game.start()
+    DiscordComponents(client)
     print("Updating databases...")
     update_guilds_data(bot, guilds_data, DEFAULT_PREFIX)
     print(f'Logged in as {bot.user.name}#{bot.user.discriminator} ID = {bot.user.id}')
