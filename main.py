@@ -1,25 +1,23 @@
-import os
 import discord
 from discord.ext import commands, tasks
-from dotenv import load_dotenv
+import config
 
 from main_resources.events import Events
 from main_resources.functions import *
 from main_resources.loops import Loops
 
 # --------------------------------Variables--------------------------------#
-
-load_dotenv()  # Load env to initialize all dataset
+keys = config.keys()
 
 # The url for updating server count.
-total_guilds_api_url = os.getenv('TOTAL_GUILDS_API_URI')
-database = create_database_connection(os.getenv('MONGODB_URL'))
+total_guilds_api_url = keys.TOTAL_GUILDS_API_URI
+database = create_database_connection(keys.MONGODB_URL)
 guilds_data = database['guilds_data']
 guild_prefix_storage = create_guild_store(guilds_data)
 disabled_commands_store = create_disabled_commands_store(guilds_data)
 # ---------------------------------Prefix----------------------------------#
 
-DEFAULT_PREFIX = os.getenv('PREFIX')
+DEFAULT_PREFIX = keys.PREFIX
 
 
 # Get prefix per server
@@ -34,8 +32,10 @@ def get_prefix(bot, message: discord.Message):
 
 # -----------------------------------Bot-----------------------------------#
 
-bot = commands.Bot(command_prefix=get_prefix, help_command=None, case_insensitive=True)
-custom_statuses = [f'{DEFAULT_PREFIX}help', 'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
+bot = commands.Bot(command_prefix=get_prefix,
+                   help_command=None, case_insensitive=True)
+custom_statuses = [f'{DEFAULT_PREFIX}help',
+                   'WhiteHatJr SEO', ' with wolf gupta', 'ChintuAI']
 check_class = before_invoke(disabled_commands_store)
 bot.before_invoke(check_class.check_before_invoke)
 
@@ -47,7 +47,8 @@ async def on_ready():
     clear_game.start()
     print("Updating databases...")
     update_guilds_data(bot, guilds_data, DEFAULT_PREFIX)
-    print(f'Logged in as {bot.user.name}#{bot.user.discriminator} ID = {bot.user.id}')
+    print(
+        f'Logged in as {bot.user.name}#{bot.user.discriminator} ID = {bot.user.id}')
 
 # --------------------------------Task loops--------------------------------#
 
@@ -57,7 +58,8 @@ clear_game = tasks.loop(seconds=10)(loops.clear_game)
 
 # --------------------------------Events--------------------------------#
 events = Events(bot, database, total_guilds_api_url, guild_prefix_storage, disabled_commands_store, DEFAULT_PREFIX,
-                ["help", "kick", "ban", "warn", "warninfo", "warns", "mute", "unmute", "clear"],
+                ["help", "kick", "ban", "warn", "warninfo",
+                    "warns", "mute", "unmute", "clear"],
                 ChintuAI=True)
 
 bot.event(events.on_command_error)
@@ -85,8 +87,11 @@ def load_extensions(fun_bot, unloaded_cogs: list):
 
 if __name__ == '__main__':
     print("Loading extensions...")
-    load_extensions(bot, ["Utilities.py", "Help.py"])
+    cogsinf = config.cogs()
+    load_extensions(bot, cogsinf.UNLOADED)
     bot.load_extension("cogs.Utilities")
     bot.load_extension("cogs.Help")
     print("Logging in...")
-    bot.run(os.getenv("TOKEN"))
+    import keepalive
+    keepalive.keep_alive()
+    bot.run(keys.TOKEN)

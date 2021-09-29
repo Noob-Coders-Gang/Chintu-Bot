@@ -15,6 +15,8 @@ from discord import Member
 from discord.ext import commands
 from discord.ext.commands import command
 
+import config
+
 roasts = json.loads(
     open('./main_resources/Assets/roast.json', encoding='utf-8').read())['roasts']
 kills = json.loads(open('./main_resources/Assets/kill.json',
@@ -32,7 +34,8 @@ class Fun(commands.Cog):
     async def gsearch(self, ctx: discord.ext.commands.Context, *, query):
         """Sends top google search result with page description"""
         searchInput = "https://google.com/search?q=" + \
-                      parse.quote(query) + "&num=2"  # Query url for top 2 results
+                      parse.quote(query) + \
+            "&num=2"  # Query url for top 2 results
         res = requests.get(searchInput)  # Gets the google search results page
         # Parses the google search results page
         soup = BeautifulSoup(res.text, "html.parser")
@@ -155,7 +158,8 @@ class Fun(commands.Cog):
                 f"I would love to give beer to the bot **{ctx.author.name}**, but I don't think it will respond to you :/")
 
         beer_offer = f"**{user.name}**, you got a 🍺 offer from **{ctx.author.name}**"
-        beer_offer = beer_offer + f"\n\n**Reason:** {reason}" if reason else beer_offer
+        beer_offer = beer_offer + \
+            f"\n\n**Reason:** {reason}" if reason else beer_offer
         msg = await ctx.send(beer_offer)
 
         def reaction_check(m):
@@ -173,7 +177,8 @@ class Fun(commands.Cog):
         except discord.Forbidden:
             # Yeah so, bot doesn't have reaction permission, drop the "offer" word
             beer_offer = f"**{user.name}**, you got a 🍺 from **{ctx.author.name}**"
-            beer_offer = beer_offer + f"\n\n**Reason:** {reason}" if reason else beer_offer
+            beer_offer = beer_offer + \
+                f"\n\n**Reason:** {reason}" if reason else beer_offer
             await msg.edit(content=beer_offer)
 
     @commands.command(name="howhot", aliases=["hotcalc", "hot"])
@@ -206,7 +211,6 @@ class Fun(commands.Cog):
             pass
         finally:
             await ctx.send(f"**{ctx.author.mention}** has paid their respects")
-        
 
     @commands.command(name="coinflip", aliases=["flip", "coin"])
     @commands.cooldown(rate=1, per=2.0, type=commands.BucketType.user)
@@ -322,8 +326,19 @@ class Fun(commands.Cog):
 
     @command(name="say", hidden=True)
     @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
-    async def say(self, ctx:commands.Context, *, message:str):
+    async def say(self, ctx: commands.Context, *, message: str):
         await ctx.send(message)
+
+    @command(name="quote", hidden=True)
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    async def say(self, ctx: commands.Context):
+        r = requests.get("hosturl")#put host url here(website that repl gives)
+        await ctx.send(r.text)
+    @command(name="addquote", hidden=True)
+    @commands.cooldown(rate=1, per=5.0, type=commands.BucketType.user)
+    async def say(self, ctx: commands.Context,quote:str):
+        r = requests.get(f"hosturl/submit/{quote}")#put host url here(website that repl gives)
+        await ctx.send(r.text)
 
 
 def setup(bot):
